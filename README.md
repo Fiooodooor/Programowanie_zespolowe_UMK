@@ -8,7 +8,10 @@
 ### 2.4. Nazewnictwo gałęzi.
 ### 2.5. Code Review. <br/>
 ### 3. Konwencje pracy z kodem.
-### 3.1 Dokumentacja. <br/> <br/> <br/>
+### 3.1. Dokumentacja. <br/>
+### 4. Zasoby.
+### 4.1. Środowisko uruchomieniowe. 
+### 4.2. Zasoby pozarepozytoryjne. <br/> <br/> <br/>
 
 ### 1. Struktura katalogów repozytorium:
 <pre>
@@ -149,8 +152,31 @@ Dotyczy to zarówno kodu jak i dokumentacji. <br/>
 ### 3.1 Dokumentacja:
 - aby ułatwić kontrolę wersji dokumentacja będzie sporządzona w plikach TEX,
 - dokumentacja powinna być prowadzona szczegółowo (z rozbiciem na poszczególne obiekty).
+
+### 4. Zasoby.
+W repozytorium powinny być umieszczane przede wszystkim pliki zawierające kod lub pliki niezbędne do jego uruchomienia (nie dotyczy to bibliotek zewnętrznych, plików binarnych, modułów nie mieszczących się w ramach projektu).
 <br/>
 
-###
+W repozytorium **nie powinny** znaleźć się:
+- notatki,
+- wireframe-y dla modułów innych niż UIX,
+- szeroko pojęte helpery (linki do tutoriali, objaśnień zewnętrznych itd.),
+pliki wykonywalne pozostałe po kompilacji.
+<br/>
+W wypadku, gdy nie można uniknąć takich elementów, powinny one znaleźć się w ścieżce /temp.
+<br/>
+
+W repozytorium **nie mogą** znaleźć się:
+- **wszelkie materiały objęte prawami autorskimi**(pomoce naukowe, zewnętrzny kod, zewnętrzne programy wykonywalne),
+- **niezaszyfrowane dane dotyczące dostępów**(hasła, adresy maszyn, dane kontaktowe).
+<br/>
+
+### 4.1. Środowisko uruchomieniowe.
+Paczki muszą być przygotowane (jako kod) i opisane (w dokumentacji) w taki sposób, aby wykonując odpowiednie kroki można było odtworzyć środowisko pracy dla aplikacji. Opis stawiania środowiska uruchomieniowego powinien być wykonany w taki sposób, aby była w stanie je odtworzyć osoba nie mająca pojęcia o projekcie (ze skryptami, odniesieniami do frameworków, bibliotek etc.). <br/>
+<br/>
+
+### 4.2. Zasoby pozarepozytoryjne.
+Zasoby pozarepozytoryjne, czyli np. wireframe-y, notatki, credentiale, informacje o projekcie, helpery etc.) są przechowywane w zależności od ich charakteru na lokalnych stacjach roboczych członków zespołów lub na Trello.
+<br/>
 
 
