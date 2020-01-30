@@ -59,7 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'backend.pznsi',
+    'pznsi',
     'rest_framework',
     'rest_framework.authtoken'
 ]
@@ -86,7 +86,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -107,7 +107,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     # If there is no DATABASE_URL in .env, it will read from local db.sqlite3 file
-    'default': env.db(default='sqlite:///db.sqlite3')
+    'default': env.db(default='sqlite:///backend/db.sqlite3')
 }
 
 
