@@ -14,3 +14,6 @@ class HelloWorld(APIView):
             "result": 1,
             "data": "Hello, world!"
         })
+
+def test(request):
+    return render(request, 'pznsi/test.html')
