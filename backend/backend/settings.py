@@ -11,21 +11,43 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import environ
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = environ.Path(__file__) - 2
 
+# Importing all the environment variables
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, True),
+    ALLOWED_HOSTS=(list, []),
+    SSL=(bool, False),
+    STATIC_URL=(str, '/static/'),
+    STATIC_ROOT=(str, '')
+)
+
+# reading .env file
+environ.Env.read_env(str(BASE_DIR.path('.env')))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'm1f%(0w5^)zo)v*91jov3!%r&a79u*jodk!_v)@gu7ox_a@jcb'
+SECRET_KEY = env('SECRET_KEY')
+
+# SSL Stuff
+SECURE_SSL_REDIRECT = env('SSL')
+SESSION_COOKIE_SECURE = env('SSL')
+CSRF_COOKIE_SECURE = env('SSL')
+
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
 
 # Application definition
@@ -83,10 +105,8 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    # If there is no DATABASE_URL in .env, it will read from local db.sqlite3 file
+    'default': env.db(default='sqlite:///db.sqlite3')
 }
 
 
@@ -126,4 +146,5 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_ROOT = env('STATIC_ROOT')
+STATIC_URL = env('STATIC_URL')
