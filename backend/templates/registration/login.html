@@ -1,6 +1,77 @@
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Login</button>
-</form>
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <link href={% static "/pznsi/css/VoterStyle.css" %} rel="stylesheet" type="text/css">
+
+</head>
+<body style="height: 100vh">
+<nav class=" nav navbar navbar-expand-lg navbar-dark rounded">
+
+    <a class="navbar-brand navbar-logo " href="#">{{mainPage}}</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div  class="collapse navbar-collapse float-right" id="navbarText">
+     <!--   <ul class="navbar-nav ml-auto navbar-items">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Coś</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Features</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Pricing</a>
+            </li>
+        </ul>-->
+    </div>
+
+</nav>
+
+
+        <div class=" container align-self-center " style="min-height: 80%" >
+
+            <div class="row justify-content-center align-items-center" style="min-height: 80%;margin-top: 10%">
+            <div style="margin-bottom:0px;padding:30px;background-color:white;border-radius: 25px" class="justify-content-center col-lg-8" >
+                <h2>Zaloguj</h2>
+                <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+
+                        <input type="text" class="form-control" id="exampleFormControlInput1" name="username" value="{{lastUserName}}" placeholder="Login">
+                    </div>
+                    <div class="form-group">
+
+                        <input type="password" class="form-control" id="passid" name="password"  placeholder="Hasło">
+                    </div>
+                    {% if form.errors %}
+                    <div class="form-group">
+                        <div class="alert alert-danger text-center">{{error}}</div>
+                    </div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <input type="submit" class="btn btn-success" value="Zaloguj">
+                        </div>
+                        <div class="col-sm-6 d-flex flex-row-reverse ">
+                            <input type="button" onclick="location.href='zapisz.html'" class="btn btn-info"  value="Zapisz się !">
+                        </div>
+                    </div>
+
+
+
+                </form>
+            </div>
+            </div>
+
+        </div>
+
+</body>
+</html>

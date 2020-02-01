@@ -1,0 +1,49 @@
+body {
+    background-image: url('../images/back1.jpg');
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+}
+.affix {
+
+    background-color: #111111;
+}
+html {
+    scroll-behavior: smooth;
+}
+.nav{
+    border-radius: 10px;
+}
+@media (min-width: 992px) {
+    .navbar-logo {
+        padding-left: 3rem;
+    }
+
+    .navbar-items {
+        padding-right: 3rem;
+    }
+
+
+}
+    .nav{
+        background-color: #111111;
+    }
+
+.loginContent{
+    margin-bottom:0px;padding:30px;background-color:white;border-radius: 25px
+}
+.con2{
+    /* The image used */
+    background-image: url('../images/back2.jpg');
+
+
+
+
+    /* Create the parallax scrolling effect */
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
