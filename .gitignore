@@ -1,0 +1,10 @@
+#Pycharm
+.idea
+
+#Python and django
+db.sqlite3
+__pycache__/
+*.pyc
+
+#Environments
+.env
