@@ -1,21 +1,11 @@
+{% extends 'pznsi/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-    <link href={% static "/pznsi/css/VoterStyle.css" %} rel="stylesheet" type="text/css">
 
-</head>
-<body >
-<nav class=" nav navbar  navbar-expand-lg navbar-dark rounded">
 
-    <a class="navbar-brand navbar-logo " href="#">{{mainPage}}</a>
+{% block content %}
+    <nav class=" nav navbar  navbar-expand-lg navbar-dark rounded">
+
+    <a class="navbar-brand navbar-logo " href="#">VoteDesk</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -63,5 +53,4 @@
     });
 
 </script>
-</body>
-</html>
+{% endblock %}

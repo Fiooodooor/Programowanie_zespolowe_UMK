@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}VoteDesk{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href={% static "/pznsi/css/bootstrap.min.css" %}>
+    <script src={% static "/pznsi/js/jquery.min.js" %} }}></script>
+
+    <script src={% static "/pznsi/js/popper.min.js" %} }}></script>
+<script src={% static "/pznsi/js/bootstrap.min.js" %} }}></script>
+    <link href={% static "/pznsi/css/VoterStyle.css" %} rel="stylesheet" type="text/css">
+    {% block head %} {% endblock %}
+
+</head>
+<body>
+{% block modals %}{% endblock %}
+{% block navbar %}{% endblock %}
+{% block content %} {% endblock %}
+{% block endscript %}{% endblock %}
+</body>
+</html>

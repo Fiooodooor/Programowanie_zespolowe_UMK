@@ -47,3 +47,59 @@ html {
     background-repeat: no-repeat;
     background-size: cover;
 }
+.userSettings::after {
+    display: none;
+}
+.userSettings{
+    padding: 0px auto;
+}
+
+#userIco {
+    border:2px solid transparent;
+    border-radius: 50px;
+}
+#userIco:hover {
+    border:2px solid gray;
+    border-radius: 50px;
+}
+.padding-1{
+    padding: 1%;
+}
+.padding-5{
+    padding: 5%;
+}
+.padding-top-1{
+    padding-top: 1%;
+}
+.padding-top-5{
+    padding-top: 5%;
+}
+#upload-demo{
+	width: 250px;
+	height: 250px;
+  padding-bottom:25px;
+}
+.croppie-container{
+    margin: 0px auto;
+}
+.img-container {
+  /* Never limit the container height here */
+  max-width: 100%;
+}
+
+.img-container img {
+  /* This is important */
+  width: 100%;
+}
+.AvatarRow{
+    padding-left:15px
+}
+.padding-bottom-2{
+    padding-bottom: 2%;
+}
+.VoteContainer {
+    padding: 2%;background-color: white;border-radius: 25px;margin-top: 5%;
+}
+label{
+    font-weight: bold;
+}

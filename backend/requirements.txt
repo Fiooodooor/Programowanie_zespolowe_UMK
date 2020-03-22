@@ -1,3 +1,6 @@
 django
 djangorestframework
 django-environ
+Pillow
+django-extensions
+psycopg2
