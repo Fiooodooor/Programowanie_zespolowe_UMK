@@ -23,7 +23,10 @@ urlpatterns = [
     path('main/', views.main_page, name='main'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('register/', views.register, name='register'),
-    path('api/', include(router.urls))
+    path('api/', include(router.urls)),
+    path('register/', views.register, name='register'),
+    path('front/environments/', views.front_environments, name='front_environments'),
+    path('front/projects/', views.front_projects, name='front_projects')
 ]
 
 

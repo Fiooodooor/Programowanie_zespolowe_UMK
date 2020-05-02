@@ -5,11 +5,9 @@ from django.core.files.base import ContentFile
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from rest_framework import permissions, generics, mixins, viewsets
-from rest_framework.mixins import CreateModelMixin
+from rest_framework import permissions, mixins, viewsets
 
-from rest_framework.response import Response
-from rest_framework.views import APIView
+
 from pznsi.models import User, Environment, Project
 from pznsi.serializers import EnvironmentSerializer, ProjectDetailSerializer
 
@@ -106,3 +104,34 @@ def register(request):
                                             password=password)
             login(request, user)
             return HttpResponseRedirect(reverse('main'))
+
+
+def front_environments(request):
+    if request.method == 'POST':
+        page = request.POST.get('page')
+        keyword = request.POST.get('keyword')
+        environment_list = Environment.objects.all()
+        context = {
+            'page': page,
+            'keyword': keyword,
+            'environments': environment_list
+        }
+        return render(request, 'pznsi/logged/environments.html', context)
+    else:
+        raise Http404
+
+
+def front_projects(request):
+    if request.method == 'POST':
+        environment = request.POST.get('numEnvi')
+        page = request.POST.get('page')
+        keyword = request.POST.get('keyword')
+        project_list = Project.objects.filter(environment=environment)
+        context = {
+            'page': page,
+            'keyword': keyword,
+            'projects': project_list
+        }
+        return render(request, 'pznsi/logged/projects.html', context)
+    else:
+        raise Http404
