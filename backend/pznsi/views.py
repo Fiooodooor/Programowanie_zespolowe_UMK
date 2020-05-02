@@ -107,10 +107,10 @@ def register(request):
 
 
 def front_environments(request):
-    if request.method == 'POST':
+    if request.method == 'GET':
         page = request.POST.get('page')
         keyword = request.POST.get('keyword')
-        environment_list = Environment.objects.all()
+        environment_list = Environment.objects.all()[(page-1)*12:page*12]
         context = {
             'page': page,
             'keyword': keyword,
@@ -126,7 +126,7 @@ def front_projects(request):
         environment = request.POST.get('numEnvi')
         page = request.POST.get('page')
         keyword = request.POST.get('keyword')
-        project_list = Project.objects.filter(environment=environment)
+        project_list = Project.objects.filter(environment=environment)[(page-1)*12:page*12]
         context = {
             'page': page,
             'keyword': keyword,
