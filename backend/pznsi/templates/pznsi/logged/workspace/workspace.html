@@ -1,0 +1,227 @@
+{% extends "pznsi/logged/loggedWorkSpaceInterface.html" %}
+
+
+{% block contentWorkSpace %}
+
+
+
+    <div id="mainPage" style="background-color: white">
+        <div id="lastSearch"></div>
+        <div class="border-bottom my-3"><h2>Środowiska </h2>
+            <input type="search" class="form-control search" id="searchEnvi" placeholder="Wyszukaj Środowiska ...">
+        </div>
+        <div id="allEnvi"></div>
+    </div>
+
+    <div id="listProjects">
+        <div class="border-bottom my-3"><h2 id="headerListProjects">Projekty - środowisko coś tma </h2>
+            <input type="search" class="form-control search" id="searchProjectEnvi" placeholder="Wyszukaj Projektu ...">
+        </div>
+        <div id="allProject"></div>
+    </div>
+
+    <script>
+        //tryby pracy 1- strona główna (Ostatnie projekty) oraz lista środowisk
+        //tryb pracy 2 przegląd  projektów z wybranego środowiska
+        //tryb pracy 3 wszystkie projekty
+        var trybPracy = 1;
+        var WybraneSrodowisko = -1;
+        var selectedEnvi = "";
+        var pageLoad = 1;
+        var search = 0;
+        var stopReadPage=0;
+        var locale = {
+            OK: 'Potwierdź',
+            CONFIRM: 'Potwierdź',
+            CANCEL: 'Anuluj'
+        };
+
+        bootbox.addLocale('custom', locale);
+
+        //wczytywanie trybu pracy e
+
+
+        function LoadLastProjectList() {
+            var last=[{'id':50,'name':'test1'},{'id':51,'name':'test2'},{'id':52,'name':'test3'},{'id':52,'name':'test3'},{'id':52,'name':'test3'},{'id':53,'name':'test222222222222222222222222222222222222222'}];
+            last.forEach(function (element,index,array) {
+                 $('#lastProjectsList').after($('<li>').append($('<a>').addClass('l2').attr('href','#'+element['id']).append(' '+element['name'])));
+            });
+
+
+
+        }
+
+        //menu boczne
+        $(document).ready(function () {
+            ZmianaTrybuPracy();
+              $('#enviList').after($('<li>').append($('<a>').addClass('l2').attr('id','addNew').attr('role','button').append($('<i>').addClass('fas fa-plus'),' Dodaj Środowisko')));
+            $('#sidebarViewer').on('click', function () {
+                $('#sidebar').toggleClass('active-sidebar sidebar2 ', 1000);
+                $('#viewport').toggleClass('activeViewPort', 1000);
+            });
+            $('#enviList').on('click',function () {
+                trybPracy=1;
+                ZmianaTrybuPracy();
+            });
+            $('#lastProjectsList').on('click',function () {
+                trybPracy=1;
+                ZmianaTrybuPracy();
+            });
+            $('#allProjectsList').on('click',function () {
+                trybPracy=2;
+                selectedEnvi='Wszystkie Projekty ';
+                ZmianaTrybuPracy();
+            });
+            EventEnviClick();
+            LoadLastProjectList();
+        });
+
+
+        //scroll
+        $(window).scroll(function () {
+            if ($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
+                pageLoad++;
+                if (trybPracy === 1) {
+                    if (stopReadPage===0)
+
+                        $.post('/front/environments/',{'keyword':'','page':pageLoad,'csrfmiddlewaretoken': '{{ csrf_token }}'},function (result) {
+                          result=result.trim();
+                          if(result=="") stopReadPage=1;
+                          else {
+                              $('#allEnvi').append(result);
+                          }
+                        });
+
+                }
+                if (trybPracy == 2) {
+                    if(search===1){
+                          $.post('/front/projects/',{'keyword':'','numEnvi':WybraneSrodowisko,'page':pageLoad,'csrfmiddlewaretoken': '{{ csrf_token }}'},function (result) {
+                          result=result.trim();
+                          if(result=="") stopReadPage=1;
+                          else {
+                              $('#allProject').append(result);
+                          }
+                        });
+                    }
+                      $('#allProject').load();
+
+                }
+            }
+
+        });
+        $('#searchEnvi').on('keyup', function () {
+            if ($(this).val() == "") {
+                search = 0;
+                pageLoad = 0;
+                $('#allEnvi').html('');
+                $('#allEnvi').append($('<div>').load('/front/environments/',{'keyword':'','page':1,'csrfmiddlewaretoken': '{{ csrf_token }}'}));
+            } else {
+                search = 1;
+                pageLoad = 0;
+                $('#allEnvi').html('');
+                $('#allEnvi').append($('<div>').load('/front/environments/',{'keyword':'','page':1,'csrfmiddlewaretoken': '{{ csrf_token }}'}));
+            }
+        });
+
+        $('#searchProjectEnvi').on('keyup', function () {
+            if ($(this).val() == "") {
+                search = 0;
+                pageLoad = 0;
+                $('#allProject').html('');
+                $('#allProject').append($('<div>').load('/front/environments/',{'keyword':'','page':1,'csrfmiddlewaretoken': '{{ csrf_token }}'}));
+            } else {
+                search = 1;
+                pageLoad = 0;
+                $('#allProject').html('');
+                $('#allProject').append($('<div>').load('/front/environments/',{'keyword':'','page':1,'csrfmiddlewaretoken': '{{ csrf_token }}'}));
+            }
+        });
+
+        function EventEnviClick() {
+            if (trybPracy == 1) {
+                $(".EnviListElement").on('click', function (event) {
+                    WybraneSrodowisko = $(this).attr('data-envi-id');
+                    selectedEnvi = $(this).attr('data-envi-name');
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                     bootbox.setDefaults({
+                        'bootstrap-version': "4"
+                    });
+
+              bootbox.prompt({
+                    title: "Podaj hasło Środowiska",
+                    inputType: 'password',
+                        className:'bb-alternate-modal',
+                  locale:'custom',
+                    callback: function (result) {
+                        if(result!=null){
+                              trybPracy = 2;
+                              ZmianaTrybuPracy();
+                        }
+
+                    }
+                });
+
+                });
+
+            }
+        }
+
+        function ZmianaTrybuPracy() {
+            $('#mainPage').hide();
+            $('#listProjects').hide();
+            if($('#selectedEnviList').length)$('#selectedEnviList').remove();
+            $('#addNew').remove();
+            pageLoad = 1;
+            search = 0;
+            stopReadPage=0;
+            if (trybPracy == 1) {
+                $('#mainPage').fadeIn();
+                $('#lastSearch').load('/front/environments/',{'keyword':'','page':1,'csrfmiddlewaretoken': '{{ csrf_token }}'});
+                $('#allEnvi').load('/front/environments/',{'keyword':'','page':pageLoad,'csrfmiddlewaretoken': '{{ csrf_token }}'});
+
+
+
+
+            }
+            if (trybPracy == 2) {
+                $('#headerListProjects').html(selectedEnvi);
+                $('#listProjects').fadeIn();
+                $('#allProjectsList').after($('<li>').append($('<a>').addClass('l2').attr('id','addNew').attr('role','button').append($('<i>').addClass('fas fa-plus'),' Dodaj Projekt')));
+                 $('#allProject').load('/front/projects/',{'keyword':'','numEnvi':WybraneSrodowisko,'page':pageLoad,'csrfmiddlewaretoken': '{{ csrf_token }}'});
+
+                 $('#enviList').after($('<li>').append($('<a>').addClass('l2').attr('id','selectedEnviList').attr('role','button').append(' '+selectedEnvi)).on('click',function () {
+                    trybPracy=2;
+                    ZmianaTrybuPracy();
+                 }));
+            }
+
+        }
+
+    </script>
+{% endblock %}
+
+{% block sidebarlist %}
+    <li id="enviList">
+        <a class="l1" href="#">
+            <i class="fas fa-align-justify"></i> Środowiska
+        </a>
+    </li>
+    <li id="allProjectsList">
+        <a  class="l1" role="button">
+            <i class="fas fa-align-justify"></i> Projekty
+        </a>
+    </li>
+    <li id="lastProjectsList">
+        <a  class="l1"  role="button">
+            <i class="fas fa-align-justify"></i> Ostatnie Projekty
+        </a>
+    </li>
+  <li >
+        <a  class="l1"  role="button">
+            <i class="fas fa-align-justify"></i> Repozytorium
+        </a>
+    </li>
+
+
+{% endblock %}

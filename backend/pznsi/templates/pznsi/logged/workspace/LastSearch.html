@@ -1,0 +1,26 @@
+<div class="border-bottom my-3"><h2>Ostatnio Przeglądane Projekty</h2></div>
+
+<div class="row align-items-center h-100 text-center" >
+    {% for i in '123456'|make_list %}
+    <div class="col-lg-4 listEnvPrElemet" style="padding-top:15px;padding-bottom: 15px">
+
+
+        <div class="dropdown" style="position: absolute;top:20px;right:20px">
+  <button class="btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-ellipsis-v "></i>
+  </button>
+  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+    <a class="dropdown-item" href="#">Action</a>
+    <a class="dropdown-item" href="#">Another action</a>
+    <a class="dropdown-item" href="#">Something else here</a>
+  </div>
+</div>
+
+        <div class="text-center" style="border-radius: 10px;padding: 4rem;;background-color: #f0f0f0">
+            <h3 class="">Projekt 002</h3>
+        </div>
+    </div>
+
+{% endfor %}
+
+</div>

@@ -1,12 +1,30 @@
 {% extends "pznsi/base.html" %}
 {% load static %}
-{% block navbar %}
+{% block content  %}
 
 
-    <nav class=" nav navbar  navbar-expand-lg navbar-dark rounded fixed-top"  >
-         <div class="navbar-toggler-icon" id="sidebarCollapse"  style="display: none">
 
-         </div>
+
+
+     <div id="viewport" class="activeViewPort viewport1">
+        <!-- Sidebar -->
+        <div id="sidebar" class=" active-sidebar sidebar1 sidebar2" style="position: fixed">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <a class="navbar-brand" href="">&nbsp;</a>
+            </nav>
+            <ul class="nav navSidebar">
+               {% block sidebarlist %}
+                   {% endblock %}
+            </ul>
+        </div>
+        <!-- Content -->
+        <div id="content">
+        <nav class=" nav navbar  navbar-expand-lg navbar-dark rounded fixed-top"  >
+          <button class="sidebar-toggler" type="button" id="sidebarViewer">
+
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
         <a class="navbar-brand navbar-logo " href="#">VoteDesk</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
              <span class="navbar-toggler-icon"></span>
@@ -18,7 +36,7 @@
                     <a class="nav-link" href="#App">Aktualności</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'workspace' %}">Przestrzeń robocza</a>
+                    <a class="nav-link" href="#war">Przestrzeń robocza</a>
                 </li>
 
                 <li class="nav-item dropdown">
@@ -26,7 +44,7 @@
                         <img id="userIco" src={% static "/pznsi/images/user.ico" %} style="height:1.8em">
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="edit_prof.html">Edytuj Profil</a>
+                        <a class="dropdown-item" href="/profile/edit/">Edytuj Profil</a>
                        <!-- <a class="dropdown-item" href="#">Zarządzaj grupami</a>-->
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#">Wyloguj</a>
@@ -35,4 +53,18 @@
             </ul>
          </div>
     </nav>
+
+
+
+            <div style="padding-top:100px;">
+            <div class="container" style="background-color: white;padding-top: 15px;border-radius:25px"  >
+                <div id="MainContent2" >
+                   {% block contentWorkSpace %}
+                    {% endblock %}
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

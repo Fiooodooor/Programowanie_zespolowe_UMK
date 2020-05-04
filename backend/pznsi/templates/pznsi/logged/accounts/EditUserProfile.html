@@ -1,10 +1,11 @@
 {% extends "pznsi/logged/loggedInterface.html" %}
 {% load static %}
 {% block head %}
-    <script src={% static "/pznsi/js/croppie.min.js" %} }}></script>
+    <script src={% static "/pznsi/js/croppie.min.js" %} ></script>
     <link href={% static "/pznsi/css/croppie.css" %} rel="stylesheet" type="text/css">
     <script src={% static "pznsi/js/accounts/EditUserProfile.js" %}></script>
 {% endblock %}
+{% block bodyclass %}standardBody{% endblock %}
 {% block modals %}
         <div class="modal fade" id="crupperModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -31,13 +32,12 @@
         <div class="row text-left padding-bottom-2" >
             <div class="col-md-12 "><h1>Edycja Profilu</h1></div>
         </div>
-    <form action="{% url 'edit_profile' %}" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
+    <form action="" method="post">
     <div class="row">
         <div class="col-md-6">
            <div class="col-md-12 text-left font-weight-bold">
                <label>Nazwa użytkownika</label>
-               <input disabled name="username" type="text" value="{{ user.get_username  }}" class="form-control">
+               <input name="username" type="text" value="{{ user.get_username  }}" class="form-control">
            </div>
 
             <div class="col-md-12 text-left font-weight-bold">
@@ -51,8 +51,8 @@
                     <div class="col-md-4 text-left font-weight-bold" style="height: auto;width: auto">
                         <div class="row"><div class="col-md-12"> <label class="label">Wybierz Zdjęcie </label></div></div>
                         <div class="row"><div class="col-md-12">
-                            {% if user.avatar != "" %}
-                                <img id="ImgAvatar" style="height: 100px;width: 100px;border:1px solid #b4b4b4;border-radius: 150px"  src="{{ user.avatar.url }}">
+                            {% if user.avatar %}
+                                <img id="ImgAvatar" style="height: 100px;width: 100px;border:1px solid #b4b4b4;border-radius: 150px"  src="{{ user.avatar }}">
                             {% else %}
                                 <img id="ImgAvatar" style="height: 100px;width: 100px;border:1px solid #b4b4b4;border-radius: 150px"  src={% static "/pznsi/images/user.ico" %}>
                             {% endif %}
@@ -96,8 +96,8 @@
 
             {% if succes %}
                 <div class="row padding-top-5"><div class="col-12"><div class="alert alert-danger">Pomyślnie dokonano zmian  </div></div></div>
-{#            {% else %}#}
-{#                <div class="row padding-top-5"><div class="col-12"><div class="alert alert-danger">Błąd Edycji ! </div></div></div>#}
+            {% else %}
+                <div class="row padding-top-5"><div class="col-12"><div class="alert alert-danger">Błąd Edycji ! </div></div></div>
             {% endif %}
     </div>
 {% endblock %}
