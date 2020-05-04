@@ -19,7 +19,7 @@
             <div class="row justify-content-center align-items-center" style="min-height: 80%;margin-top: 10%">
             <div style="margin-bottom:0px;padding:30px;background-color:white;border-radius: 25px" class="justify-content-center col-lg-8" >
                 <h2>Rejestracja</h2>
-                <form method="post" action="{% url 'register' %}">
+                <form method="post" action="">
                     {% csrf_token %}
                  <div class="form-group">
                      <label for="email">E-mail</label>
@@ -55,7 +55,7 @@
                 </form>
                 {% if error %}
                      <div class="alert-danger m-1">{{ error }}</div>
-                {% endif %} 
+                {% endif %}
 
             </div>
             </div>

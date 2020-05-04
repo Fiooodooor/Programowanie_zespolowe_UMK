@@ -1,3 +1,4 @@
+{% extends 'pznsi/base.html' %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="pl">
@@ -6,10 +7,10 @@
     <title>{% block title %}VoteDesk{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href={% static "/pznsi/css/bootstrap.min.css" %}>
-    <script src={% static "/pznsi/js/jquery.min.js" %} ></script>
+    <script src={% static "/pznsi/js/jquery.min.js" %} }}></script>
 
-    <script src={% static "/pznsi/js/popper.min.js" %} ></script>
-<script src={% static "/pznsi/js/bootstrap.min.js" %} ></script>
+    <script src={% static "/pznsi/js/popper.min.js" %} }}></script>
+<script src={% static "/pznsi/js/bootstrap.min.js" %} }}></script>
     <link href={% static "/pznsi/css/VoterStyle.css" %} rel="stylesheet" type="text/css">
 
 </head>
@@ -43,7 +44,7 @@
                     </div>
                     {% if form.errors %}
                     <div class="form-group">
-                        <div class="alert alert-danger text-center">Nieprawidłowy login lub hasło</div>
+                        <div class="alert alert-danger text-center">{{error}}</div>
                     </div>
                     {% endif %}
                     <div class="row">
@@ -51,7 +52,7 @@
                             <input type="submit" class="btn btn-success" value="Zaloguj">
                         </div>
                         <div class="col-sm-6 d-flex flex-row-reverse ">
-                            <input type="button" onclick="location.href='{% url 'register' %}'" class="btn btn-info"  value="Zapisz się !">
+                            <input type="button" onclick="location.href='zapisz.html'" class="btn btn-info"  value="Zapisz się !">
                         </div>
                     </div>
 

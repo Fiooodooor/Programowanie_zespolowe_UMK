@@ -33,8 +33,8 @@ class Projects(mixins.CreateModelMixin,
         serializer.save(owner=self.request.user)
 
 
-def test(request):
-    return render(request, 'pznsi/test.html')
+def workspace(request):
+    return render(request, 'pznsi/logged/workspace/workspace.html')
 
 
 def index(request):
@@ -108,7 +108,7 @@ def register(request):
 
 def front_environments(request):
     if request.method == 'POST':
-        page = request.POST.get('page')
+        page = int(request.POST.get('page'))
         keyword = request.POST.get('keyword')
         environment_list = Environment.objects.all()[(page-1)*12:page*12]
         context = {
@@ -116,15 +116,15 @@ def front_environments(request):
             'keyword': keyword,
             'environments': environment_list
         }
-        return render(request, 'pznsi/logged/environments.html', context)
+        return render(request, 'pznsi/logged/workspace/environments.html', context)
     else:
         raise Http404
 
 
 def front_projects(request):
     if request.method == 'POST':
-        environment = request.POST.get('numEnvi')
-        page = request.POST.get('page')
+        environment = int(request.POST.get('numEnvi'))
+        page = int(request.POST.get('page'))
         keyword = request.POST.get('keyword')
         project_list = Project.objects.filter(environment=environment)[(page-1)*12:page*12]
         context = {
@@ -132,6 +132,6 @@ def front_projects(request):
             'keyword': keyword,
             'projects': project_list
         }
-        return render(request, 'pznsi/logged/projects.html', context)
+        return render(request, 'pznsi/logged/workspace/projects.html', context)
     else:
         raise Http404
