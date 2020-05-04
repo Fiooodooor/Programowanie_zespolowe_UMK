@@ -5,145 +5,34 @@ from django.core.files.base import ContentFile
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from rest_framework import permissions
+from rest_framework import permissions, generics, mixins, viewsets
+from rest_framework.mixins import CreateModelMixin
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from pznsi.models import User, Environment, Project
+from pznsi.serializers import EnvironmentSerializer, ProjectDetailSerializer
 
-from pznsi.models import User
 
-
-class HelloWorld(APIView):
+class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.CreateModelMixin):
     permission_classes = [permissions.IsAuthenticated]
+    queryset = Environment.objects.all()
+    serializer_class = EnvironmentSerializer
 
-    def get(self, request):
-        return Response({
-            'result': 1,
-            'data': 'Hello, world!'
-        })
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
-class Environments(APIView):
+class Projects(mixins.CreateModelMixin,
+               mixins.ListModelMixin,
+               mixins.RetrieveModelMixin,
+               viewsets.GenericViewSet):
     permission_classes = [permissions.IsAuthenticated]
+    queryset = Project.objects.all()
+    serializer_class = ProjectDetailSerializer
 
-    # Todo remove hard coded data and replace with actual data from database after models are done
-    def get(self, request):
-        json_response = {
-            'result': 1,
-            'data': [
-                {
-                    'id': 1,
-                    'name': 'środowisko 1',
-                    'projects': [
-                        {'id': 1,
-                         'name': 'projekt 1'},
-                        {'id': 2,
-                         'name': 'projekt 2'},
-                        {'id': 3,
-                         'name': 'projekt 3'}
-                    ]
-                },
-                {
-                    'id': 2,
-                    'name': 'środowisko 2',
-                    'projects': [
-                        {'id': 4,
-                         'name': 'projekt 4'},
-                        {'id': 5,
-                         'name': 'projekt 5'}
-                    ]
-                },
-                {
-                    'id': 3,
-                    'name': 'środowisko 3',
-                    'projects': []
-                }
-            ]
-        }
-        return Response(json_response)
-
-
-class Projects(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    # Todo remove hard coded data and replace with actual data from database after models are done
-    def get(self, request, *args, **kwargs):
-        project_id = self.kwargs['project_id']
-        json_response = {
-            'result': 1,
-            'data': {}
-        }
-        if project_id == 1:
-            json_response['data'] = {
-                'id': 1,
-                'name': 'projekt 1',
-                'status': 'status projektu',
-                'category': 'kategoria projektu',
-                'content': 'zawartosc projektu',
-                'comments': [
-                    {
-                        'commenter': 'Komentujący',
-                        'title': 'tytuł komentarza',
-                        'content': 'zawartość komentarza',
-                        'reaction': ':shrug:',
-                        'date': '2019-03-03'
-                    },
-                    {
-                        'commenter': 'Komentujący2',
-                        'title': 'tytuł komentarza 2',
-                        'content': 'zawartość komentarza2',
-                        'reaction': ':shrug:',
-                        'date': '2019-03-04'
-                    }
-                ]
-            }
-        elif project_id == 2:
-            json_response['data'] = {
-                'id': 2,
-                'name': 'projekt 2',
-                'status': 'status projektu',
-                'category': 'kategoria projektu',
-                'content': 'zawartosc projektu',
-                'comments': [
-                    {
-                        'commenter': 'Komentujący2',
-                        'title': 'tytuł komentarza 2',
-                        'content': 'zawartość komentarza2',
-                        'reaction': ':shrug:',
-                        'date': '2019-03-04'
-                    }
-                ]
-            }
-        elif project_id == 3:
-            json_response['data'] = {
-                'id': 3,
-                'name': 'projekt 3',
-                'status': 'status projektu',
-                'category': 'kategoria projektu',
-                'content': 'zawartosc projektu',
-                'comments': []
-            }
-        elif project_id == 4:
-            json_response['data'] = {
-                'id': 4,
-                'name': 'projekt 4',
-                'status': 'status projektu',
-                'category': 'kategoria projektu',
-                'content': 'zawartosc projektu',
-                'comments': []
-            }
-        elif project_id == 5:
-            json_response['data'] = {
-                'id': 5,
-                'name': 'projekt 5',
-                'status': 'status projektu',
-                'category': 'kategoria projektu',
-                'content': 'zawartosc projektu',
-                'comments': []
-            }
-        else:
-            json_response['result'] = 0,
-            json_response['data'] = {'error': 'Couldn\'t find project'}
-        return Response(json_response)
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 def test(request):

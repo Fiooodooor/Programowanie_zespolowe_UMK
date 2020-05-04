@@ -14,7 +14,7 @@ class Environment(models.Model):
     environment_name = models.CharField(max_length=100)
     environment_password = models.CharField(max_length=20)
     environment_creation_date = models.DateField(blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
 
 class Project(models.Model):
@@ -25,7 +25,7 @@ class Project(models.Model):
     project_closing_date = models.DateField(blank=True, null=True)
     project_content = models.CharField(blank=True, max_length=1000)
     project_category = models.CharField(blank=True, max_length=100)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     environment = models.ForeignKey(Environment, on_delete=models.CASCADE, null=True, blank=True)
 
 
