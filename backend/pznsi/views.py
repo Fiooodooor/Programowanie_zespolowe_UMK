@@ -1,33 +1,137 @@
+import base64
+
+from django.contrib.auth import login
+from django.core.files.base import ContentFile
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
-from rest_framework.views import APIView
-from rest_framework import permissions
-from django.http import Http404
+from django.urls import reverse
+from rest_framework import permissions, mixins, viewsets
 
 
-# Create your views here.
-from rest_framework.response import Response
+from pznsi.models import User, Environment, Project
+from pznsi.serializers import EnvironmentSerializer, ProjectDetailSerializer
 
 
-class HelloWorld(APIView):
+class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.CreateModelMixin):
     permission_classes = [permissions.IsAuthenticated]
+    queryset = Environment.objects.all()
+    serializer_class = EnvironmentSerializer
 
-    def get(self, request):
-        return Response({
-            "result": 1,
-            "data": "Hello, world!"
-        })
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
-def test(request):
-    return render(request, 'pznsi/test.html')
+class Projects(mixins.CreateModelMixin,
+               mixins.ListModelMixin,
+               mixins.RetrieveModelMixin,
+               viewsets.GenericViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Project.objects.all()
+    serializer_class = ProjectDetailSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+def workspace(request):
+    return render(request, 'pznsi/logged/workspace/workspace.html')
 
 
 def index(request):
-    return render(request, 'pznsi/index.html')
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('main'))
+    else:
+        return render(request, 'pznsi/anonymous/index.html')
 
 
 def main_page(request):
     if request.user.is_authenticated:
-        return render(request, 'pznsi/MainPage.html')
+        return render(request, 'pznsi/logged/MainPage.html')
+    else:
+        return render(request, 'pznsi/anonymous/MainPage.html')
+
+
+# TODO clean this up a bit
+def edit_profile(request):
+    user = request.user
+    if user.is_authenticated:
+        if request.method == 'GET':
+            return render(request, 'pznsi/logged/accounts/EditUserProfile.html')
+        elif request.method == 'POST':
+            new_email = request.POST.get('email')
+            new_password = request.POST.get('password')
+            new_firstname = request.POST.get('imie')
+            new_lastname = request.POST.get('nazwisko')
+            new_organization = request.POST.get('organizacja')
+            avatar_base64 = request.POST.get('avatar')
+            db_user = User.objects.get(id=user.id)
+
+            # TODO change to actual password requirements once we have them
+            if new_password != '':
+                db_user.set_password(new_password)
+
+            if avatar_base64 != '':
+                format, imgstr = avatar_base64.split(';base64,')
+                ext = format.split('/')[-1]
+                new_avatar = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+                db_user.avatar = new_avatar
+
+            db_user.email = new_email
+            db_user.first_name = new_firstname
+            db_user.last_name = new_lastname
+            db_user.organization = new_organization
+            db_user.save()
+            return HttpResponseRedirect(reverse('edit_profile'))
+    else:
+        raise Http404
+
+
+def register(request):
+    if request.method == 'GET':
+        return render(request, 'pznsi/anonymous/Registration.html')
+    elif request.method == 'POST':
+        email = request.POST.get('email')
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        repassword = request.POST.get('repassword')
+        if User.objects.filter(username=username).exists() or User.objects.filter(email=email).exists():
+            return HttpResponseRedirect(reverse('edit_profile'))
+        elif password != repassword:
+            return HttpResponseRedirect(reverse('edit_profile'))
+        else:
+            user = User.objects.create_user(username=username,
+                                            email=email,
+                                            password=password)
+            login(request, user)
+            return HttpResponseRedirect(reverse('main'))
+
+
+def front_environments(request):
+    if request.method == 'POST':
+        page = int(request.POST.get('page'))
+        keyword = request.POST.get('keyword')
+        environment_list = Environment.objects.all()[(page-1)*12:page*12]
+        context = {
+            'page': page,
+            'keyword': keyword,
+            'environments': environment_list
+        }
+        return render(request, 'pznsi/logged/workspace/environments.html', context)
+    else:
+        raise Http404
+
+
+def front_projects(request):
+    if request.method == 'POST':
+        environment = int(request.POST.get('numEnvi'))
+        page = int(request.POST.get('page'))
+        keyword = request.POST.get('keyword')
+        project_list = Project.objects.filter(environment=environment)[(page-1)*12:page*12]
+        context = {
+            'page': page,
+            'keyword': keyword,
+            'projects': project_list
+        }
+        return render(request, 'pznsi/logged/workspace/projects.html', context)
     else:
         raise Http404

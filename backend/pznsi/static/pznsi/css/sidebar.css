@@ -1,0 +1,149 @@
+
+
+
+/* Toggle Styles */
+
+#viewport {
+
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#content {
+    width: 100%;
+    position: relative;
+    margin-right: 0;
+}
+
+/* Sidebar Styles */
+
+
+
+
+@media (max-width: 992px) {
+
+    .active-sidebar{
+        margin-left:0px;
+        left:-250px;
+    }
+    .sidebar1{
+        margin-left:250px;
+        left:-500px;
+    }
+    .sidebar2{
+        margin-left:0px;
+    }
+    .viewport1{
+        padding-left: 0px;
+    }
+    .activeViewPort{
+        padding-left: 0px;
+    }
+
+}
+@media (min-width: 992px) {
+
+    .active-sidebar{
+        margin-left:250px;
+        left:-500px;
+    }
+    .sidebar1{
+        left:-250px;
+    }
+
+    .viewport1{
+        padding-left: 0px;
+    }
+    .activeViewPort{
+        padding-left: 250px;
+    }
+
+}
+#sidebar {
+
+    z-index: 1000;
+    position: fixed;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    overflow-y: auto;
+    background: #111111;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+
+}
+
+#sidebar header {
+    background-color: #263238;
+    font-size: 20px;
+    line-height: 52px;
+    text-align: center;
+}
+
+#sidebar header a {
+    color: #fff;
+    display: block;
+    text-decoration: none;
+}
+
+#sidebar header a:hover {
+    color: #ff3d3a;
+    text-decoration: none;
+}
+
+#sidebar .nav{
+
+}
+
+#sidebar .nav a{
+    background: none;
+    border-bottom: 1px solid #455A64;
+    color: #CFD8DC;
+
+    padding: 16px 24px;
+    width: 250px;
+}
+
+#sidebar .nav a:hover{
+    background-color: #343a40!important;
+    color: #ECEFF1;
+    text-decoration: none;
+}
+#activeElementSideBar{
+    background-color: #343a40!important;
+    color: #ECEFF1;
+    text-decoration: none;
+}
+
+#sidebar .nav a i{
+    margin-right: 16px;
+}
+.navSidebar>li>a {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+    width: 100%;
+    word-wrap: break-word;
+
+}
+.navSidebar{
+    overflow-x: hidden;
+}
+
+#sidebar .nav .l2
+{
+
+    padding-left:3rem;
+}
+.sidebar-toggler{
+
+    font-size: 1.25rem;
+    line-height: 1;
+    background-color: transparent;
+    border-radius: 0.25rem;
+    border-color:transparent;
+}

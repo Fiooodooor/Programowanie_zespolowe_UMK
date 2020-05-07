@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}VoteDesk{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href={% static "/pznsi/css/bootstrap.min.css" %}>
+    <link rel="stylesheet" href={% static "/pznsi/css/jquery-ui.css" %}>
+
+
+    <script src={% static "/pznsi/js/jquery.min.js" %} ></script>
+    <script src={% static "/pznsi/js/jquery-ui.js" %}></script>
+
+    <script src={% static "/pznsi/js/popper.min.js" %} ></script>
+<script src={% static "/pznsi/js/bootstrap.min.js" %}></script>
+    <link href={% static "/pznsi/css/VoterStyle.css" %} rel="stylesheet" type="text/css">
+    <link href={% static "/pznsi/css/voter2.css" %} rel="stylesheet" type="text/css">
+    <link href={% static "/pznsi/css/sidebar.css" %} rel="stylesheet" type="text/css">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js"
+            integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ"
+            crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"
+            integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY"
+            crossorigin="anonymous"></script>
+<script src={% static "/pznsi/js/bootbox.all.min.js" %}></script>
+    {% block head %} {% endblock %}
+
+</head>
+<body class="{% block bodyclass %}{% endblock %}">
+{% block modals %}{% endblock %}
+{% block navbar %}{% endblock %}
+{% block content %} {% endblock %}
+{% block endscript %}{% endblock %}
+</body>
+</html>

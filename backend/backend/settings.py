@@ -23,7 +23,9 @@ env = environ.Env(
     ALLOWED_HOSTS=(list, []),
     SSL=(bool, False),
     STATIC_URL=(str, '/static/'),
-    STATIC_ROOT=(str, '')
+    STATIC_ROOT=(str, ''),
+    MEDIA_URL=(str, '/media/'),
+    MEDIA_ROOT=(str, os.path.join(BASE_DIR, 'media'))
 )
 
 # reading .env file
@@ -60,7 +62,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'pznsi',
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'django_extensions'
 ]
 
 REST_FRAMEWORK = {
@@ -105,7 +108,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     # If there is no DATABASE_URL in .env, it will read from local db.sqlite3 file
-    'default': env.db(default='sqlite:///backend/db.sqlite3')
+    'default': env.db(default='sqlite:///db.sqlite3')
 }
 
 # Password validation
@@ -144,6 +147,10 @@ USE_TZ = True
 
 STATIC_ROOT = env('STATIC_ROOT')
 STATIC_URL = env('STATIC_URL')
+MEDIA_ROOT = env('MEDIA_ROOT')
+MEDIA_URL = env('MEDIA_URL')
 
 LOGIN_REDIRECT_URL = '/main/'
 LOGOUT_REDIRECT_URL = '/'
+
+AUTH_USER_MODEL = 'pznsi.User'

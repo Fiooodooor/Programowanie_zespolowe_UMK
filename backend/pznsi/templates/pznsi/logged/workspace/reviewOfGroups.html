@@ -1,0 +1,72 @@
+{% extends "pznsi/logged/loggedInterface.html" %}
+{% load static %}
+{% block head %}
+    <script src={% static "pznsi/js/workspace/reviewOfGroups.js" %}></script>
+{% endblock %}
+{% block content %}
+    <div class="container VoteContainer">
+
+        <div class="row margin-bottom-2">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb" id="breadcrumb">
+
+
+                </ol>
+            </nav>
+
+        </div>
+
+
+        <div class="row" id="srList">
+        </div>
+        <div class="row" id="ProjectList">
+        </div>
+        <div id="ProjectContent" class="text-center h-0">
+            <div id="ProjectWindo">
+                <div class="row padding-bottom-2">
+                    <div class="col-10 text-left"><b><span id="projCategory"></span> <span id="projTitle"></span></b>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="p-left-2 text-left col-12" id="projContent"></div>
+                </div>
+                <div class="row">
+                    <div class="p-left-2 col-12" id="projComments"></div>
+                </div>
+                <div class="row">
+                    <div class="p-left-1 col-12">
+                        <div class="btn-group" style="width: 100%">
+                            <button class="btn " id="btnKom">Komentarze</button>
+                            <button class="btn ">Załączniki</button>
+                            <button class="btn ">Oceny</button>
+                        </div>
+                    </div>
+                </div>
+                <div class=" text-left">
+                    <div id="commentsContent" style="padding-bottom: 1rem;background-color: #dde2e4"
+                         class="col-lg-12 h-0">
+                        <div id="commentsContentDiv"></div>
+                        <div class="col-12" style="margin-top:1rem;">
+                            <div class="row">
+                                <div class="col-sm-1" style="padding-right: 0px"><img
+                                        src="/static/pznsi/images/user.ico" class="img-comment"></div>
+                                <div class="col-sm-9" style="padding-left: 0px">
+                                    <div class="input-group w-100">
+                                        <input type="text" class="form-control" placeholder="Skomentuj" id="newComment">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" id="addComment" type="button">Dodaj</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class=" d-none col-6"><h3 class="text-center" id="projStatus"></h3></div>
+    </div>
+{% endblock %}
