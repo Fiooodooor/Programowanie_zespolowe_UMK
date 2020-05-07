@@ -10,7 +10,7 @@
 ### 3. Konwencje pracy z kodem.
 ### 3.1. Dokumentacja. <br/>
 ### 4. Zasoby.
-### 4.1. Środowisko uruchomieniowe. 
+### 4.1. Środowisko uruchomieniowe.
 ### 4.2. Zasoby pozarepozytoryjne. <br/> <br/> <br/>
 
 ### 1. Struktura katalogów repozytorium:
@@ -174,6 +174,30 @@ W repozytorium **nie mogą** znaleźć się:
 ### 4.1. Środowisko uruchomieniowe.
 Paczki muszą być przygotowane (jako kod) i opisane (w dokumentacji) w taki sposób, aby wykonując odpowiednie kroki można było odtworzyć środowisko pracy dla aplikacji. Opis stawiania środowiska uruchomieniowego powinien być wykonany w taki sposób, aby była w stanie je odtworzyć osoba nie mająca pojęcia o projekcie (ze skryptami, odniesieniami do frameworków, bibliotek etc.). <br/>
 <br/>
+
+Instrukcja uruchomienia projektu lokalnie jest następująca:
+
+1. Należy sklonować repozytorium: <br/>
+
+    git clone
+
+1. Następnie aktywujemy środowisko wirtualne: <br/>
+
+    source ~/.virtualenv/ /bin/activate
+1. Przeprowadzamy upgrade pip: <br/>
+
+    pip install --upgrade pip
+1. Instalujemy wymagania <br/>
+
+    pip install -r backend/requirements/requirements-all.txt 
+
+1. Przeprowadzamy instalację aplikacji:
+    pip install -e .
+    
+1. 
+
+
+
 
 ### 4.2. Zasoby pozarepozytoryjne.
 Zasoby pozarepozytoryjne, czyli np. wireframe-y, notatki, credentiale, informacje o projekcie, helpery etc.) są przechowywane w zależności od ich charakteru na lokalnych stacjach roboczych członków zespołów lub na Trello.
