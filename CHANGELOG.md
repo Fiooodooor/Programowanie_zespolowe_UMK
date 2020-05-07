@@ -1,6 +1,12 @@
 ### CHANGELOG.md
 
-## 2019-02-02
+## 2020-05-07
+* aktualna wersja aplikacji
+ master: 0.2
+ test: 0.2
+ devel: 0.2
+
+## 2020-02-02
 * wydzielenie branchy test oraz devel z brancha master
 * aktualna wersja aplikacji w związku z powyższym:
  master: n/a
