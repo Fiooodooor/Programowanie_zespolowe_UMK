@@ -1,5 +1,60 @@
 # Repozytorium Programowania Zespołowego NSI 2017 - gr. 4 <br/> <br/>
-## Spis treści
+
+## O projekcie  <br/>
+
+Aplikacja stanowi platformę do grupowej konsultacji projektów w różnych fazach ich rozwoju. Aplikacja działa w oparciu o technologie webowe, dokonuje synchronizacji z centralną instancją dzięki swoim modułom funkcjonalnym, działa zarówno on-line, jak i offline oraz obsługuje możliwość pracy na urządzeniach mobilnych. Praca użytkowników przebiega niezależnie, w środowisku ustalonym w ramach jednej konsultacji nad projektem. Istnieje możliwość kategoryzacji dyskusji nad projektem, głosowania, wystawiania ocen, załączania plików, komentarzy i innych, niezbędnych do realizacji celu jakim jest dyskusja nad danymi materiałami. 
+<br/> <br/>
+
+## Lokalny deploy  <br/>
+Instrukcja uruchomienia projektu lokalnie jest następująca:
+
+1. Należy sklonować repozytorium: <br/>
+
+    git clone https://github.com/Fiooodooor/Programowanie_zespolowe_UMK.git
+
+1. Pobieramy Pythona 3 i aktualizujemy menadżer pakietów  <br/>
+
+    sudo apt install python3
+
+    sudo apt install python3-pip
+
+    pip3 install --user --upgrade pip
+
+    pip3 install --user virtualenv
+
+1. Następnie aktywujemy środowisko wirtualne: <br/>
+
+    python3 -m virtualenv ENV
+
+    source ENV/bin/activate
+
+    pip install -r backend/requirements.txt
+
+    pip install gunicorn
+
+2.  Opcjonalnie konfigurujemy zmienne środowiskowe (media, static, debug mode, database url, etc).
+
+    cp .env_template .env
+
+    vim .env
+
+3. Uruchamiamy serwer.
+
+    python3 backened/manage.py runserver
+
+    lub
+
+    gunicorn -b 127.0.0.1:8000 -b [::1]:8000 -w 4 backend.wsgi &
+
+    w drugim wypadku pamiętamy o zamknięciu procesu w tle po zakończeniu pracy lokalnie
+
+<br/> <br/>
+    
+
+
+
+## Zasady pracy
+### Spis treści
 ### 1. Struktura katalogów repozytorium. <br/>
 ### 2. Praca z repozytorium. <br/>
 ### 2.1. Podział na główne gałęzie w repozytorium.
@@ -10,7 +65,7 @@
 ### 3. Konwencje pracy z kodem.
 ### 3.1. Dokumentacja. <br/>
 ### 4. Zasoby.
-### 4.1. Środowisko uruchomieniowe. 
+### 4.1. Środowisko uruchomieniowe.
 ### 4.2. Zasoby pozarepozytoryjne. <br/> <br/> <br/>
 
 ### 1. Struktura katalogów repozytorium:
@@ -21,9 +76,11 @@
 │
 │──── backend           zawiera zasoby związane z warstwą dostępu do danych
 │   │
-│   │───
+│   │───                backend
 │   │
-│   │───
+│   │───                pznsi
+|   |
+|   |───                templates
 |
 │─── dbms               zawiera zasoby związane z bazą danych i zarządzaniem nią
 |

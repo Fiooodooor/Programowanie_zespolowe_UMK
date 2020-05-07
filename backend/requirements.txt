@@ -3,4 +3,4 @@ djangorestframework
 django-environ
 Pillow
 django-extensions
-psycopg2
+psycopg2-binary
