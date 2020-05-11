@@ -26,7 +26,16 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('register/', views.register, name='register'),
     path('front/environments/', views.front_environments, name='front_environments'),
-    path('front/projects/', views.front_projects, name='front_projects')
+    path('front/projects/', views.front_projects, name='front_projects'),
+    path('front/editEnvi', views.edit_environment, name='editEnvi'),
+    path('front/editProject', views.edit_project, name='editProject'),
+    path('api/editEnviSave', views.save_environment, name='saveEnvi'),
+    path('api/editprojectSave', views.save_project, name='saveProject'),
+    path('api/canAddEnvi', views.can_add_envi, name='canAddEnvi'),
+    path('api/canAddProject', views.can_add_project, name='canAddProject'),
+    path('front/environmentsperms/', views.PermEnviroment),
+    path('front/projectperms/', views.permProject),
+    path('front/project/', views.project)
 ]
 
 

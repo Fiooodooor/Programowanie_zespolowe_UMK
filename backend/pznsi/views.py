@@ -2,11 +2,11 @@ import base64
 
 from django.contrib.auth import login
 from django.core.files.base import ContentFile
-from django.http import Http404, HttpResponseRedirect
+from django.db.models import Value, IntegerField, Case, When
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from rest_framework import permissions, mixins, viewsets
-
 
 from pznsi.models import User, Environment, Project
 from pznsi.serializers import EnvironmentSerializer, ProjectDetailSerializer
@@ -41,7 +41,7 @@ def index(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse('main'))
     else:
-        return render(request, 'pznsi/anonymous/index.html')
+        return HttpResponseRedirect(reverse('login'))
 
 
 def main_page(request):
@@ -110,7 +110,14 @@ def front_environments(request):
     if request.method == 'POST':
         page = int(request.POST.get('page'))
         keyword = request.POST.get('keyword')
-        environment_list = Environment.objects.all()[(page-1)*12:page*12]
+
+        environment_list = Environment.objects.all()[(page - 1) * 12:page * 12].annotate(
+            isOwner=Case(
+                When(owner=request.user.id, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            ))
+        # TODO fix when permissions are done
         context = {
             'page': page,
             'keyword': keyword,
@@ -126,7 +133,30 @@ def front_projects(request):
         environment = int(request.POST.get('numEnvi'))
         page = int(request.POST.get('page'))
         keyword = request.POST.get('keyword')
-        project_list = Project.objects.filter(environment=environment)[(page-1)*12:page*12]
+        id_project = request.POST.get('id_project', None)
+        if id_project is not None:
+            id_project = int(id_project)
+            project_list = Project.objects.filter(id=id_project).annotate(
+                isOwner=Case(
+                    When(owner=request.user.id, then=Value(1)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                ))
+        elif environment == 0:
+            project_list = Project.objects.all()[(page - 1) * 12:page * 12].annotate(
+                isOwner=Case(
+                    When(owner=request.user.id, then=Value(1)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                ))
+            # TODO
+        else:
+            project_list = Project.objects.filter(environment=environment)[(page - 1) * 12:page * 12].annotate(
+                isOwner=Case(
+                    When(owner=request.user.id, then=Value(1)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                ))
         context = {
             'page': page,
             'keyword': keyword,
@@ -135,3 +165,136 @@ def front_projects(request):
         return render(request, 'pznsi/logged/workspace/projects.html', context)
     else:
         raise Http404
+
+
+def edit_environment(request):
+    if request.method == 'POST':
+        requested_environment = int(request.POST.get('numEnvi'))
+        environment = None
+        if requested_environment != 0:
+            environment = Environment.objects.get(id=requested_environment)
+            mode = 0
+        else:
+            mode = 1
+        users = User.objects.all()
+        context = {
+            'environment': environment,
+            'users': users,
+            'mode': mode
+        }
+        return render(request, 'pznsi/logged/workspace/edit_environment.html', context)
+    else:
+        raise Http404
+
+
+def save_environment(request):
+    if request.method == 'POST':
+        requested_environment = int(request.POST.get('numEnvi'))
+        requested_environment_name = request.POST.get('environment_name')
+        image_base64 = request.POST.get('cover_image')
+        requested_owner = int(request.POST.get('owner'))
+        if requested_environment != 0:
+            environment = Environment.objects.get(id=requested_environment)
+            environment.environment_name = requested_environment_name
+            environment.owner = User.objects.get(id=requested_owner)
+        else:
+            environment = Environment.objects.create(environment_name=requested_environment_name,
+                                                     owner=User.objects.get(id=requested_owner))
+        if image_base64 != '':
+            format, imgstr = image_base64.split(';base64,')
+            ext = format.split('/')[-1]
+            image = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+            environment.cover_image = image
+        environment.save()
+        return JsonResponse({"result": 1})
+    else:
+        raise Http404
+
+
+def save_project(request):
+    if request.method == 'POST':
+        requested_project = int(request.POST.get('project_id'))
+        requested_project_name = request.POST.get('project_name')
+        requested_project_category = request.POST.get('project_category')
+        requested_project_desc = request.POST.get('project_description')
+        image_base64 = request.POST.get('cover_image')
+        requested_owner = int(request.POST.get('owner'))
+        environment_id = int(request.POST.get('environment_id'))
+        if requested_project != 0:
+            project = Project.objects.get(id=requested_project)
+            project.project_name = requested_project_name
+            project.owner = User.objects.get(id=requested_owner)
+            project.project_content = requested_project_desc
+        else:
+            project = Project.objects.create(project_name=requested_project_name,
+                                             owner=User.objects.get(id=requested_owner),
+                                             project_category=requested_project_category,
+                                             project_content=requested_project_desc,
+                                             environment=Environment.objects.get(id=environment_id))
+        if image_base64 != '':
+            format, imgstr = image_base64.split(';base64,')
+            ext = format.split('/')[-1]
+            image = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+            project.cover_image = image
+        project.save()
+        return JsonResponse({"project_name": requested_project_name, "project_category": requested_project_category,
+                             "project_content": requested_project_desc})
+    else:
+        raise Http404
+
+
+def edit_project(request):
+    if request.method == 'POST':
+        requested_project = int(request.POST.get('id'))
+        project = None
+        if requested_project != 0:
+            project = Project.objects.get(id=requested_project)
+            mode = 0
+        else:
+            mode = 1
+        users = User.objects.all()
+        context = {
+            'project': project,
+            'users': users,
+            'mode': mode,
+            'project_id': requested_project
+        }
+        return render(request, 'pznsi/logged/workspace/edit_project.html', context)
+    else:
+        raise Http404
+
+
+def can_add_envi(request):
+    if request.method == 'POST':
+        if request.user.has_perm('pznsi.can_add_environment'):
+            can_add = True
+        else:
+            can_add = False
+        return JsonResponse({"can_add": can_add})
+    else:
+        raise Http404
+
+
+def can_add_project(request):
+    if request.method == 'POST':
+        requested_environment = int(request.POST.get('id'))
+        environment = Environment.objects.get(id=requested_environment)
+        if environment.owner == request.user:
+            can_add = True
+        else:
+            can_add = False
+        return JsonResponse({"can_add": can_add})
+    else:
+        raise Http404
+
+
+def PermEnviroment(request):
+    return render(request, 'pznsi/logged/workspace/perm_environment.html')
+
+
+def permProject(request):
+    return render(request, 'pznsi/logged/workspace/perm_project.html')
+
+
+def project(request):
+    return render(request, 'pznsi/logged/workspace/project.html')

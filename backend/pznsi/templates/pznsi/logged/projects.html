@@ -9,6 +9,7 @@
 {{ page }}
 {% for project in projects %}
     {{project.id}} {{ project.project_name }} {{project.project_status}} {{ project.project_category }}
+    {{ project.isOwner }}
 {% endfor %}
 </body>
 </html>

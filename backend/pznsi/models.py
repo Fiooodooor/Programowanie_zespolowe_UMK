@@ -15,6 +15,10 @@ class Environment(models.Model):
     environment_password = models.CharField(max_length=20)
     environment_creation_date = models.DateField(blank=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    cover_image = models.ImageField(upload_to='environment_covers', blank=True, null=True)
+
+    def __str__(self):
+        return self.environment_name
 
 
 class Project(models.Model):
@@ -27,6 +31,7 @@ class Project(models.Model):
     project_category = models.CharField(blank=True, max_length=100)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     environment = models.ForeignKey(Environment, on_delete=models.CASCADE, null=True, blank=True)
+    cover_image = models.ImageField(upload_to='project_covers', blank=True, null=True)
 
 
 class Comment(models.Model):
