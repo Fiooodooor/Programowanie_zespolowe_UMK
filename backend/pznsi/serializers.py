@@ -2,19 +2,11 @@ from rest_framework import serializers
 
 from pznsi.models import Environment, Project, Comment, User
 
-class UserSerializer(serializers.ModelSerializer):
 
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'first_name']
-
-
-class ProjectBasicsSerializers(serializers.ModelSerializer):
-    owner = UserSerializer(read_only=True)
-
-    class Meta:
-        model = Project
-        fields = ['id', 'project_name', 'owner', 'project_content', 'cover_image']
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -38,8 +30,16 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
         return project
 
 
+class ProjectBasicsSerializers(serializers.ModelSerializer):
+    owner = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Project
+        fields = ['id', 'project_name', 'owner', 'project_content', 'cover_image']
+
+
 class EnvironmentSerializer(serializers.ModelSerializer):
-    projects = ProjectBasicsSerializers(source='project_set', many=True, required=False)
+    projects = serializers.SerializerMethodField()
     owner = UserSerializer(read_only=True)
 
     class Meta:
@@ -51,4 +51,6 @@ class EnvironmentSerializer(serializers.ModelSerializer):
         environment = Environment.objects.create(**validated_data)
         return environment
 
-
+    def get_projects(self, obj):
+        projects = obj.get_projects(self.context['request'].user)
+        return ProjectBasicsSerializers(projects, many=True).data

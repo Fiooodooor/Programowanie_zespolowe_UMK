@@ -6,6 +6,7 @@ from django.db.models import Value, IntegerField, Case, When
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from guardian.shortcuts import get_objects_for_user
 from rest_framework import permissions, mixins, viewsets
 
 from pznsi.models import User, Environment, Project, ProjectCategory
@@ -31,6 +32,10 @@ class Projects(mixins.CreateModelMixin,
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    def get_queryset(self):
+        qs = get_objects_for_user(self.request.user, 'view_project_instance', super().get_queryset())
+        return qs
 
 
 def workspace(request):
@@ -69,7 +74,6 @@ def edit_profile(request):
             # TODO change to actual password requirements once we have them
             if new_password != '':
                 db_user.set_password(new_password)
-
             if avatar_base64 != '':
                 format, imgstr = avatar_base64.split(';base64,')
                 ext = format.split('/')[-1]
@@ -102,7 +106,7 @@ def register(request):
             user = User.objects.create_user(username=username,
                                             email=email,
                                             password=password)
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return HttpResponseRedirect(reverse('main'))
 
 
@@ -111,7 +115,8 @@ def front_environments(request):
         page = int(request.POST.get('page'))
         keyword = request.POST.get('keyword')
 
-        environment_list = Environment.objects.all()[(page - 1) * 12:page * 12].annotate(
+        all_environment_list = get_objects_for_user(request.user, 'view_environment_instance', Environment)
+        environment_list = all_environment_list[(page - 1) * 12:page * 12].annotate(
             isOwner=Case(
                 When(owner=request.user.id, then=Value(1)),
                 default=Value(0),

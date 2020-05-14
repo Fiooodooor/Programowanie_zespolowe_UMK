@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Group
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, get_objects_for_user
 
 
 class User(AbstractUser):
@@ -29,8 +29,13 @@ class Environment(models.Model):
     def __str__(self):
         return self.environment_name
 
+    def get_projects(self, user):
+        return get_objects_for_user(user, 'view_project_instance', self.project_set)
+
+
 class ProjectCategory(models.Model):
     category_name = models.CharField(blank=True, max_length=100)
+
 
 class Project(models.Model):
     project_name = models.CharField(blank=True, max_length=100)
