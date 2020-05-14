@@ -1,5 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from guardian.shortcuts import assign_perm
 
 
 class User(AbstractUser):
@@ -35,6 +38,13 @@ class Project(models.Model):
     environment = models.ForeignKey(Environment, on_delete=models.CASCADE, null=True, blank=True)
     cover_image = models.ImageField(upload_to='project_covers', blank=True, null=True)
 
+    class Meta:
+        permissions = (
+            ('view_project_instance', 'view project instance'),
+            ('edit_project_instance', 'edit project instance'),
+            ('vote', 'vote'),
+        )
+
 
 class Comment(models.Model):
     comment_title = models.CharField(max_length=100)
@@ -66,3 +76,22 @@ class Repository(models.Model):
     repository_file_content = models.CharField(max_length=2000)
     repository_file_date_created = models.DateField(blank=True, null=True)
     repository_file_status = models.CharField(max_length=100)
+
+
+@receiver(post_save, sender=Project)
+def project_post_save(sender, **kwargs):
+    """
+    Creates groups that have set permissions for project instance
+    """
+    project, created = kwargs["instance"], kwargs["created"]
+    if created:
+        name_prefix = str(project.id) + '_'
+        viewers_name = name_prefix + 'viewers'
+        voters_name = name_prefix + 'voters'
+        editors_name = name_prefix + 'editors'
+        viewers, _ = Group.objects.get_or_create(name=viewers_name)
+        editors, _ = Group.objects.get_or_create(name=editors_name)
+        voters, _ = Group.objects.get_or_create(name=voters_name)
+        assign_perm('view_project_instance', viewers, project)
+        assign_perm('edit_project_instance', editors, project)
+        assign_perm('vote', voters, project)
