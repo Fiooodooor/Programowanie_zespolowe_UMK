@@ -20,6 +20,12 @@ class Environment(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     cover_image = models.ImageField(upload_to='environment_covers', blank=True, null=True)
 
+    class Meta:
+        permissions = (
+            ('view_environment_instance', 'view environment instance'),
+            ('edit_environment_instance', 'edit environment instance')
+        )
+
     def __str__(self):
         return self.environment_name
 
@@ -85,7 +91,7 @@ def project_post_save(sender, **kwargs):
     """
     project, created = kwargs["instance"], kwargs["created"]
     if created:
-        name_prefix = str(project.id) + '_'
+        name_prefix = str(project.id) + '_project_'
         viewers_name = name_prefix + 'viewers'
         voters_name = name_prefix + 'voters'
         editors_name = name_prefix + 'editors'
@@ -95,3 +101,26 @@ def project_post_save(sender, **kwargs):
         assign_perm('view_project_instance', viewers, project)
         assign_perm('edit_project_instance', editors, project)
         assign_perm('vote', voters, project)
+        if project.owner is not None:
+            project.owner.groups.add(viewers)
+            project.owner.groups.add(editors)
+            project.owner.groups.add(voters)  # TODO should owner be able to vote?
+
+
+@receiver(post_save, sender=Environment)
+def environment_post_save(sender, **kwargs):
+    """
+    Creates groups that have set permissions for environment instance
+    """
+    environment, created = kwargs["instance"], kwargs["created"]
+    if created:
+        name_prefix = str(environment.id) + '_environment_'
+        viewers_name = name_prefix + 'viewers'
+        editors_name = name_prefix + 'editors'
+        viewers, _ = Group.objects.get_or_create(name=viewers_name)
+        editors, _ = Group.objects.get_or_create(name=editors_name)
+        assign_perm('view_environment_instance', viewers, environment)
+        assign_perm('edit_environment_instance', editors, environment)
+        if environment.owner is not None:
+            environment.owner.groups.add(viewers)
+            environment.owner.groups.add(editors)
