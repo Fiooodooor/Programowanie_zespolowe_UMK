@@ -15,27 +15,26 @@ router.register(r'projects', Projects)
 
 
 urlpatterns = [
-    path('api/auth/', obtain_auth_token, name='auth'),
     path('', views.index, name='index'),
-    path('workspace/', views.workspace, name='workspace'),
     path('login/', LoginView.as_view(redirect_authenticated_user=True), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('register/', views.register, name='register'),
     path('main/', views.main_page, name='main'),
+    path('workspace/', views.workspace, name='workspace'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
-    path('register/', views.register, name='register'),
-    path('api/', include(router.urls)),
-    path('register/', views.register, name='register'),
     path('front/environments/', views.front_environments, name='front_environments'),
     path('front/projects/', views.front_projects, name='front_projects'),
     path('front/editEnvi', views.edit_environment, name='editEnvi'),
     path('front/editProject', views.edit_project, name='editProject'),
+    path('front/environmentsperms/', views.PermEnviroment),
+    path('front/projectperms/', views.permProject),
+    path('front/project/', views.project),
+    path('api/', include(router.urls)),
+    path('api/auth/', obtain_auth_token, name='auth'),
     path('api/editEnviSave', views.save_environment, name='saveEnvi'),
     path('api/editprojectSave', views.save_project, name='saveProject'),
     path('api/canAddEnvi', views.can_add_envi, name='canAddEnvi'),
-    path('api/canAddProject', views.can_add_project, name='canAddProject'),
-    path('front/environmentsperms/', views.PermEnviroment),
-    path('front/projectperms/', views.permProject),
-    path('front/project/', views.project)
+    path('api/canAddProject', views.can_add_project, name='canAddProject')
 ]
 
 

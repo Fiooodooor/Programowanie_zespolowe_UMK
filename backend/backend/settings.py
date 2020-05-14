@@ -63,7 +63,8 @@ INSTALLED_APPS = [
     'pznsi',
     'rest_framework',
     'rest_framework.authtoken',
-    'django_extensions'
+    'django_extensions',
+    'guardian'
 ]
 
 REST_FRAMEWORK = {
@@ -72,6 +73,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication'
     ],
 }
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -154,3 +160,4 @@ LOGIN_REDIRECT_URL = '/main/'
 LOGOUT_REDIRECT_URL = '/'
 
 AUTH_USER_MODEL = 'pznsi.User'
+ANONYMOUS_USER_ID = -1
