@@ -27,7 +27,7 @@ class Environment(models.Model):
         )
 
     def __str__(self):
-        return self.environment_name
+        return f'{self.environment_name} ({self.id})'
 
     def get_projects(self, user):
         return get_objects_for_user(user, 'view_project_instance', self.project_set)
@@ -55,6 +55,9 @@ class Project(models.Model):
             ('edit_project_instance', 'edit project instance'),
             ('vote', 'vote'),
         )
+
+    def __str__(self):
+        return f'{self.project_name} ({self.id})'
 
 
 class Comment(models.Model):

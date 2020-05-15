@@ -123,7 +123,6 @@ def front_environments(request):
                 default=Value(0),
                 output_field=IntegerField(),
             ))
-        # TODO fix when permissions are done
         context = {
             'page': page,
             'keyword': keyword,
@@ -140,24 +139,24 @@ def front_projects(request):
         page = int(request.POST.get('page'))
         keyword = request.POST.get('keyword')
         id_project = request.POST.get('id_project', None)
+        user_projects = get_objects_for_user(request.user, 'view_project_instance', Project)
         if id_project is not None:
             id_project = int(id_project)
-            project_list = Project.objects.filter(id=id_project).annotate(
+            project_list = user_projects.filter(id=id_project).annotate(
                 isOwner=Case(
                     When(owner=request.user.id, then=Value(1)),
                     default=Value(0),
                     output_field=IntegerField(),
                 ))
         elif environment == 0:
-            project_list = Project.objects.all()[(page - 1) * 12:page * 12].annotate(
+            project_list = user_projects[(page - 1) * 12:page * 12].annotate(
                 isOwner=Case(
                     When(owner=request.user.id, then=Value(1)),
                     default=Value(0),
                     output_field=IntegerField(),
                 ))
-            # TODO
         else:
-            project_list = Project.objects.filter(environment=environment)[(page - 1) * 12:page * 12].annotate(
+            project_list = user_projects.filter(environment=environment)[(page - 1) * 12:page * 12].annotate(
                 isOwner=Case(
                     When(owner=request.user.id, then=Value(1)),
                     default=Value(0),
@@ -174,14 +173,20 @@ def front_projects(request):
 
 
 def edit_environment(request):
-    if request.method == 'POST':
+    if request.method == 'POST' and request.user.has_perm('pznsi.'):
         requested_environment = int(request.POST.get('numEnvi'))
         environment = None
         if requested_environment != 0:
             environment = Environment.objects.get(id=requested_environment)
-            mode = 0
+            if request.user.has_perm('edit_environment_instance', environment):
+                mode = 0
+            else:
+                raise Http404
         else:
-            mode = 1
+            if request.user.has_perm('pznsi.can_add_environment'):
+                mode = 1
+            else:
+                raise Http404
         users = User.objects.all().exclude(id=get_anonymous_user().id)
         context = {
             'environment': environment,
@@ -201,11 +206,17 @@ def save_environment(request):
         requested_owner = int(request.POST.get('owner'))
         if requested_environment != 0:
             environment = Environment.objects.get(id=requested_environment)
-            environment.environment_name = requested_environment_name
-            environment.owner = User.objects.get(id=requested_owner)
+            if request.user.has_perm('edit_environment_instance', environment):
+                environment.environment_name = requested_environment_name
+                environment.owner = User.objects.get(id=requested_owner)
+            else:
+                raise Http404
         else:
-            environment = Environment.objects.create(environment_name=requested_environment_name,
-                                                     owner=User.objects.get(id=requested_owner))
+            if request.user.has_perm('pznsi.can_add_environment'):
+                environment = Environment.objects.create(environment_name=requested_environment_name,
+                                                         owner=User.objects.get(id=requested_owner))
+            else:
+                raise Http404
         if image_base64 != '':
             format, imgstr = image_base64.split(';base64,')
             ext = format.split('/')[-1]
@@ -221,32 +232,36 @@ def save_project(request):
     if request.method == 'POST':
         requested_project = int(request.POST.get('project_id'))
         requested_project_name = request.POST.get('project_name')
-        requested_project_category = request.POST.get('project_category')  # byl kom
+        requested_project_category = request.POST.get('project_category')
         requested_project_desc = request.POST.get('project_description')
         image_base64 = request.POST.get('cover_image')
         requested_owner = int(request.POST.get('owner'))
         environment_id = int(request.POST.get('environment_id'))
         if requested_project != 0:
             project = Project.objects.get(id=requested_project)
-            project.project_name = requested_project_name
-            project.owner = User.objects.get(id=requested_owner)
-            project.project_content = requested_project_desc
+            if request.user.has_perm('edit_project_instance', project):
+                project.project_name = requested_project_name
+                project.owner = User.objects.get(id=requested_owner)
+                project.project_content = requested_project_desc
+            else:
+                raise Http404
         else:
-            project = Project.objects.create(project_name=requested_project_name,
-                                             owner=User.objects.get(id=requested_owner),
-                                             project_category=ProjectCategory.objects.get(
-                                                 id=requested_project_category),
-                                             # project_category=requested_project_category,
-                                             project_content=requested_project_desc,
-                                             environment=Environment.objects.get(id=environment_id))
+            if request.user.has_perm('edit_environment_instance', Environment.objects.get(id=environment_id)):
+                project = Project.objects.create(project_name=requested_project_name,
+                                                 owner=User.objects.get(id=requested_owner),
+                                                 project_category=ProjectCategory.objects.get(
+                                                     id=requested_project_category),
+                                                 project_content=requested_project_desc,
+                                                 environment=Environment.objects.get(id=environment_id))
+            else:
+                raise Http404
         if image_base64 != '':
             format, imgstr = image_base64.split(';base64,')
             ext = format.split('/')[-1]
             image = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
             project.cover_image = image
         project.save()
-        return JsonResponse({"project_name": requested_project_name,
-                             "project_category": requested_project_category,  # byl kom
+        return JsonResponse({"project_name": requested_project_name, "project_category": requested_project_category,
                              "project_content": requested_project_desc})
     else:
         raise Http404
@@ -258,7 +273,10 @@ def edit_project(request):
         project = None
         if requested_project != 0:
             project = Project.objects.get(id=requested_project)
-            mode = 0
+            if request.user.has_perm('edit_project_instance', project):
+                mode = 0
+            else:
+                raise Http404
         else:
             mode = 1
         users = User.objects.all().exclude(id=get_anonymous_user().id)
@@ -266,7 +284,7 @@ def edit_project(request):
             'project': project,
             'users': users,
             'mode': mode,
-            'project_id': requested_project,
+            'project_id': requested_project
         }
         return render(request, 'pznsi/logged/workspace/edit_project.html', context)
     else:
@@ -288,7 +306,7 @@ def can_add_project(request):
     if request.method == 'POST':
         requested_environment = int(request.POST.get('id'))
         environment = Environment.objects.get(id=requested_environment)
-        if environment.owner == request.user:
+        if environment.owner == request.user or request.user.has_perm('edit_environment_instance', environment):
             can_add = True
         else:
             can_add = False
