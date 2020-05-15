@@ -7,6 +7,7 @@ from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from guardian.shortcuts import get_objects_for_user
+from guardian.utils import get_anonymous_user
 from rest_framework import permissions, mixins, viewsets
 
 from pznsi.models import User, Environment, Project, ProjectCategory
@@ -181,7 +182,7 @@ def edit_environment(request):
             mode = 0
         else:
             mode = 1
-        users = User.objects.all()
+        users = User.objects.all().exclude(id=get_anonymous_user().id)
         context = {
             'environment': environment,
             'users': users,
@@ -260,7 +261,7 @@ def edit_project(request):
             mode = 0
         else:
             mode = 1
-        users = User.objects.all()
+        users = User.objects.all().exclude(id=get_anonymous_user().id)
         context = {
             'project': project,
             'users': users,
