@@ -126,7 +126,7 @@ def environment_post_save(sender, **kwargs):
         viewers_name = name_prefix + 'viewers'
         editors_name = name_prefix + 'editors'
         viewers, _ = Group.objects.get_or_create(name=viewers_name)
-        editors, _ = Group.objects.get_or_create(name=editors_Łname)
+        editors, _ = Group.objects.get_or_create(name=editors_name)
         assign_perm('view_environment_instance', viewers, environment)
         assign_perm('edit_environment_instance', editors, environment)
         if environment.owner is not None:
