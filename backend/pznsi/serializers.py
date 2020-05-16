@@ -18,10 +18,11 @@ class CommentSerializer(serializers.ModelSerializer):
 class ProjectDetailSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(source='comment_set', many=True, required=False)
     environment_name = serializers.SlugRelatedField(source='environment', slug_field='environment_name', read_only=True)
+    owner = UserSerializer(read_only=True)
 
     class Meta:
         model = Project
-        fields = ['id', 'project_name', 'project_status', 'project_category', 'project_content', 'comments', 'owner',
+        fields = ['id', 'project_name', 'project_status', 'project_category', 'project_content', 'comments',
                   'cover_image', 'environment', 'environment_name']
 
     def create(self, validated_data):
