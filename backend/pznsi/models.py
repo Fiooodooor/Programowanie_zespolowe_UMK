@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser, Group
+from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from guardian.shortcuts import assign_perm, get_objects_for_user
@@ -126,7 +126,7 @@ def environment_post_save(sender, **kwargs):
         viewers_name = name_prefix + 'viewers'
         editors_name = name_prefix + 'editors'
         viewers, _ = Group.objects.get_or_create(name=viewers_name)
-        editors, _ = Group.objects.get_or_create(name=editors_name)
+        editors, _ = Group.objects.get_or_create(name=editors_Łname)
         assign_perm('view_environment_instance', viewers, environment)
         assign_perm('edit_environment_instance', editors, environment)
         if environment.owner is not None:

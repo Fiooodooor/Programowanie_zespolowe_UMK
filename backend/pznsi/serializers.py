@@ -17,7 +17,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class ProjectDetailSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(source='comment_set', many=True, required=False)
-    environment_name = serializers.StringRelatedField(source='environment')
+    environment_name = serializers.SlugRelatedField(source='environment', slug_field='environment_name', read_only=True)
 
     class Meta:
         model = Project
