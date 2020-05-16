@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.datetime_safe import datetime
 from guardian.shortcuts import assign_perm, get_objects_for_user
 
 
@@ -61,32 +62,34 @@ class Project(models.Model):
 
 
 class Comment(models.Model):
-    comment_title = models.CharField(max_length=100)
+    comment_title = models.CharField(max_length=100, blank=True, null=True)
     comment_content = models.CharField(max_length=2000)
-    comment_date = models.DateField(blank=True, null=True)
+    comment_date = models.DateField(default=datetime.now, blank=True, null=True)
     comment_reaction = models.CharField(max_length=50, default='none')
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
 
-class Attachments(models.Model):
+class Attachment(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True, blank=True)
-    attachment_content = models.CharField(max_length=2000)
-    attachment_creation_date = models.DateField(blank=True, null=True)
-    attachment_type = models.CharField(max_length=50)
+    attachment_name = models.CharField(max_length=2000, null=True, blank=True)
+    content = models.FileField(upload_to='attachments', blank=True, null=True)
+    attachment_creation_date = models.DateField(default=datetime.now, blank=True, null=True)
+    attachment_type = models.CharField(max_length=50, default='file')
     attachment_visible_date = models.DateField(blank=True, null=True)
 
 
-class Votes(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    vote_date = models.DateField(blank=True, null=True)
-    vote_content = models.CharField(max_length=2000)
+class Vote(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    vote_date = models.DateField(default=datetime.now, blank=True, null=True)
+    vote_content = models.IntegerField(null=True, blank=True)
 
 
 class Repository(models.Model):
-    attachments = models.ForeignKey(Attachments, on_delete=models.CASCADE, null=True, blank=True)
+    attachments = models.ForeignKey(Attachment, on_delete=models.CASCADE, null=True, blank=True)
     repository_file_content = models.CharField(max_length=2000)
     repository_file_date_created = models.DateField(blank=True, null=True)
     repository_file_status = models.CharField(max_length=100)

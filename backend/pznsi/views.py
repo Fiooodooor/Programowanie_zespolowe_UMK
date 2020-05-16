@@ -1,6 +1,8 @@
 import base64
 
 from django.contrib.auth import login
+from django.contrib.auth.models import Group
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.db.models import Value, IntegerField, Case, When
 from django.http import Http404, HttpResponseRedirect, JsonResponse
@@ -9,18 +11,63 @@ from django.urls import reverse
 from guardian.shortcuts import get_objects_for_user
 from guardian.utils import get_anonymous_user
 from rest_framework import permissions, mixins, viewsets
+from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.response import Response
 
-from pznsi.models import User, Environment, Project, ProjectCategory
+from pznsi.models import User, Environment, Project, Comment, Attachment, Vote, ProjectCategory
 from pznsi.serializers import EnvironmentSerializer, ProjectDetailSerializer
 
 
-class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.CreateModelMixin):
+class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.RetrieveModelMixin):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Environment.objects.all()
     serializer_class = EnvironmentSerializer
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def add_permissions(self, request, pk=None):
+        environment = self.get_object()
+        if request.user == environment.owner:
+            user_id = int(request.data['user_id'])
+            editor_group_name = f'{str(environment.id)}_environment_editors'
+            viewer_group_name = f'{str(environment.id)}_environment_viewers'
+            editor_group = Group.objects.get(name=editor_group_name)
+            viewer_group = Group.objects.get(name=viewer_group_name)
+            try:
+                user = User.objects.get(id=user_id)
+                user.groups.add(editor_group)
+                user.groups.add(viewer_group)
+                return Response({'result': '1'})
+            except ObjectDoesNotExist:
+                return Response({'result': '0',
+                                 'detail': 'User does not exist'})
+        else:
+            raise PermissionDenied({"message": "You don't have permission to edit",
+                                    "object_id": environment.id})
+
+    @action(detail=True, methods=['post'])
+    def remove_permissions(self, request, pk=None):
+        environment = self.get_object()
+        if request.user == environment.owner:
+            user_id = int(request.data['user_id'])
+            editor_group_name = f'{str(environment.id)}_environment_editors'
+            viewer_group_name = f'{str(environment.id)}_environment_viewers'
+            editor_group = Group.objects.get(name=editor_group_name)
+            viewer_group = Group.objects.get(name=viewer_group_name)
+            try:
+                user = User.objects.get(id=user_id)
+                user.groups.remove(editor_group)
+                user.groups.remove(viewer_group)
+                return Response({'result': '1'})
+            except ObjectDoesNotExist:
+                return Response({'result': '0',
+                                 'detail': 'User does not exist'})
+        else:
+            raise PermissionDenied({"message": "You don't have permission to edit",
+                                    "object_id": environment.id})
 
 
 class Projects(mixins.CreateModelMixin,
@@ -37,6 +84,59 @@ class Projects(mixins.CreateModelMixin,
     def get_queryset(self):
         qs = get_objects_for_user(self.request.user, 'view_project_instance', super().get_queryset())
         return qs
+
+    @action(detail=True, methods=['post'])
+    def add_comment(self, request, pk=None):
+        project = self.get_object()
+        if request.user.has_perm('view_project_instance', project):
+            try:
+                comment_title = request.data['title']
+            except KeyError:
+                comment_title = None
+            comment_text = request.data['comment']
+            Comment.objects.create(comment_title=comment_title, comment_content=comment_text, project=project,
+                                   user=self.request.user)
+            return Response({'result': '1',
+                             'detail': 'Added successfully'})
+        else:
+            raise PermissionDenied({"message": "No permission to add comment",
+                                    "object_id": project.id})
+
+    @action(detail=True, methods=['post'])
+    def add_attachment(self, request, pk=None):
+        project = self.get_object()
+        if request.user.has_perm('view_project_instance', project):
+            base64_file = request.data['file']
+            if base64_file != '':
+                format, imgstr = base64_file.split(';base64,')
+                ext = format.split('/')[-1]
+                file = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+                Attachment.objects.create(project=project, user=request.user, content=file)
+                return Response({'result': '1',
+                                 'detail': 'Added successfully'})
+            else:
+                raise Http404
+        else:
+            raise PermissionDenied({"message": "No permission to add file",
+                                    "object_id": project.id})
+
+    @action(detail=True, methods=['post'])
+    def vote(self, request, pk=None):
+        project = self.get_object()
+        if request.user.has_perm('vote', project):
+            rate = int(request.data['rate'])
+            vote, created = Vote.objects.get_or_create(user=request.user, project=project)
+            vote.vote_content = rate
+            vote.save()
+            if created:
+                return Response({'result': '1',
+                                 'detail': 'Vote added successfully'})
+            else:
+                return Response({'result': '1',
+                                 'detail': 'Vote updated successfully'})  # TODO change date
+        else:
+            raise PermissionDenied({"message": "No permission to vote",
+                                    "object_id": project.id})
 
 
 def workspace(request):
