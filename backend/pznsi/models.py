@@ -20,6 +20,8 @@ class Environment(models.Model):
     def __str__(self):
         return self.environment_name
 
+class ProjectCategory(models.Model):
+    category_name = models.CharField(blank=True, max_length=100)
 
 class Project(models.Model):
     project_name = models.CharField(blank=True, max_length=100)
@@ -28,7 +30,7 @@ class Project(models.Model):
     project_creation_date = models.DateField(blank=True, null=True)
     project_closing_date = models.DateField(blank=True, null=True)
     project_content = models.CharField(blank=True, max_length=1000)
-    project_category = models.CharField(blank=True, max_length=100)
+    project_category = models.ForeignKey(ProjectCategory, on_delete=models.CASCADE, null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     environment = models.ForeignKey(Environment, on_delete=models.CASCADE, null=True, blank=True)
     cover_image = models.ImageField(upload_to='project_covers', blank=True, null=True)
