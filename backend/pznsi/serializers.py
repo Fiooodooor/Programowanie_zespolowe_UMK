@@ -11,18 +11,20 @@ class UserSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    date = serializers.CharField(source='comment_date')
 
     class Meta:
         model = Comment
-        fields = ['user', 'comment_title', 'comment_content', 'comment_reaction', 'comment_date']
+        fields = ['user', 'comment_title', 'comment_content', 'comment_reaction', 'date']
 
 
 class AttachmentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    date = serializers.CharField(source='attachment_creation_date')
 
     class Meta:
         model = Attachment
-        fields = ['user', 'content', 'attachment_creation_date']
+        fields = ['user', 'content', 'date']
 
 
 class VoteSerializer(serializers.ModelSerializer):
