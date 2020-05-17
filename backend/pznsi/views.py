@@ -8,7 +8,7 @@ from django.db.models import Value, IntegerField, Case, When
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
-from guardian.shortcuts import get_objects_for_user
+from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_user_perms, get_group_perms, get_perms
 from guardian.utils import get_anonymous_user
 from rest_framework import permissions, mixins, viewsets
 from rest_framework.decorators import action
@@ -416,12 +416,44 @@ def can_add_project(request):
 
 
 def PermEnviroment(request):
-    return render(request, 'pznsi/logged/workspace/perm_environment.html')
+    if request.method == 'POST':
+        environment_id = int(request.POST.get('environment_id'))
+        environment = Environment.objects.get(id= environment_id)
+        users = User.objects.all().exclude(id=get_anonymous_user().id)
+        permitted_users = get_users_with_perms(environment, attach_perms=True)
+        context = {
+            'users': users,
+            'permitted_users': permitted_users
+        }
+        return render(request, 'pznsi/logged/workspace/perm_environment.html', context)
+    else:
+        raise Http404
 
 
 def permProject(request):
-    return render(request, 'pznsi/logged/workspace/perm_project.html')
+    if request.method == 'POST':
+        project_id = int(request.POST.get('project_id'))
+        project = Environment.objects.get(id=project_id)
+        users = User.objects.all().exclude(id=get_anonymous_user().id)
+        permitted_users = get_users_with_perms(project, attach_perms=True)
+        context = {
+            'users': users,
+            'permitted_users': permitted_users
+        }
+        return render(request, 'pznsi/logged/workspace/perm_project.html', context)
+    else:
+        raise Http404
 
 
 def project(request):
-    return render(request, 'pznsi/logged/workspace/project.html')
+    if request.method == 'POST':
+        project_id = int(request.POST.get('project_id'))
+        project = Project.objects.get(id=project_id)
+        user_permissions = get_perms(request.user, project)
+        context = {
+            'project': project,
+            'permissions': user_permissions
+        }
+        return render(request, 'pznsi/logged/workspace/project.html', context)
+    else:
+        raise Http404
