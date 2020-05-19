@@ -433,7 +433,7 @@ def PermEnviroment(request):
 def permProject(request):
     if request.method == 'POST':
         project_id = int(request.POST.get('project_id'))
-        project = Environment.objects.get(id=project_id)
+        project = Project.objects.get(id=project_id)
         users = User.objects.all().exclude(id=get_anonymous_user().id)
         permitted_users = get_users_with_perms(project, attach_perms=True)
         context = {
