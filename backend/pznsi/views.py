@@ -73,7 +73,8 @@ class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Create
                 user = User.objects.get(id=user_id)
                 user.groups.remove(editor_group)
                 remove_environment_view(environment, user)
-                return Response({'result': '1'})
+                return Response({'result': '1',
+                                 'detail': 'Successfully removed permissions'})
             except ObjectDoesNotExist:
                 return Response({'result': '0',
                                  'detail': 'User does not exist'}, status.HTTP_400_BAD_REQUEST)
@@ -201,7 +202,7 @@ class Projects(mixins.CreateModelMixin,
                         environment = project.environment
                         remove_environment_view(environment, user)
                 return Response({'result': 1,
-                                 'detail': 'Successfully added permissions'})
+                                 'detail': 'Successfully removed permissions'})
             else:
                 return Response({'result': 0,
                                  'detail': 'Provided wrong permissions'}, status.HTTP_400_BAD_REQUEST)
