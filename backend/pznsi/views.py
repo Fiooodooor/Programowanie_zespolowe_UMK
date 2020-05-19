@@ -8,15 +8,25 @@ from django.db.models import Value, IntegerField, Case, When
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
-from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_user_perms, get_group_perms, get_perms
+from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_perms
 from guardian.utils import get_anonymous_user
-from rest_framework import permissions, mixins, viewsets
+from rest_framework import permissions, mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from pznsi.models import User, Environment, Project, Comment, Attachment, Vote, ProjectCategory
 from pznsi.serializers import EnvironmentSerializer, ProjectDetailSerializer
+
+
+def remove_environment_view(environment, user):
+    user_projects = get_objects_for_user(user, 'view_project_instance', environment.project_set)
+    if not user_projects and not user.has_perm('edit_environment_instance', environment):
+        group = Group.objects.get(name=f'{environment.id}_environment_viewers')
+        user.groups.remove(group)
+        return True
+    else:
+        return False
 
 
 class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.RetrieveModelMixin):
@@ -26,6 +36,10 @@ class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Create
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    def get_queryset(self):
+        qs = get_objects_for_user(self.request.user, 'view_environment_instance', super().get_queryset())
+        return qs
 
     @action(detail=True, methods=['post'])
     def add_permissions(self, request, pk=None):
@@ -43,7 +57,7 @@ class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Create
                 return Response({'result': '1'})
             except ObjectDoesNotExist:
                 return Response({'result': '0',
-                                 'detail': 'User does not exist'})
+                                 'detail': 'User does not exist'}, status.HTTP_400_BAD_REQUEST)
         else:
             raise PermissionDenied({"message": "You don't have permission to edit",
                                     "object_id": environment.id})
@@ -54,17 +68,15 @@ class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Create
         if request.user == environment.owner:
             user_id = int(request.data['user_id'])
             editor_group_name = f'{str(environment.id)}_environment_editors'
-            viewer_group_name = f'{str(environment.id)}_environment_viewers'
             editor_group = Group.objects.get(name=editor_group_name)
-            viewer_group = Group.objects.get(name=viewer_group_name)
             try:
                 user = User.objects.get(id=user_id)
                 user.groups.remove(editor_group)
-                user.groups.remove(viewer_group)
+                remove_environment_view(environment, user)
                 return Response({'result': '1'})
             except ObjectDoesNotExist:
                 return Response({'result': '0',
-                                 'detail': 'User does not exist'})
+                                 'detail': 'User does not exist'}, status.HTTP_400_BAD_REQUEST)
         else:
             raise PermissionDenied({"message": "You don't have permission to edit",
                                     "object_id": environment.id})
@@ -136,6 +148,66 @@ class Projects(mixins.CreateModelMixin,
                                  'detail': 'Vote updated successfully'})  # TODO change date
         else:
             raise PermissionDenied({"message": "No permission to vote",
+                                    "object_id": project.id})
+
+    @action(detail=True, methods=['post'])
+    def add_permissions(self, request, pk=None):
+        project = self.get_object()
+        project_voters = Group.objects.get(name=f'{project.id}_project_voters')
+        project_editors = Group.objects.get(name=f'{project.id}_project_editors')
+        project_viewers = Group.objects.get(name=f'{project.id}_project_viewers')
+        if request.user == project.owner:
+            user_id = int(request.data['user_id'])
+            permissions = set(request.data['permissions'])
+            user = User.objects.get(id=user_id)
+            allowed_permissions = {'vote', 'edit_project_instance', 'view_project_instance'}
+            if permissions.issubset(allowed_permissions):
+                for permission in permissions:
+                    if permission == 'vote':
+                        user.groups.add(project_voters)
+                    elif permission == 'edit_project_instance':
+                        user.groups.add(project_editors)
+                    elif permission == 'view_project_instance':
+                        user.groups.add(project_viewers)
+                return Response({'result': 1,
+                                 'detail': 'Successfully added permissions'})
+            else:
+                return Response({'result': 0,
+                                 'detail': 'Provided wrong permissions'}, status.HTTP_400_BAD_REQUEST)
+
+        else:
+            raise PermissionDenied({"message": "Unable to change user permissions",
+                                    "object_id": project.id})
+
+    @action(detail=True, methods=['post'])
+    def remove_permissions(self, request, pk=None):
+        project = self.get_object()
+        project_voters = Group.objects.get(name=f'{project.id}_project_voters')
+        project_editors = Group.objects.get(name=f'{project.id}_project_editors')
+        project_viewers = Group.objects.get(name=f'{project.id}_project_viewers')
+        if request.user == project.owner:
+            user_id = int(request.data['user_id'])
+            permissions = set(request.data['permissions'])
+            user = User.objects.get(id=user_id)
+            allowed_permissions = {'vote', 'edit_project_instance', 'view_project_instance'}
+            if permissions.issubset(allowed_permissions):
+                for permission in permissions:
+                    if permission == 'vote':
+                        user.groups.remove(project_voters)
+                    elif permission == 'edit_project_instance':
+                        user.groups.remove(project_editors)
+                    elif permission == 'view_project_instance':
+                        user.groups.remove(project_viewers)
+                        environment = project.environment
+                        remove_environment_view(environment, user)
+                return Response({'result': 1,
+                                 'detail': 'Successfully added permissions'})
+            else:
+                return Response({'result': 0,
+                                 'detail': 'Provided wrong permissions'}, status.HTTP_400_BAD_REQUEST)
+
+        else:
+            raise PermissionDenied({"message": "Unable to change user permissions",
                                     "object_id": project.id})
 
 
@@ -418,7 +490,7 @@ def can_add_project(request):
 def PermEnviroment(request):
     if request.method == 'POST':
         environment_id = int(request.POST.get('environment_id'))
-        environment = Environment.objects.get(id= environment_id)
+        environment = Environment.objects.get(id=environment_id)
         users = User.objects.all().exclude(id=get_anonymous_user().id)
         permitted_users = get_users_with_perms(environment, attach_perms=True)
         context = {
