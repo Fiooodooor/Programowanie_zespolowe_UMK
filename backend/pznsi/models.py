@@ -64,7 +64,7 @@ class Project(models.Model):
 class Comment(models.Model):
     comment_title = models.CharField(max_length=100, blank=True, null=True)
     comment_content = models.CharField(max_length=2000)
-    comment_date = models.DateField(default=datetime.now, blank=True, null=True)
+    comment_date = models.DateTimeField(default=datetime.now, blank=True, null=True)
     comment_reaction = models.CharField(max_length=50, default='none')
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -76,7 +76,7 @@ class Attachment(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True, blank=True)
     attachment_name = models.CharField(max_length=2000, null=True, blank=True)
     content = models.FileField(upload_to='attachments', blank=True, null=True)
-    attachment_creation_date = models.DateField(default=datetime.now, blank=True, null=True)
+    attachment_creation_date = models.DateTimeField(default=datetime.now, blank=True, null=True)
     attachment_type = models.CharField(max_length=50, default='file')
     attachment_visible_date = models.DateField(blank=True, null=True)
 
@@ -84,14 +84,14 @@ class Attachment(models.Model):
 class Vote(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    vote_date = models.DateField(default=datetime.now, blank=True, null=True)
+    vote_date = models.DateTimeField(default=datetime.now, blank=True, null=True)
     vote_content = models.IntegerField(null=True, blank=True)
 
 
 class Repository(models.Model):
     attachments = models.ForeignKey(Attachment, on_delete=models.CASCADE, null=True, blank=True)
     repository_file_content = models.CharField(max_length=2000)
-    repository_file_date_created = models.DateField(blank=True, null=True)
+    repository_file_date_created = models.DateTimeField(blank=True, null=True)
     repository_file_status = models.CharField(max_length=100)
 
 

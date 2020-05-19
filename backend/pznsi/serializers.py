@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    date = serializers.CharField(source='comment_date')
+    date = serializers.DateTimeField(source='comment_date')
 
     class Meta:
         model = Comment
@@ -20,7 +20,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class AttachmentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    date = serializers.CharField(source='attachment_creation_date')
+    date = serializers.DateTimeField(source='attachment_creation_date')
 
     class Meta:
         model = Attachment

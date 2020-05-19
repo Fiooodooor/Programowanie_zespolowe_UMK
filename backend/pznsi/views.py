@@ -54,7 +54,8 @@ class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Create
                 user = User.objects.get(id=user_id)
                 user.groups.add(editor_group)
                 user.groups.add(viewer_group)
-                return Response({'result': '1'})
+                return Response({'result': '1',
+                                 'detail': 'Successfully added permissions'})
             except ObjectDoesNotExist:
                 return Response({'result': '0',
                                  'detail': 'User does not exist'}, status.HTTP_400_BAD_REQUEST)
