@@ -8,7 +8,7 @@
 {{ keyword }}
 {{ page }}
 {% for environment in environments %}
-    <a>{{environment.id}} {{environment.environment_name}}</a>
+    <a>{{environment.id}} {{environment.environment_name}} {{ environment.isOwner }}</a>
 {% endfor %}
 </body>
 </html>

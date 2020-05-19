@@ -1,5 +1,18 @@
 ### CHANGELOG.md
 
+## 2020-05-19
+* aktualna wersja aplikacji
+ master: 0.2
+ test: 0.4
+ devel: 0.4
+
+
+## 2020-05-19
+* aktualna wersja aplikacji
+ master: 0.2
+ test: 0.2
+ devel: 0.3
+
 ## 2020-05-07
 * aktualna wersja aplikacji
  master: 0.2
