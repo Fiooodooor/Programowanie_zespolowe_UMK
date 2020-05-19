@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from rest_framework import permissions, mixins, viewsets
 
-from pznsi.models import User, Environment, Project
+from pznsi.models import User, Environment, Project, ProjectCategory
 from pznsi.serializers import EnvironmentSerializer, ProjectDetailSerializer
 
 
@@ -215,7 +215,7 @@ def save_project(request):
     if request.method == 'POST':
         requested_project = int(request.POST.get('project_id'))
         requested_project_name = request.POST.get('project_name')
-        requested_project_category = request.POST.get('project_category')
+        requested_project_category = request.POST.get('project_category')  # byl kom
         requested_project_desc = request.POST.get('project_description')
         image_base64 = request.POST.get('cover_image')
         requested_owner = int(request.POST.get('owner'))
@@ -228,7 +228,9 @@ def save_project(request):
         else:
             project = Project.objects.create(project_name=requested_project_name,
                                              owner=User.objects.get(id=requested_owner),
-                                             project_category=requested_project_category,
+                                             project_category=ProjectCategory.objects.get(
+                                                 id=requested_project_category),
+                                             # project_category=requested_project_category,
                                              project_content=requested_project_desc,
                                              environment=Environment.objects.get(id=environment_id))
         if image_base64 != '':
@@ -237,7 +239,8 @@ def save_project(request):
             image = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
             project.cover_image = image
         project.save()
-        return JsonResponse({"project_name": requested_project_name, "project_category": requested_project_category,
+        return JsonResponse({"project_name": requested_project_name,
+                             "project_category": requested_project_category,  # byl kom
                              "project_content": requested_project_desc})
     else:
         raise Http404
@@ -257,7 +260,7 @@ def edit_project(request):
             'project': project,
             'users': users,
             'mode': mode,
-            'project_id': requested_project
+            'project_id': requested_project,
         }
         return render(request, 'pznsi/logged/workspace/edit_project.html', context)
     else:

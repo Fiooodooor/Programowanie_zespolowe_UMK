@@ -38,7 +38,6 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
         return project
 
 
-
 class EnvironmentSerializer(serializers.ModelSerializer):
     projects = ProjectBasicsSerializers(source='project_set', many=True, required=False)
     owner = UserSerializer(read_only=True)
