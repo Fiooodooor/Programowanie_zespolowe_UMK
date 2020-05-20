@@ -30,8 +30,8 @@ class Environment(models.Model):
     def __str__(self):
         return f'{self.environment_name} ({self.id})'
 
-    def get_projects(self, user):
-        return get_objects_for_user(user, 'view_project_instance', self.project_set)
+    def get_projects(self):
+        return self.project_set
 
 
 class ProjectCategory(models.Model):

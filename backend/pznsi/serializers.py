@@ -112,7 +112,7 @@ class EnvironmentSerializer(serializers.ModelSerializer):
         return environment
 
     def get_projects(self, obj):
-        projects = obj.get_projects(self.context['request'].user)
+        projects = obj.get_projects()
         return ProjectBasicsSerializers(projects, many=True).data
 
     def get_cover_image(self, obj):

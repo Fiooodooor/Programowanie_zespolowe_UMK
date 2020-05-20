@@ -48,14 +48,23 @@ class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Create
             user_id = int(request.data['user_id'])
             editor_group_name = f'{str(environment.id)}_environment_editors'
             viewer_group_name = f'{str(environment.id)}_environment_viewers'
+            permissions = set(request.data['permissions'])
+            allowed_permissions = {'edit_environment_instance', 'view_environment_instance'}
             editor_group = Group.objects.get(name=editor_group_name)
             viewer_group = Group.objects.get(name=viewer_group_name)
             try:
                 user = User.objects.get(id=user_id)
-                user.groups.add(editor_group)
-                user.groups.add(viewer_group)
-                return Response({'result': '1',
-                                 'detail': 'Successfully added permissions'})
+                if permissions.issubset(allowed_permissions):
+                    for permission in permissions:
+                        if permission == 'edit_environment_instance':
+                            user.groups.add(editor_group)
+                        elif permission == 'view_environment_instance':
+                            user.groups.add(viewer_group)
+                    return Response({'result': 1,
+                                     'detail': 'Successfully added permissions'})
+                else:
+                    return Response({'result': 0,
+                                     'detail': 'Provided wrong permissions'}, status.HTTP_400_BAD_REQUEST)
             except ObjectDoesNotExist:
                 return Response({'result': '0',
                                  'detail': 'User does not exist'}, status.HTTP_400_BAD_REQUEST)
@@ -69,13 +78,24 @@ class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Create
         if request.user == environment.owner:
             user_id = int(request.data['user_id'])
             editor_group_name = f'{str(environment.id)}_environment_editors'
+            viewer_group_name = f'{str(environment.id)}_environment_viewers'
+            permissions = set(request.data['permissions'])
+            allowed_permissions = {'edit_environment_instance', 'view_environment_instance'}
             editor_group = Group.objects.get(name=editor_group_name)
+            viewer_group = Group.objects.get(name=viewer_group_name)
             try:
                 user = User.objects.get(id=user_id)
-                user.groups.remove(editor_group)
-                remove_environment_view(environment, user)
-                return Response({'result': '1',
-                                 'detail': 'Successfully removed permissions'})
+                if permissions.issubset(allowed_permissions):
+                    for permission in permissions:
+                        if permission == 'edit_environment_instance':
+                            user.groups.remove(editor_group)
+                        elif permission == 'view_environment_instance':
+                            user.groups.remove(viewer_group)
+                    return Response({'result': 1,
+                                     'detail': 'Successfully removed permissions'})
+                else:
+                    return Response({'result': 0,
+                                     'detail': 'Provided wrong permissions'}, status.HTTP_400_BAD_REQUEST)
             except ObjectDoesNotExist:
                 return Response({'result': '0',
                                  'detail': 'User does not exist'}, status.HTTP_400_BAD_REQUEST)
@@ -200,8 +220,6 @@ class Projects(mixins.CreateModelMixin,
                         user.groups.remove(project_editors)
                     elif permission == 'view_project_instance':
                         user.groups.remove(project_viewers)
-                        environment = project.environment
-                        remove_environment_view(environment, user)
                 return Response({'result': 1,
                                  'detail': 'Successfully removed permissions'})
             else:
@@ -313,7 +331,8 @@ def front_projects(request):
         page = int(request.POST.get('page'))
         keyword = request.POST.get('keyword')
         id_project = request.POST.get('id_project', None)
-        user_projects = get_objects_for_user(request.user, 'view_project_instance', Project)
+        environments = get_objects_for_user(request.user, 'view_environment_instance', Environment)
+        user_projects = Project.objects.filter(environment__in=environments)
         if id_project is not None:
             id_project = int(id_project)
             project_list = user_projects.filter(id=id_project).annotate(
