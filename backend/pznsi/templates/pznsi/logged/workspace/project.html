@@ -1,2 +1,464 @@
-Widok projektu
+<div class="row justify-content-center">
+    <div class="col-lg-8   p-3">
+        <div class="bgw p-3 " style="min-height: 100%">
+            <h3>Opis</h3>
+            {{ project.project_content }}
+        </div>
+    </div>
+    <div class="col-lg-4   p-3">
+        <div class="bgw p-3" style="min-height: 100%">
+            <h3>Menu Oceny</h3>
+            <h4>Średnia Projektu: 7.9</h4>
+            {% if 'vote' in permissions %}
+                <h4>Twoja Ocena: BRAK </h4>
+                <button class="btn btn-secondary w-100" id="voteButton">Głosowanie</button>{% endif %}
+            <button class="btn btn-primary w-100" id="statsButton">Statystyki</button>
 
+        </div>
+    </div>
+    {% if 'view_project_instance' in permissions %}
+        <div class="col-lg-8   p-3">
+            <div class="bgw p-3" style="min-height: 100%">
+                <h3>Komentarze</h3>
+                <div class="input-group" style="height: 80%">
+                    <textarea id="newCommentContent" class="form-control" style="height: 80%"></textarea>
+                    <div class="input-group-append">
+                        <button id="newCommentButton" class="btn btn-secondary" type="button">Skomentuj</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4   p-3">
+            <div id="addFileContent" class="bgw p-3" style="min-height: 100%">
+                <h3>Dodaj Pliki</h3>
+                <input type="file" name="file" id="fileBackground" style="display: none">
+                <span alt="" style="width: 50%;height: 20%" class="fa fa-5x fa-file"> </span>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<div class="row justify-content-center" id="commentAttachmentProject">
+
+
+</div>
+{% if 'edit_project_instance' in permissions %}
+    <script>$('#editProjectInsideBtn').show();</script>
+{% endif %}
+
+<!-- upload plików -->
+<script>
+    $(document).ready(function () {
+        $('#editProjectInsideBtn').on('click', function () {
+            trybPracy = 6;
+            ZmianaTrybuPracy();
+        });
+        $("html").on("dragover", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        $("html").on("drop", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+        $('#addFileContent > span').on('dragenter', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            $('#addFileContent').addClass('border-blue');
+            $(this).addClass('fa-file-upload');
+            $(this).removeClass('fa-file');
+
+        });
+        /*$('#addFileContent > span').on('dragover', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            $('#addFileContent').removeClass('border-blue');
+
+        });*/
+        $('#addFileContent > span').on('drop', function (e) {
+            $('#loadingSpinner').show();
+            e.stopPropagation();
+            e.preventDefault();
+            $('#fileBackground')[0].files = e.originalEvent.dataTransfer.files;
+            setImage();
+            $('#addFileContent').removeClass('border-blue');
+            $(this).addClass('fa-file-upload');
+            $(this).removeClass('fa-file');
+        });
+
+        $('#addFileContent > span').click(function () {
+            $("#fileBackground").click();
+        });
+        $("#fileBackground").change(function () {
+            $('#loadingSpinner').show();
+            setImage();
+            $('#loadingSpinner').hide();
+        });
+    });
+
+    function sendFile() {
+        bootbox.prompt("Podaj tutuł pliku ", function (out1) {
+            if (out1 != null) {
+                $('#loadingSpinner').show();
+                /*
+                $.post('/api/projects/' + selectedProject + '/add_attachment/', {
+                    'file': selectedFile,
+                    'csrfmiddlewaretoken': ''
+                }, function (result) {
+
+                }).fail(function () {
+                    $('#loadingSpinner').hide();
+                    bootbox.alert('Wystąpił Błąd');
+                });*/
+
+                var fd = new FormData();
+                var files = FileToUploadAttachment;
+                fd.append('file', files);
+                fd.append('title', out1);
+                fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                $.ajax({
+                    url: '/api/projects/' + selectedProject + '/add_attachment/',
+                    type: 'post',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        $('#loadingSpinner').hide();
+                        dataLoad();
+                        bootbox.alert('Dodano plik');
+                    },
+                }).fail(function () {
+                    $('#loadingSpinner').hide();
+                    bootbox.alert('Wystąpił Błąd');
+                });
+            }
+            selectedFile = "";
+        });
+
+    }
+    var FileToUploadAttachment="";
+    function setImage() {
+        $('#loadingSpinner').show();
+        file = $('#fileBackground')[0].files[0];
+        FileToUploadAttachment = $('#fileBackground')[0].files[0];
+        if (file != null) {
+            if (checkSizeFile(file)) {
+                getBase64(file).then(
+                    data => {
+                        selectedFile = data;
+                        sendFile();
+                        //  $('#loadingSpinner').hide();
+                    }
+                );
+            } else {
+                bootbox.alert("Plik jest za duży.Max 30 MB");
+                $('#loadingSpinner').hide();
+            }
+
+        } else $('#loadingSpinner').hide();
+    }
+
+    function checkFileTypes(file) {
+        acceptmimetypes = ['image/apng', 'image/bmp', 'image/gif', 'image/jpeg', 'image/png'];
+        for (var item of acceptmimetypes) if (item == file.type) return true;
+        return false;
+    }
+
+    var data = [];
+    var votes = [];
+
+    function dataLoad() {
+        $.get('/api/projects/' + selectedProject + '/', function (result) {
+            votes = result['votes'];
+            var datal = [];
+            for (var i = 0; i < result['comments'].length; i++) {
+                datal.push({
+                    type: "comment",
+                    User: result['comments'][i]['user']['username'],
+                    UserIco: result['comments'][i]['user']['avatar'],
+                    data: result['comments'][i]['comment_content'],
+                    date: result['comments'][i]['date']
+                });
+            }
+            for (var i = 0; i < result['attachments'].length; i++) {
+                datal.push({
+                    type: "attachment",
+                    User: result['attachments'][i]['user']['username'],
+                    UserIco: result['attachments'][i]['user']['avatar'],
+                    data: result['attachments'][i]['content'],
+                    date: result['attachments'][i]['date']
+                });
+            }
+            data = datal;
+            data.sort(function (a, b) {
+                var da = new Date(a['date']);
+                var db = new Date(b['date']);
+                if (da.getTime() > db.getTime())
+                    return -1
+                if (da.getTime() < db.getTime())
+                    return 1
+                // a równe b
+                return 0
+            });
+            loadComments();
+            loadStats();
+        }).fail(function () {
+
+        });
+    }
+
+    function loadStats() {
+        console.log(votes);
+    }
+
+    $(document).ready(function () {
+        $('.statNavItem').on('click', function () {
+            $('.statNavItem').removeClass('active');
+            $(this).addClass('active');
+            if ($(this).attr('data-type') === "chart") {
+                $('#ChartProject').show();
+                $('#ListVoters').hide();
+            }
+            if ($(this).attr('data-type') === "list") {
+                $('#ChartProject').hide();
+                $('#ListVoters').show();
+            }
+        })
+
+        $('#voteButton').on('click', function () {
+            $('#voteModal').modal();
+        });
+        $('#statsButton').on('click', function () {
+            $('#ListVoters').hide();
+            console.log(votes);
+            dataChart = [];
+            for (var i = 0; i < 10; i++) dataChart[i] = 0;
+            for (var i = 0; i < votes.length; i++) {
+                dataChart[votes[i]['vote_content'] / 10 - 1]++;
+                $('#ListVotersTbody').append($('<tr>').append($('<td>').append($('<img>').addClass('comIco').attr('src', votes[i]['user']['avatar']), votes[i]['user']['username']), $('<td>').html(votes[i]['vote_content'] / 10)))
+
+            }
+
+            var ctx = document.getElementById('ChartProject').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'horizontalBar',
+                data: {
+                    labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+                    datasets: [{
+                        label: 'Ilość Ocen',
+                        data: dataChart,
+                        backgroundColor: [
+
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(153, 102, 255, 0.2)'
+
+                        ],
+                        borderColor: [
+
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+
+
+            $('#statsModal').modal();
+        });
+        $('#newCommentButton').on('click', function () {
+            $('#loadingSpinner').show();
+            var dane = $('#newCommentContent').val();
+            $.post('/api/projects/' + selectedProject + '/add_comment/', {
+                'comment': dane,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            }, function (result) {
+                dataLoad();
+                $('#loadingSpinner').hide();
+            }).fail(function () {
+                $('#loadingSpinner').hide();
+                bootbox.alert('Wystąpił Błąd');
+            });
+
+            $('#newCommentContent').val('');
+
+        });
+        dataLoad();
+        loadComments();
+
+    });
+
+    function loadComments() {
+        $('#commentAttachmentProject').html('');
+        //tu będzie post na wyciągnięcie danych
+        for (var i = 0; i < data.length; i++) {
+            sum = 0;
+            p1 = 0
+            if (data[i]['type'] === "comment")
+                p1 = Podzial(data[i]['data']);
+            else
+                p1 = 4;
+            p2 = 0;
+            p3 = 0;
+            if (i + 1 < data.length) {
+                if (data[i + 1]['type'] === "comment")
+                    p2 = Podzial(data[i + 1]['data']);
+                else p2 = 4;
+            }
+
+            if (i + 2 < data.length) {
+                if (data[i + 2]['type'] === "comment")
+                    p3 = Podzial(data[i + 2]['data']);
+                else p3 = 4;
+            }
+
+            if (p1 === 4) {
+                if (p2 === 0) showContent(data[i], p1);
+                else if (p2 === 4) {
+                    if (p3 === 0) {
+                        showContent(data[i], p1);
+                        showContent(data[i + 1], p2);
+                        i++;
+                    }
+                    if (p3 === 4) {
+                        showContent(data[i], p1);
+                        showContent(data[i + 1], p2);
+                        showContent(data[i + 2], p3);
+                        i += 2;
+                    }
+                    if (p3 === 6) {
+                        showContent(data[i], p1);
+                        showContent(data[i + 1], p2);
+                        showContent(data[i + 2], p3 - 2);
+                        i += 2;
+                    }
+                    if (p3 === 12) {
+                        showContent(data[i], p1 + 2);
+                        showContent(data[i + 1], p2 + 2);
+                        i++;
+                    }
+                } else if (p2 === 6) {
+                    showContent(data[i], p1 + 2);
+                    showContent(data[i + 1], p2);
+                    i++;
+                } else if (p2 === 12) {
+                    showContent(data[i], p1);
+                    showContent(data[i + 1], p2 - 4);
+                    i++;
+                }
+            } else if (p1 === 6) {
+                if (p2 === 6) {
+                    showContent(data[i], p1);
+                    showContent(data[i + 1], p2);
+                    i++;
+                } else if (p2 === 4) {
+                    showContent(data[i], p1);
+                    showContent(data[i + 1], p2 + 2);
+                    i++;
+
+                } else if (p2 === 12) {
+                    showContent(data[i], p1);
+                    showContent(data[i + 1], p2 - 6);
+                    i++;
+
+                } else if (p2 === 0) showContent(data[i], p1);
+            } else if (p1 === 12) {
+                showContent(data[i], p1);
+            }
+
+
+        }
+    }
+
+    function showContent(data, len) {
+        var d = new Date(data['date']);
+        dformat = [d.getMonth() + 1,
+                d.getDate(),
+                d.getFullYear()].join('/') + ' ' +
+            [d.getHours(),
+                d.getMinutes(),
+                d.getSeconds()].join(':');
+
+        var element = "";
+        if (data['UserIco'] === null) {
+            data['UserIco'] = '/static/pznsi/images/user.ico';
+        }
+        if (data['type'] === "comment") {
+            element = $('<div>').addClass('col-lg-' + len + ' p-3').append(
+                $('<div>').addClass('bgw p-3 mh-100').append(
+                    $('<h4>').append(
+                        $('<img>').addClass('comIco').attr("src", data['UserIco'])
+                        , ' ',
+                        data['User'], ' ',
+                        $('<span>').addClass('dateFormat').html(dformat)
+                    ),
+                    $('<p>').html(data['data'])
+                )
+            );
+        }
+        if (data['type'] === "attachment") {
+            var showElement = $('<span>');
+            arr = data['data'].split('.');
+            if (arr[arr.length - 1] == 'jpeg' || arr[arr.length - 1] == 'gif' || arr[arr.length - 1] == 'bmp' || arr[arr.length - 1] == 'png ') {
+                showElement.append($('<img>').attr('src', data['data']).css('height', '3em').css('display', 'block').css('margin', '0px auto').addClass('text-center justify-content-center')).addClass('w-100 ');
+            } else {
+                showElement.addClass('fa fa-3x fa-file fileComment');
+            }
+
+            element = $('<div>').addClass('col-lg-' + len + ' p-3').append(
+                $('<div>').addClass('bgw p-3 mh-100').append(
+                    $('<h4>').append(
+                        $('<img>').addClass('comIco').attr("src", data['UserIco']), ' ', data['User'], ' ', $('<span>').addClass('dateFormat').html(dformat)
+                    ),
+                    $('<a>').attr('href', data['data']).attr('target', '_blank').addClass('fileComment justify-content-center text-center').css('text-decoration', 'none').css('color', 'black').append(showElement, $('<h4>').html('TitleAttach'))
+                )
+            );
+        }
+        $('#commentAttachmentProject').append(element);
+    }
+
+    /**
+     * @return {number}
+     */
+    function Podzial(str) {
+        if (str.length < 80) return 4;
+        if (str.length > 200) return 12;
+        else return 6;
+    }
+</script>

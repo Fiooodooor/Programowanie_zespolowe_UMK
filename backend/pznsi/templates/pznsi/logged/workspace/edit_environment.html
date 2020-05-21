@@ -7,7 +7,7 @@
             mix-blend-mode: difference;
         }
     </style>
-    <div class="col-sm-6">
+    <div class="col-sm-6 p-3 bgw">
         <label>Nazwa Środowiska</label>
         <input maxlength="100" type="text" class="form-control" value="{{ environment.environment_name }}" id="editEnvi_nameEnvi">
         <label>Właściciel Środowiska</label>
@@ -31,34 +31,38 @@
                  >
                  <h3 id="editEnvi_dragName">Kliknij lub przeciągnij aby dodać tło </h3></div>
         </div>
-
-    </div>
-</div>
-
-<div class="row justify-content-center padding-bottom-2">
-    <div class="col-sm-6 padding-top-1">
+            <div class=" padding-top-1">
         <input data-edit-id="{{ environment.id }}" type="button"
                value="{% if mode == 0 %}Edytuj{% else %}Dodaj Nowy {% endif %}"
                onclick="SendForm({% if mode == 0 %}{{ environment.id }}{% else %}0{% endif %},'{% if mode == 0 %}{{ environment.name }}{% endif %}')" class="btn btn-outline-info">
+    </div>
     </div>
 </div>
 <script>
     selectedFile = "";
 
     function SendForm(id, nameEnvi) {
+        $('#loadingSpinner').show();
         $.post('/api/editEnviSave', {
             'cover_image': selectedFile,
             'owner': $('#owner_id').val(),
             'environment_name': $('#editEnvi_nameEnvi').val(),
             'numEnvi': id,
             'csrfmiddlewaretoken': '{{ csrf_token }}'
-        }, function (result) {
-            if (result != null) {
-                if (result['result'] == "1") {
-                    trybPracy = 1;
-                    ZmianaTrybuPracy();
+        }, function (result,state,status) {
+            if(status['status']==200) {
+                if (result != null) {
+                    if (result['result'] == "1") {
+                        trybPracy = 1;
+                        ZmianaTrybuPracy();
+                    } else bootbox.alert("error");
                 } else bootbox.alert("error");
-            } else bootbox.alert("error");
+            }
+            else bootbox.alert('Wystąpił Błąd ');
+
+        }).fail(function () {
+             $('#loadingSpinner').hide();
+            bootbox.alert('Wystąpił Błąd');
         });
     }
 
@@ -84,12 +88,14 @@
             $("#editEnvi_dragName").text("Upuść tu ");
         });
         $('.upload-area').on('drop', function (e) {
+            $('#loadingSpinner').show();
             e.stopPropagation();
             e.preventDefault();
             $("#editEnvi_dragName").text("ładowanie pliku");
             $('#fileBackground')[0].files = e.originalEvent.dataTransfer.files;
             setImage();
             $("#editEnvi_dragName").text("Kliknij lub przeciągnij aby dodać tło");
+            $('#loadingSpinner').hide();
         });
 
         $("#uploadfile").click(function () {
@@ -97,11 +103,14 @@
         });
 
         $("#fileBackground").change(function () {
+            $('#loadingSpinner').show();
             setImage();
+            $('#loadingSpinner').hide();
         });
     });
 
-    function setImage() {
+   function setImage() {
+        $('#loadingSpinner').show();
         file = $('#fileBackground')[0].files[0];
         if (file != null) {
             if (checkSizeFile(file)) {
@@ -110,11 +119,21 @@
                         data => {
                             selectedFile = data;
                             $('#backgroundEx').css('background-image', "url('" + data + "')")
+                            $('#loadingSpinner').hide();
                         }
                     );
-                } else bootbox.alert("Dozwolone są tylko obrazy ! ");
-            } else bootbox.alert("Plik jest za duży.Max 30 MB");
+                } else {
+                    bootbox.alert("Dozwolone są tylko obrazy ! ");
+                    $('#loadingSpinner').hide();
+                }
+            }
+            else {
+                bootbox.alert("Plik jest za duży.Max 30 MB");
+                $('#loadingSpinner').hide();
+                    }
+
         }
+        else $('#loadingSpinner').hide();
     }
 
     function checkFileTypes(file) {

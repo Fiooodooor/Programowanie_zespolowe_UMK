@@ -3,7 +3,7 @@
 
 
   {% for project in projects %}
-    <div class="col-lg-4 listEnvPrElemet " style="padding-top:15px;padding-bottom: 15px">
+    <div class="col-lg-4 listEnvPrElemet clearfix  " style="min-height:100%;padding-top:15px;padding-bottom: 15px">
 
  {% if project.isOwner %}
         <div class="dropdown" style="position: absolute;top:20px;right:20px">
@@ -11,21 +11,22 @@
         <i class="fa fa-ellipsis-v "></i>
   </button>
   <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-    <span class="dropdown-item editProjectButton" data-project-envi-id="{{ project.environment.id }}" data-project-envi-name="{{ project.environment.environment_name }}"  data-project-id="{{project.id}}" data-project-name="{{ project.project_name }}" >Edycja</span>
-    <span class="dropdown-item permProjectButton" data-project-envi-id="{{ project.environment.id }}" data-project-envi-name="{{ project.environment.environment_name }}" data-project-id="{{project.id}}" data-project-name="{{ project.project_name }}">Uprawnienia</span>
+    <span class="dropdown-item editProjectButton"  data-background="{% if project.cover_image %}{{ project.cover_image.url }} {% endif %}" data-project-envi-id=" {{ project.environment.id }}" data-project-envi-id="{{ project.environment.id }}" data-project-envi-name="{{ project.environment.environment_name }}"  data-project-id="{{project.id}}" data-project-name="{{ project.project_name }}" >Edycja</span>
+    <span class="dropdown-item permProjectButton"  data-background="{% if project.cover_image %}{{ project.cover_image.url }} {% endif %}" data-project-envi-id=" {{ project.environment.id }}" data-project-envi-id="{{ project.environment.id }}" data-project-envi-name="{{ project.environment.environment_name }}" data-project-id="{{project.id}}" data-project-name="{{ project.project_name }}">Uprawnienia</span>
   </div>
 </div>
     {% endif %}
-        <div class="text-center ProjectListElement mixblend"  data-project-envi-id="{{ project.environment.id }}" data-project-envi-name="{{ project.environment.environment_name }}" data-project-id="{{project.id}}"  data-project-name="{{ project.project_name }}" style="border-radius: 10px;padding: 4rem;;background-color: #f0f0f0;background-size: 100% 100%;background-repeat: no-repeat;
+        <div class="text-center ProjectListElement "  data-background="{% if project.cover_image %}{{ project.cover_image.url }} {% endif %}" data-project-envi-id="{{ project.environment.id }}" data-project-envi-name="{{ project.environment.environment_name }}" data-project-id="{{project.id}}"  data-project-name="{{ project.project_name }}" style="height:100%;border-radius: 10px;padding: 4rem;;background-color: #f0f0f0;background-size: 100% 100%;background-repeat: no-repeat;
                 {% if project.cover_image %}
                          background-image: url('{{ project.cover_image.url }}');
                 {% endif %}
             ">
-            <h3 class="">{{ project.project_name }} </h3>
-            {{ project.project_content|slice:":50" }}...
+            <h3 class="reversColor">{{ project.project_name }} </h3>
+            <span class="reversColor">{{ project.project_content|slice:":50" }}...</span>
         </div>
     </div>
-      <script>EventProjectClick();</script>
+      <script>EventProjectClick();
+      </script>
 
 {% endfor %}
 

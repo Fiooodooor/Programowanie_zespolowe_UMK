@@ -1,1 +1,178 @@
-Uprawnienia projektu
+<style>
+    .btn span.fa-check {
+        opacity: 0;
+    }
+
+    .btn.active span.fa-check {
+        opacity: 1;
+    }
+
+</style>
+<div class="row justify-content-center">
+    <div class="  mixblend col-lg-12" style="padding-top:15px;padding-bottom: 15px">
+        <div class=" ovalDiv bgw">
+            <h2>Dodaj uprawnienie projektu</h2>
+            <select class="selectpicker w-100 mt-2" id="selectNewPermProject" data-live-search="true">
+                {% for user in users %}
+                    {% if user not in permitted_users %}
+                    <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            <br/>
+            <div class="btn-group btn-group-toggle mt-2 mb-2" data-toggle="buttons">
+                <label class="btn btn-outline-warning active">
+                    <span class="fa fa-check"></span>
+                    <br/>
+                    <input type="checkbox" id="newPermPod" checked autocomplete="off"> Udział
+                </label>
+                <label class="btn btn-outline-warning ">
+                    <span class="fa fa-check"></span>
+                    <br/>
+                    <input type="checkbox" id="newPermEdycja" autocomplete="off"> Edycja
+                </label>
+                <label class="btn btn-outline-warning ">
+                    <span class="fa fa-check"></span>
+                    <br/>
+                    <input type="checkbox" id="newPermOcena" autocomplete="off"> Ocenianie
+                </label>
+            </div>
+            <br/>
+            <div class="btn-group mt-2">
+                <button class="btn btn-outline-warning  addPermProject">Dodaj Uprawnienie</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="input-group mb-3">
+            <input type="text" id="SearchPermUser" class="form-control" placeholder="Szukaj ...">
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<div class="row justify-content-center">
+
+    {% for user,perm in  permitted_users.items %}
+        <div class="col-xl-4 listEnvPrElemet " style="padding-top:15px;padding-bottom: 15px">
+
+
+            <div class="text-center  mixblend ovalDiv bgw">
+                <h3 class="searchtr"> {{ user }} </h3>
+                <div class="btn-group btn-group-toggle mt-2 mb-2" data-toggle="buttons">
+                    <label class="btn btn-outline-warning {% if 'view_project_instance' in perm %}active{% endif %}">
+                        <span class="fa fa-check"></span>
+                        <br/>
+                        <input data-user-id="{{ user.id }}"  data-type-perm="view_project_instance" class="changePermCheck" type="checkbox" {% if 'view_project_instance' in perm %}checked{% endif %}
+                               autocomplete="off"> Udział
+                    </label>
+                    <label class="btn btn-outline-warning {% if 'edit_project_instance' in perm %}active{% endif %}">
+                        <span class="fa fa-check"></span>
+                        <br/>
+                        <input data-user-id="{{ user.id }}" data-type-perm="edit_project_instance"  class="changePermCheck" type="checkbox" {% if 'edit_project_instance' in perm %}checked{% endif %}
+                               autocomplete="off"> Edycja
+                    </label>
+                    <label class="btn btn-outline-warning {% if 'vote' in perm %}active{% endif %}">
+                        <span class="fa fa-check"></span>
+                        <br/>
+                        <input data-user-id="{{ user.id }}"  data-type-perm="vote" class="changePermCheck" type="checkbox" {% if 'vote' in perm %}checked{% endif %} autocomplete="off"> Ocenianie
+                    </label>
+                </div>
+                <br/>
+                <div class="btn-group">
+                    <button data-user-id="{{ user.id }}" class="btn btn-outline-danger deletePermProject">Usuń uprawnienia
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+</div>
+<script>
+    //$('body').css('background-image','url(\'/media/environment_covers/temp.gif\')');
+
+    $('select').selectpicker();
+    $(document).ready(function () {
+
+        $('.changePermCheck').on('change',function () {
+            arr=[];
+            arr.push($(this).attr('data-type-perm'));
+            userId=$(this).attr('data-user-id');
+            var operation='remove_permissions';
+            if($(this).is(':checked')) {
+                operation="add_permissions";
+            }
+                 $('#loadingSpinner').show();
+                $.ajax({
+                    type: "POST",
+                    url: '/api/projects/' + selectedProject + '/'+operation+'/',
+                    data: JSON.stringify({
+                        permissions: arr,
+                        user_id: userId
+                    }),
+                    success: function () {
+                        $('#loadingSpinner').hide();
+                    },
+
+                    contentType: 'application/json',
+                    dataType: 'json'
+                }).fail(function () {
+                    $('#loadingSpinner').hide();
+                    bootbox.alert('Wystąpił błąd');
+                });
+
+
+        });
+
+        $('.addPermProject').on('click', function () {
+            arr = [];
+            if ($('#newPermPod').is(':checked')) {
+                arr.push('view_project_instance');
+            }
+            if ($('#newPermEdycja').is(':checked')) {
+                arr.push('edit_project_instance');
+            }
+            if ($('#newPermOcena').is(':checked')) {
+                arr.push('vote');
+            }
+            var user_id = $('#selectNewPermProject').val();
+            if(user_id!==null) {
+                $('#loadingSpinner').show();
+                $.ajax({
+                    type: "POST",
+                    url: '/api/projects/' + selectedProject + '/add_permissions/',
+                    data: JSON.stringify({
+                        permissions: arr,
+                        user_id: user_id
+                    }),
+                    success: function () {
+                        $('#loadingSpinner').hide();
+                        ZmianaTrybuPracy();
+                    },
+
+                    contentType: 'application/json',
+                    dataType: 'json'
+                }).fail(function () {
+                    $('#loadingSpinner').hide();
+                    bootbox.alert('Wystąpił błąd');
+                });
+            }
+            else bootbox.alert('Nie Wybrano użytkownika');
+
+
+        });
+
+
+        $('#SearchPermUser').on('keyup', function () {
+            var value = $(this).val().toLowerCase();
+            $(".searchtr").filter(function () {
+
+                $(this).parent().parent().toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        })
+    });
+</script>

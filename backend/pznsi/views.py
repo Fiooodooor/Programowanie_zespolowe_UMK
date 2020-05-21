@@ -1,6 +1,7 @@
 import base64
 
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
@@ -141,12 +142,10 @@ class Projects(mixins.CreateModelMixin,
     def add_attachment(self, request, pk=None):
         project = self.get_object()
         if request.user.has_perm('view_project_instance', project):
-            base64_file = request.data['file']
-            if base64_file != '':
-                format, imgstr = base64_file.split(';base64,')
-                ext = format.split('/')[-1]
-                file = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-                Attachment.objects.create(project=project, user=request.user, content=file)
+            file = request.FILES['file']
+            title = request.data['title']
+            if file:
+                Attachment.objects.create(project=project, user=request.user, content=file, attachment_name=title)
                 return Response({'result': '1',
                                  'detail': 'Added successfully'})
             else:
@@ -260,7 +259,7 @@ class Repository(viewsets.ModelViewSet):
             raise PermissionDenied({"message": "No permission to the project",
                                     "object_id": project.id})
 
-
+@login_required
 def workspace(request):
     repository_files = RepositoryFile.objects.filter(user=request.user)
     context = {
@@ -271,7 +270,7 @@ def workspace(request):
 
 def index(request):
     if request.user.is_authenticated:
-        return HttpResponseRedirect(reverse('main'))
+        return HttpResponseRedirect(reverse('workspace'))
     else:
         return HttpResponseRedirect(reverse('login'))
 
@@ -284,6 +283,7 @@ def main_page(request):
 
 
 # TODO clean this up a bit
+@login_required
 def edit_profile(request):
     user = request.user
     if user.is_authenticated:
@@ -336,7 +336,7 @@ def register(request):
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return HttpResponseRedirect(reverse('main'))
 
-
+@login_required
 def front_environments(request):
     if request.method == 'POST':
         page = int(request.POST.get('page'))
@@ -358,7 +358,7 @@ def front_environments(request):
     else:
         raise Http404
 
-
+@login_required
 def front_projects(request):
     if request.method == 'POST':
         environment = int(request.POST.get('numEnvi'))
@@ -398,7 +398,7 @@ def front_projects(request):
     else:
         raise Http404
 
-
+@login_required
 def edit_environment(request):
     if request.method == 'POST' and request.user.has_perm('pznsi.'):
         requested_environment = int(request.POST.get('numEnvi'))
@@ -424,7 +424,7 @@ def edit_environment(request):
     else:
         raise Http404
 
-
+@login_required
 def save_environment(request):
     if request.method == 'POST':
         requested_environment = int(request.POST.get('numEnvi'))
@@ -454,7 +454,7 @@ def save_environment(request):
     else:
         raise Http404
 
-
+@login_required
 def save_project(request):
     if request.method == 'POST':
         requested_project = int(request.POST.get('project_id'))
@@ -493,7 +493,7 @@ def save_project(request):
     else:
         raise Http404
 
-
+@login_required
 def edit_project(request):
     if request.method == 'POST':
         requested_project = int(request.POST.get('id'))
@@ -517,7 +517,7 @@ def edit_project(request):
     else:
         raise Http404
 
-
+@login_required
 def can_add_envi(request):
     if request.method == 'POST':
         if request.user.has_perm('pznsi.can_add_environment'):
@@ -528,7 +528,7 @@ def can_add_envi(request):
     else:
         raise Http404
 
-
+@login_required
 def can_add_project(request):
     if request.method == 'POST':
         requested_environment = int(request.POST.get('id'))
@@ -541,7 +541,7 @@ def can_add_project(request):
     else:
         raise Http404
 
-
+@login_required
 def PermEnviroment(request):
     if request.method == 'POST':
         environment_id = int(request.POST.get('environment_id'))
@@ -556,7 +556,7 @@ def PermEnviroment(request):
     else:
         raise Http404
 
-
+@login_required
 def permProject(request):
     if request.method == 'POST':
         project_id = int(request.POST.get('project_id'))
@@ -571,7 +571,7 @@ def permProject(request):
     else:
         raise Http404
 
-
+@login_required
 def project(request):
     if request.method == 'POST':
         project_id = int(request.POST.get('project_id'))
