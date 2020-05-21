@@ -1,7 +1,7 @@
 from django.db.models import Avg
 from rest_framework import serializers
 
-from pznsi.models import Environment, Project, Comment, User, Attachment, Vote
+from pznsi.models import Environment, Project, Comment, User, Attachment, Vote, RepositoryFile
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,12 +29,16 @@ class CommentSerializer(serializers.ModelSerializer):
 class AttachmentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     date = serializers.DateTimeField(source='attachment_creation_date')
-    content = serializers.URLField(read_only=True, source='content.url')
+    content = serializers.SerializerMethodField()
 
     class Meta:
         model = Attachment
         fields = ['user', 'content', 'date']
 
+    def get_content(self, obj):
+        if obj.content:
+            return obj.content.url
+        return None
 
 class VoteSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
@@ -123,3 +127,11 @@ class EnvironmentSerializer(serializers.ModelSerializer):
     def get_current_user(self, obj):
         user = self.context['request'].user
         return UserSerializer(user).data
+
+
+class RepositorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RepositoryFile
+        fields = ['id', 'file', 'visible_name', 'file_date_created', 'user']
+        read_only_fields = ['id', 'file_date_created']
+        extra_kwargs = {'user': {'write_only': True, 'required': False}}

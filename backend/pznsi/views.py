@@ -8,6 +8,7 @@ from django.db.models import Value, IntegerField, Case, When
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.datetime_safe import datetime
 from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_perms
 from guardian.utils import get_anonymous_user
 from rest_framework import permissions, mixins, viewsets, status
@@ -15,8 +16,8 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
-from pznsi.models import User, Environment, Project, Comment, Attachment, Vote, ProjectCategory
-from pznsi.serializers import EnvironmentSerializer, ProjectDetailSerializer
+from pznsi.models import User, Environment, Project, Comment, Attachment, Vote, ProjectCategory, RepositoryFile
+from pznsi.serializers import EnvironmentSerializer, ProjectDetailSerializer, RepositorySerializer
 
 
 def remove_environment_view(environment, user):
@@ -231,8 +232,41 @@ class Projects(mixins.CreateModelMixin,
                                     "object_id": project.id})
 
 
+class Repository(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = RepositoryFile.objects.all()
+    serializer_class = RepositorySerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset().filter(user=self.request.user)
+        return qs
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(user=self.request.user, file_date_created=datetime.now())
+
+    @action(detail=True, methods=['post'])
+    def add_to_project(self, request, pk=None):
+        repository_file = self.get_object()
+        project_id = int(request.data['project_id'])
+        project = Project.objects.get(id=project_id)
+        if request.user.has_perm('view_project_instance', project):
+            repository_file.copy_to_project(project)
+            return Response({'result': 1,
+                             'detail': 'Successfully moved project'})
+        else:
+            raise PermissionDenied({"message": "No permission to the project",
+                                    "object_id": project.id})
+
+
 def workspace(request):
-    return render(request, 'pznsi/logged/workspace/workspace.html')
+    repository_files = RepositoryFile.objects.filter(user=request.user)
+    context = {
+        'repository_files': repository_files
+    }
+    return render(request, 'pznsi/logged/workspace/workspace.html', context)
 
 
 def index(request):

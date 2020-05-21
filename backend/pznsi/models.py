@@ -1,9 +1,10 @@
 from django.contrib.auth.models import AbstractUser, Group
+from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.datetime_safe import datetime
-from guardian.shortcuts import assign_perm, get_objects_for_user
+from guardian.shortcuts import assign_perm
 
 
 class User(AbstractUser):
@@ -72,7 +73,6 @@ class Comment(models.Model):
 
 class Attachment(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
-    repository = models.ForeignKey('Repository', on_delete=models.CASCADE, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True, blank=True)
     attachment_name = models.CharField(max_length=2000, null=True, blank=True)
@@ -89,10 +89,22 @@ class Vote(models.Model):
     vote_content = models.IntegerField(null=True, blank=True)
 
 
-class Repository(models.Model):
-    repository_file_content = models.CharField(max_length=2000, blank=True, null=True)
-    repository_file_date_created = models.DateTimeField(blank=True, null=True)
-    repository_file_status = models.CharField(max_length=100, blank=True, null=True)
+class RepositoryFile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='repository_files', blank=True, null=True)
+    visible_name = models.CharField(max_length=200, blank=True, null=True)
+    file_date_created = models.DateTimeField(default=datetime.now)
+    status = models.CharField(max_length=100, blank=True, null=True)
+
+    def copy_to_project(self, project):
+        new_attachment = Attachment()
+        new_attachment.project = project
+        new_attachment.user = self.user
+        new_attachment.attachment_name = self.visible_name
+        new_file = ContentFile(self.file.read())
+        new_file.name = self.file.name
+        new_attachment.content = new_file
+        new_attachment.save()
 
 
 @receiver(post_save, sender=Project)
