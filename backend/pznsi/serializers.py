@@ -79,10 +79,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
 
     def get_vote_average(self, obj):
         votes = obj.vote_set
-        if votes:
-            return int(votes.aggregate(Avg('vote_content'))["vote_content__avg"])
-        else:
-            return None
+        return votes.aggregate(Avg('vote_content'))["vote_content__avg"]
 
 
 class ProjectBasicsSerializers(serializers.ModelSerializer):
