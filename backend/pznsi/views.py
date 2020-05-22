@@ -1,4 +1,5 @@
 import base64
+from datetime import timedelta
 
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -9,6 +10,7 @@ from django.db.models import Value, IntegerField, Case, When
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.dateparse import parse_date
 from django.utils.datetime_safe import datetime
 from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_perms
 from guardian.utils import get_anonymous_user
@@ -157,7 +159,7 @@ class Projects(mixins.CreateModelMixin,
     @action(detail=True, methods=['post'])
     def vote(self, request, pk=None):
         project = self.get_object()
-        if request.user.has_perm('vote', project):
+        if request.user.has_perm('vote', project) and project.vote_starting < datetime.now() < project.vote_closing:
             rate = int(request.data['rate'])
             vote, created = Vote.objects.get_or_create(user=request.user, project=project)
             vote.vote_content = rate
@@ -259,11 +261,14 @@ class Repository(viewsets.ModelViewSet):
             raise PermissionDenied({"message": "No permission to the project",
                                     "object_id": project.id})
 
+
 @login_required
 def workspace(request):
     repository_files = RepositoryFile.objects.filter(user=request.user)
+    categories = ProjectCategory.objects.all()
     context = {
-        'repository_files': repository_files
+        'repository_files': repository_files,
+        'categories': categories
     }
     return render(request, 'pznsi/logged/workspace/workspace.html', context)
 
@@ -336,13 +341,15 @@ def register(request):
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return HttpResponseRedirect(reverse('main'))
 
+
 @login_required
 def front_environments(request):
     if request.method == 'POST':
         page = int(request.POST.get('page'))
-        keyword = request.POST.get('keyword')
-
+        keyword = request.POST.get('keyword', None)
         all_environment_list = get_objects_for_user(request.user, 'view_environment_instance', Environment)
+        if keyword is not None:
+            all_environment_list = all_environment_list.filter(environment_name__icontains=keyword)
         environment_list = all_environment_list[(page - 1) * 12:page * 12].annotate(
             isOwner=Case(
                 When(owner=request.user.id, then=Value(1)),
@@ -358,15 +365,23 @@ def front_environments(request):
     else:
         raise Http404
 
+
 @login_required
 def front_projects(request):
     if request.method == 'POST':
         environment = int(request.POST.get('numEnvi'))
         page = int(request.POST.get('page'))
-        keyword = request.POST.get('keyword')
+        keyword = request.POST.get('keyword', None)
         id_project = request.POST.get('id_project', None)
+        id_category = int(request.POST.get('id_category', 0))
         environments = get_objects_for_user(request.user, 'view_environment_instance', Environment)
+        categories = ProjectCategory.objects.all()
         user_projects = Project.objects.filter(environment__in=environments)
+        if id_project is None and id_category != 0:
+            category = ProjectCategory.objects.get(id=id_category)
+            user_projects = user_projects.filter(project_category=category)
+        if id_project is None and keyword is not None:
+            user_projects = user_projects.filter(project_name__icontains=keyword)
         if id_project is not None:
             id_project = int(id_project)
             project_list = user_projects.filter(id=id_project).annotate(
@@ -392,11 +407,13 @@ def front_projects(request):
         context = {
             'page': page,
             'keyword': keyword,
-            'projects': project_list
+            'projects': project_list,
+            'categories': categories
         }
         return render(request, 'pznsi/logged/workspace/projects.html', context)
     else:
         raise Http404
+
 
 @login_required
 def edit_environment(request):
@@ -424,6 +441,7 @@ def edit_environment(request):
     else:
         raise Http404
 
+
 @login_required
 def save_environment(request):
     if request.method == 'POST':
@@ -435,7 +453,8 @@ def save_environment(request):
             environment = Environment.objects.get(id=requested_environment)
             if request.user.has_perm('edit_environment_instance', environment):
                 environment.environment_name = requested_environment_name
-                environment.owner = User.objects.get(id=requested_owner)
+                if environment.owner == request.user:
+                    environment.owner = User.objects.get(id=requested_owner)
             else:
                 raise Http404
         else:
@@ -454,6 +473,7 @@ def save_environment(request):
     else:
         raise Http404
 
+
 @login_required
 def save_project(request):
     if request.method == 'POST':
@@ -461,15 +481,24 @@ def save_project(request):
         requested_project_name = request.POST.get('project_name')
         requested_project_category = request.POST.get('project_category')
         requested_project_desc = request.POST.get('project_description')
+        vote_start = request.POST.get('startVoteDate', datetime.now())
+        vote_end = request.POST.get('endVoteDate', datetime.now()+timedelta(days=14))
         image_base64 = request.POST.get('cover_image')
         requested_owner = int(request.POST.get('owner'))
         environment_id = int(request.POST.get('environment_id'))
+        if type(vote_start) == str or type(vote_end) == str:
+            vote_start = parse_date(vote_start)
+            vote_end = parse_date(vote_end)
         if requested_project != 0:
             project = Project.objects.get(id=requested_project)
             if request.user.has_perm('edit_project_instance', project):
                 project.project_name = requested_project_name
-                project.owner = User.objects.get(id=requested_owner)
                 project.project_content = requested_project_desc
+                if request.user == project.owner:
+                    project.owner = User.objects.get(id=requested_owner)
+                    if vote_start < vote_end:
+                        project.vote_starting = vote_start
+                        project.vote_closing = vote_end
             else:
                 raise Http404
         else:
@@ -488,34 +517,47 @@ def save_project(request):
             image = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
             project.cover_image = image
         project.save()
-        return JsonResponse({"project_name": requested_project_name, "project_category": requested_project_category,
-                             "project_content": requested_project_desc})
+        return JsonResponse(
+            {"project_id": project.id,
+             "project_name": project.project_name,
+             "project_category": project.project_category.id,
+             "project_content": project.project_content})
     else:
         raise Http404
+
 
 @login_required
 def edit_project(request):
     if request.method == 'POST':
         requested_project = int(request.POST.get('id'))
         project = None
+        start_vote_date = datetime.now()
+        end_vote_date = datetime.now() + timedelta(days=14)
         if requested_project != 0:
             project = Project.objects.get(id=requested_project)
             if request.user.has_perm('edit_project_instance', project):
+                start_vote_date = project.vote_starting
+                end_vote_date = project.vote_closing
                 mode = 0
             else:
                 raise Http404
         else:
             mode = 1
         users = User.objects.all().exclude(id=get_anonymous_user().id)
+        categories = ProjectCategory.objects.all()
         context = {
             'project': project,
             'users': users,
             'mode': mode,
-            'project_id': requested_project
+            'project_id': requested_project,
+            'categories': categories,
+            'startVoteDate': start_vote_date,
+            'endVoteDate': end_vote_date
         }
         return render(request, 'pznsi/logged/workspace/edit_project.html', context)
     else:
         raise Http404
+
 
 @login_required
 def can_add_envi(request):
@@ -527,6 +569,7 @@ def can_add_envi(request):
         return JsonResponse({"can_add": can_add})
     else:
         raise Http404
+
 
 @login_required
 def can_add_project(request):
@@ -540,6 +583,7 @@ def can_add_project(request):
         return JsonResponse({"can_add": can_add})
     else:
         raise Http404
+
 
 @login_required
 def PermEnviroment(request):
@@ -556,6 +600,7 @@ def PermEnviroment(request):
     else:
         raise Http404
 
+
 @login_required
 def permProject(request):
     if request.method == 'POST':
@@ -570,6 +615,7 @@ def permProject(request):
         return render(request, 'pznsi/logged/workspace/perm_project.html', context)
     else:
         raise Http404
+
 
 @login_required
 def project(request):

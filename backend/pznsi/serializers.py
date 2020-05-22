@@ -1,4 +1,5 @@
 from django.db.models import Avg
+from django.utils.datetime_safe import datetime
 from rest_framework import serializers
 
 from pznsi.models import Environment, Project, Comment, User, Attachment, Vote, RepositoryFile
@@ -33,12 +34,13 @@ class AttachmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Attachment
-        fields = ['user', 'content', 'date']
+        fields = ['user', 'content', 'date', 'attachment_name']
 
     def get_content(self, obj):
         if obj.content:
             return obj.content.url
         return None
+
 
 class VoteSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
@@ -57,12 +59,15 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
     cover_image = serializers.SerializerMethodField()
     can_vote = serializers.SerializerMethodField()
     vote_average = serializers.SerializerMethodField()
+    current_user_vote = serializers.SerializerMethodField()
+    vote_opened = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
         fields = ['id', 'project_name', 'project_status', 'project_category', 'project_content', 'can_vote',
-                  'vote_average', 'cover_image', 'environment', 'environment_name', 'owner', 'comments', 'attachments',
-                  'votes']
+                  'vote_opened', 'vote_starting', 'vote_closing',
+                  'vote_average', 'cover_image', 'environment', 'environment_name', 'owner', 'current_user_vote',
+                  'comments', 'attachments', 'votes']
 
     def create(self, validated_data):
         validated_data.pop('comment_set', None)
@@ -84,6 +89,18 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
     def get_vote_average(self, obj):
         votes = obj.vote_set
         return votes.aggregate(Avg('vote_content'))["vote_content__avg"]
+
+    def get_current_user_vote(self, obj):
+        votes = obj.vote_set
+        user = self.context['request'].user
+        user_vote = votes.filter(user=user, project=obj)
+        return VoteSerializer(user_vote).data
+
+    def get_vote_opened(self, obj):
+        if obj.vote_starting < datetime.now() < obj.vote_closing:
+            return True
+        else:
+            return False
 
 
 class ProjectBasicsSerializers(serializers.ModelSerializer):

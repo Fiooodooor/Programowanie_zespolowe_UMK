@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import AbstractUser, Group
 from django.core.files.base import ContentFile
 from django.db import models
@@ -5,6 +7,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.datetime_safe import datetime
 from guardian.shortcuts import assign_perm
+
+
+def get_default_time():
+    return datetime.now() + timedelta(days=14)
 
 
 class User(AbstractUser):
@@ -44,7 +50,8 @@ class Project(models.Model):
     project_status = models.CharField(blank=True, max_length=100)
     project_password = models.CharField(max_length=128)
     project_creation_date = models.DateField(blank=True, null=True)
-    project_closing_date = models.DateField(blank=True, null=True)
+    vote_starting = models.DateTimeField(default=datetime.now)
+    vote_closing = models.DateTimeField(default=get_default_time)
     project_content = models.CharField(blank=True, max_length=1000)
     project_category = models.ForeignKey(ProjectCategory, on_delete=models.CASCADE, null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
