@@ -39,108 +39,15 @@
     </div>
 </div>
 <script>
-    selectedFile = "";
 
-    function SendForm(id, nameEnvi) {
-        $('#loadingSpinner').show();
-        $.post('/api/editEnviSave', {
-            'cover_image': selectedFile,
-            'owner': $('#owner_id').val(),
-            'environment_name': $('#editEnvi_nameEnvi').val(),
-            'numEnvi': id,
-            'csrfmiddlewaretoken': '{{ csrf_token }}'
-        }, function (result,state,status) {
-            if(status['status']==200) {
-                if (result != null) {
-                    if (result['result'] == "1") {
-                        trybPracy = 1;
-                        ZmianaTrybuPracy();
-                    } else bootbox.alert("error");
-                } else bootbox.alert("error");
-            }
-            else bootbox.alert('Wystąpił Błąd ');
 
-        }).fail(function () {
-             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił Błąd');
-        });
-    }
 
-    $(document).ready(function () {
-        $("html").on("dragover", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            $("#editEnvi_dragName").text("Przeciągnij tu ");
-        });
 
-        $("html").on("drop", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        });
-        $('.upload-area').on('dragenter', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            $("#editEnvi_dragName").text("Upuść tu ");
-        });
-        $('.upload-area').on('dragover', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            $("#editEnvi_dragName").text("Upuść tu ");
-        });
-        $('.upload-area').on('drop', function (e) {
-            $('#loadingSpinner').show();
-            e.stopPropagation();
-            e.preventDefault();
-            $("#editEnvi_dragName").text("ładowanie pliku");
-            $('#fileBackground')[0].files = e.originalEvent.dataTransfer.files;
-            setImage();
-            $("#editEnvi_dragName").text("Kliknij lub przeciągnij aby dodać tło");
-            $('#loadingSpinner').hide();
-        });
 
-        $("#uploadfile").click(function () {
-            $("#fileBackground").click();
-        });
 
-        $("#fileBackground").change(function () {
-            $('#loadingSpinner').show();
-            setImage();
-            $('#loadingSpinner').hide();
-        });
-    });
 
-   function setImage() {
-        $('#loadingSpinner').show();
-        file = $('#fileBackground')[0].files[0];
-        if (file != null) {
-            if (checkSizeFile(file)) {
-                if (checkFileTypes(file)) {
-                    getBase64(file).then(
-                        data => {
-                            selectedFile = data;
-                            $('#backgroundEx').css('background-image', "url('" + data + "')")
-                            $('#loadingSpinner').hide();
-                        }
-                    );
-                } else {
-                    bootbox.alert("Dozwolone są tylko obrazy ! ");
-                    $('#loadingSpinner').hide();
-                }
-            }
-            else {
-                bootbox.alert("Plik jest za duży.Max 30 MB");
-                $('#loadingSpinner').hide();
-                    }
 
-        }
-        else $('#loadingSpinner').hide();
-    }
 
-    function checkFileTypes(file) {
-        acceptmimetypes = ['image/apng', 'image/bmp', 'image/gif', 'image/jpeg', 'image/png'];
-        for (var item of acceptmimetypes) if (item == file.type) return true;
-        return false;
-    }
 
 
 </script>

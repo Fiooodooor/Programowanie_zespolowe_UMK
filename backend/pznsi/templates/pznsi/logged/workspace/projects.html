@@ -8,7 +8,7 @@
  {% if project.isOwner %}
         <div class="dropdown" style="position: absolute;top:20px;right:20px">
   <button class="btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fa fa-ellipsis-v "></i>
+        <i class="fa  reversColor  fa-ellipsis-v "></i>
   </button>
   <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
     <span class="dropdown-item editProjectButton"  data-background="{% if project.cover_image %}{{ project.cover_image.url }} {% endif %}" data-project-envi-id=" {{ project.environment.id }}" data-project-envi-id="{{ project.environment.id }}" data-project-envi-name="{{ project.environment.environment_name }}"  data-project-id="{{project.id}}" data-project-name="{{ project.project_name }}" >Edycja</span>
@@ -32,4 +32,3 @@
 
 
 {% endif %}
-<!--<script>  EventProjectClick();</script>-->

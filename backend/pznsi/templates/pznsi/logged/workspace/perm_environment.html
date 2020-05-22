@@ -1,11 +1,4 @@
 <style>
-    .btn span.fa-check{
-        opacity: 0;
-    }
-
-    .btn.active span.fa-check {
-        opacity: 1;
-    }
 
 </style>
 <div class="row justify-content-center">
@@ -37,21 +30,16 @@
         </div>
     </div>
 </div>
-
 <div class="row">
     <div class="col-12">
         <div class="input-group mb-3">
             <input type="text" id="SearchPermUser" class="form-control" placeholder="Szukaj ...">
         </div>
-
-
     </div>
 </div>
 <div class="row ">
     {% for user,perm in  permitted_users.items %}
         <div class="col-xl-4 listEnvPrElemet " style="padding-top:15px;padding-bottom: 15px;min-height: 100%">
-
-
             <div class="text-center  mixblend ovalDiv bgw mh-100">
                 <h3 class="searchtr"> {{ user }} </h3>
                 <div class="btn-group btn-group-toggle mt-2 mb-2" data-toggle="buttons">
@@ -71,23 +59,9 @@
                     <button data-user-perm-id="{{ user.id }}" class="btn btn-danger deletePermEnvi">Usuń uprawnienie
                     </button>
                 </div>
-
-
             </div>
         </div>
     {% endfor %}
 
 </div>
-<script>
-    //$('body').css('background-image','url(\'/media/environment_covers/temp.gif\')');
-    $('select').selectpicker();
-    $(document).ready(function () {
-        $('#SearchPermUser').on('keyup', function () {
-            var value = $(this).val().toLowerCase();
-            $(".searchtr").filter(function () {
 
-                $(this).parent().parent().toggle($(this).text().toLowerCase().indexOf(value) > -1)
-            });
-        })
-    });
-</script>

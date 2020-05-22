@@ -8,19 +8,23 @@
         <textarea maxlength="1000" type="text" class="form-control"
                   id="editProject_nameDesciption">{{ project.project_content }}</textarea>
         <label>Właściciel Projektu</label>
-        {% if request.user == project.owner or request.user.is_superuser  or mode == 1%}
-        <select class="form-control" id="owner_id">
-            {% for user in users %}
-                {% if user.id == project.owner.id  %}
-                    <option selected value="{{ user.id }}">{{ user.username }}</option>
-                {% else %}
-                    <option value="{{ user.id }}">{{ user.username }}</option>
-                {% endif %}
-            {% endfor %}
-        </select>
-            {% else %}
-            <input type="hidden"  id="owner_id" value="{{ project.owner.id }}">
+        {% if request.user == project.owner or request.user.is_superuser  or mode == 1 %}
+            <select class="form-control" id="owner_id">
+                {% for user in users %}
+                    {% if user.id == project.owner.id %}
+                        <option selected value="{{ user.id }}">{{ user.username }}</option>
+                    {% else %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        {% else %}
+            <input type="hidden" id="owner_id" value="{{ project.owner.id }}">
         {% endif %}
+        <label>Data rozpoczęcia głosowania</label>
+        <input type="text" class="form-control" id="startVoteDate" value="2020-02-02 12:12">
+        <label>Data zakończenia głosowania</label>
+        <input type="text" class="form-control" id="endVoteDate" value="2020-02-02 12:12">
         <label>Kategoria</label>
         <select class="form-control" id="category_id">
             <option value="1">Muzyka</option>
@@ -40,115 +44,23 @@
         </div>
         <input type="hidden" id="project_id" value="{{ project_id }}">
         <div class="col-sm-6 padding-top-1">
-            <input type="button" value="{% if mode == 0 %}Edytuj{% else %}Dodaj Nowy {% endif %}" onclick="SendForm()"
-                   class="btn btn-outline-info">
+            <input type="button" value="{% if mode == 0 %}Edytuj{% else %}Dodaj Nowy {% endif %}"
+                   onclick="SendFormEditProject()"
+                   class="btn btn-info">
         </div>
     </div>
 </div>
-
-
 <script>
-    selectedFile = "";
-
-    function SendForm() {
-        $('#loadingSpinner').show();
-        $.post('/api/editprojectSave', {
-            'cover_image': selectedFile,
-            'owner': $('#owner_id').val(),
-            'environment_id': WybraneSrodowisko,
-            'project_name': $('#editProject_nameProject').val(),
-            'project_description': $('#editProject_nameDesciption').val(),
-            'project_category': $('#category_id').val(),
-            'project_id': $('#project_id').val(),
-            'csrfmiddlewaretoken': '{{ csrf_token }}'
-        }, function (result, state, status) {
-            if (status['status'] == 200) {
-                if (result != null) {
-                    if (result['project_name'] != "") {
-                        selectedProjectName=$('#editProject_nameProject').val();
-                        trybPracy = 5;
-                        ZmianaTrybuPracy();
-                    } else bootbox.alert("error");
-                } else bootbox.alert("error");
-            } else bootbox.alert('Wystąpił Błąd ');
-        }).fail(function () {
-             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił Błąd');
-        });;
-        $('#loadingSpinner').hide();
-    }
-
     $(document).ready(function () {
-        $("html").on("dragover", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            $("#editProject_dragName").text("Przeciągnij tu ");
+    flatpickr("startVoteDate");
+        $('#startVoteDate').flatpickr({
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
         });
+        $('#endVoteDate').flatpickr({
+            enableTime: true,
+            dateFormat: "Y-m-d H:i"
 
-        $("html").on("drop", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
         });
-        $('.upload-area').on('dragenter', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            $("#editProject_dragName").text("Upuść tu ");
-        });
-        $('.upload-area').on('dragover', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            $("#editProject_dragName").text("Upuść tu ");
-        });
-        $('.upload-area').on('drop', function (e) {
-
-            e.stopPropagation();
-            e.preventDefault();
-            $("#editProject_dragName").text("ładowanie pliku");
-            $('#fileBackground')[0].files = e.originalEvent.dataTransfer.files;
-            setImage();
-            $("#editProject_dragName").text("Kliknij lub przeciągnij aby dodać tło");
-        });
-
-        $("#uploadfile").click(function () {
-            $("#fileBackground").click();
-        });
-
-        $("#fileBackground").change(function () {
-
-            setImage();
-        });
-    });
-
-    function setImage() {
-        $('#loadingSpinner').show();
-        file = $('#fileBackground')[0].files[0];
-        if (file != null) {
-            if (checkSizeFile(file)) {
-                if (checkFileTypes(file)) {
-                    getBase64(file).then(
-                        data => {
-                            selectedFile = data;
-                            $('#backgroundEx').css('background-image', "url('" + data + "')")
-                            $('#loadingSpinner').hide();
-                        }
-                    );
-                } else {
-                    bootbox.alert("Dozwolone są tylko obrazy ! ");
-                    $('#loadingSpinner').hide();
-                }
-            } else {
-                bootbox.alert("Plik jest za duży.Max 30 MB");
-                $('#loadingSpinner').hide();
-            }
-
-        } else $('#loadingSpinner').hide();
-    }
-
-    function checkFileTypes(file) {
-        acceptmimetypes = ['image/apng', 'image/bmp', 'image/gif', 'image/jpeg', 'image/png'];
-        for (var item of acceptmimetypes) if (item == file.type) return true;
-        return false;
-    }
-
-
+    })
 </script>

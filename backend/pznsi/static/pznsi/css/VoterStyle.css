@@ -304,3 +304,11 @@ label {
             color: #f1f1f1;
             mix-blend-mode: difference;
         }
+
+   .btn span.fa-check{
+        opacity: 0;
+    }
+
+    .btn.active span.fa-check {
+        opacity: 1;
+    }
