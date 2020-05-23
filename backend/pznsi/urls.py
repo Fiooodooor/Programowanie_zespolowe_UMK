@@ -6,11 +6,12 @@ from rest_framework import routers
 from rest_framework.authtoken.views import obtain_auth_token
 
 from . import views
-from .views import Environments, Projects
+from .views import Environments, Projects, Repository
 
 router = routers.DefaultRouter()
 router.register(r'environments', Environments)
 router.register(r'projects', Projects)
+router.register(r'repository', Repository)
 
 urlpatterns = [
     path('', views.index, name='index'),

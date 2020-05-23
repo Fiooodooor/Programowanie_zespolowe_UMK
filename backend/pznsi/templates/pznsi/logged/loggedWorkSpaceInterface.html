@@ -1,74 +1,99 @@
 {% extends "pznsi/base.html" %}
 {% load static %}
-{% block content  %}
+{% block content %}
 
 
 
 
 
-     <div id="viewport" class="activeViewPort viewport1">
+    <div id="viewport" class="activeViewPort viewport1">
         <!-- Sidebar -->
         <div id="sidebar" class=" active-sidebar sidebar1 sidebar2" style="position: fixed">
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                 <a class="navbar-brand" href="">&nbsp;</a>
             </nav>
+            <ul class="nav navSidebar" style="max-height:70vh">
+                {% block sidebarlist %}
+                {% endblock %}
+            </ul>
             <ul class="nav navSidebar">
-               {% block sidebarlist %}
-                   {% endblock %}
+                <li>
+                    <a class="l1" role="button" id="repoButton">
+                        <i class="fas fa-align-justify"></i> Repozytorium
+                    </a>
+                </li>
             </ul>
         </div>
         <!-- Content -->
         <div id="content">
-        <nav class=" nav navbar  navbar-expand-lg navbar-dark rounded fixed-top"  >
-          <button class="sidebar-toggler" type="button" id="sidebarViewer">
+
+            <nav class=" nav  navbarColor navbar  navbar-expand-lg navbar-dark rounded fixed-top">
+                <button class="sidebar-toggler" type="button" id="sidebarViewer">
 
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-        <a class="navbar-brand navbar-logo " href="/">VoteDesk</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-             <span class="navbar-toggler-icon"></span>
-        </button>
-        {% block navItem %}{% endblock %}
-        <div  class="collapse navbar-collapse float-right" id="navbarText">
-            <ul class="navbar-nav ml-auto navbar-items">
-                <li class="nav-item ">
-                    <a class="nav-link" href="#App">Aktualności</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/workspace/">Przestrzeń robocza</a>
-                </li>
+                <a class="navbar-brand navbar-logo " href="/">VoteDesk</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+                        aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                {% block navItem %}{% endblock %}
+                <div class="collapse navbar-collapse float-right" id="navbarText">
+                    <ul class="navbar-nav ml-auto navbar-items">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/workspace/">Przestrzeń robocza</a>
+                        </li>
 
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle userSettings"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {% if user.avatar != "" %}
-                                <img id="userIco" style="height:1.8em;width: 1.8rem"  src="{{ user.avatar.url }}">
-                         {% else %}
-                                <img id="userIco" style="height:1.8em" src={% static "/pznsi/images/user.ico" %}>
-                         {% endif %}
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/profile/edit/">Edytuj Profil</a>
-                       <!-- <a class="dropdown-item" href="#">Zarządzaj grupami</a>-->
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="/logout/">Wyloguj</a>
-                    </div>
-                </li>
-            </ul>
-         </div>
-    </nav>
-
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle userSettings" href="#" id="navbarDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {% if user.avatar != "" %}
+                                    <img id="userIco" style="height:1.8em;width: 1.8rem" src="{{ user.avatar.url }}">
+                                {% else %}
+                                    <img id="userIco" style="height:1.8em" src={% static "/pznsi/images/user.ico" %}>
+                                {% endif %}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="/profile/edit/">Edytuj Profil</a>
+                                <!-- <a class="dropdown-item" href="#">Zarządzaj grupami</a>-->
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/logout/">Wyloguj</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
 
 
             <div style="padding-top:100px;">
-            <div class="container" style="background-color: white;padding-top: 15px;border-radius:25px"  >
-                <div id="MainContent2" >
-                   {% block contentWorkSpace %}
-                    {% endblock %}
+                <div class="container" style="background-color: transparent;padding-top: 15px;border-radius:25px">
+                    <div id="MainContent2">
+                        {% block contentWorkSpace %}
+                        {% endblock %}
+                        <div id="repoContent"
+                             style="display:none;position: fixed;bottom: 0%;z-index: 99999;background: #111111;min-width: 100%;left:0%;max-height: 5.3em;overflow: auto">
+                            <div style="overflow: auto;color:white;background: #111111;border-radius: 3px 3px 0px 0px"
+                                 class="container">
+                                <div class="row  pt-1 h-100" style="overflow: auto">
+                                    <div class="col-lg-3 col-4">
+                                        <span
+                                              target="_blank" class="fileComment justify-content-center text-center"
+                                              style="color:white;text-decoration: none;;"><span
+                                                class="fa fa-3x fa-plus-square fileComment "  id="addFileRepoBtn" aria-hidden="true"></span><h4>Dodaj Plik</h4></span>
+                                    </div>
+                                        {% block repoFiles %}
+
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
     </div>
+
+
 
 {% endblock %}

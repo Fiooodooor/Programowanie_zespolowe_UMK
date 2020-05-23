@@ -7,7 +7,7 @@
             mix-blend-mode: difference;
         }
     </style>
-    <div class="col-sm-6">
+    <div class="col-sm-6 p-3 bgw">
         <label>Nazwa Środowiska</label>
         <input maxlength="100" type="text" class="form-control" value="{{ environment.environment_name }}" id="editEnvi_nameEnvi">
         <label>Właściciel Środowiska</label>
@@ -31,97 +31,23 @@
                  >
                  <h3 id="editEnvi_dragName">Kliknij lub przeciągnij aby dodać tło </h3></div>
         </div>
-
-    </div>
-</div>
-
-<div class="row justify-content-center padding-bottom-2">
-    <div class="col-sm-6 padding-top-1">
+            <div class=" padding-top-1">
         <input data-edit-id="{{ environment.id }}" type="button"
                value="{% if mode == 0 %}Edytuj{% else %}Dodaj Nowy {% endif %}"
                onclick="SendForm({% if mode == 0 %}{{ environment.id }}{% else %}0{% endif %},'{% if mode == 0 %}{{ environment.name }}{% endif %}')" class="btn btn-outline-info">
     </div>
+    </div>
 </div>
 <script>
-    selectedFile = "";
 
-    function SendForm(id, nameEnvi) {
-        $.post('/api/editEnviSave', {
-            'cover_image': selectedFile,
-            'owner': $('#owner_id').val(),
-            'environment_name': $('#editEnvi_nameEnvi').val(),
-            'numEnvi': id,
-            'csrfmiddlewaretoken': '{{ csrf_token }}'
-        }, function (result) {
-            if (result != null) {
-                if (result['result'] == "1") {
-                    trybPracy = 1;
-                    ZmianaTrybuPracy();
-                } else bootbox.alert("error");
-            } else bootbox.alert("error");
-        });
-    }
 
-    $(document).ready(function () {
-        $("html").on("dragover", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            $("#editEnvi_dragName").text("Przeciągnij tu ");
-        });
 
-        $("html").on("drop", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        });
-        $('.upload-area').on('dragenter', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            $("#editEnvi_dragName").text("Upuść tu ");
-        });
-        $('.upload-area').on('dragover', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            $("#editEnvi_dragName").text("Upuść tu ");
-        });
-        $('.upload-area').on('drop', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            $("#editEnvi_dragName").text("ładowanie pliku");
-            $('#fileBackground')[0].files = e.originalEvent.dataTransfer.files;
-            setImage();
-            $("#editEnvi_dragName").text("Kliknij lub przeciągnij aby dodać tło");
-        });
 
-        $("#uploadfile").click(function () {
-            $("#fileBackground").click();
-        });
 
-        $("#fileBackground").change(function () {
-            setImage();
-        });
-    });
 
-    function setImage() {
-        file = $('#fileBackground')[0].files[0];
-        if (file != null) {
-            if (checkSizeFile(file)) {
-                if (checkFileTypes(file)) {
-                    getBase64(file).then(
-                        data => {
-                            selectedFile = data;
-                            $('#backgroundEx').css('background-image', "url('" + data + "')")
-                        }
-                    );
-                } else bootbox.alert("Dozwolone są tylko obrazy ! ");
-            } else bootbox.alert("Plik jest za duży.Max 30 MB");
-        }
-    }
 
-    function checkFileTypes(file) {
-        acceptmimetypes = ['image/apng', 'image/bmp', 'image/gif', 'image/jpeg', 'image/png'];
-        for (var item of acceptmimetypes) if (item == file.type) return true;
-        return false;
-    }
+
+
 
 
 </script>
