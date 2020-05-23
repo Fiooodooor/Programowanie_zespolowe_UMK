@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 
 from django.contrib.auth.models import AbstractUser, Group
@@ -88,6 +89,10 @@ class Attachment(models.Model):
     attachment_type = models.CharField(max_length=50, default='file')
     attachment_visible_date = models.DateField(blank=True, null=True)
 
+    def extension(self):
+        name, extension = os.path.splitext(self.content.name)
+        return extension
+
 
 class Vote(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
@@ -112,6 +117,10 @@ class RepositoryFile(models.Model):
         new_file.name = self.file.name
         new_attachment.content = new_file
         new_attachment.save()
+
+    def extension(self):
+        name, extension = os.path.splitext(self.file.name)
+        return extension
 
 
 @receiver(post_save, sender=Project)
