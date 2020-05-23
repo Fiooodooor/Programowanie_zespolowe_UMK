@@ -71,7 +71,8 @@ class Comment(models.Model):
 
 
 class Attachment(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
+    repository = models.ForeignKey('Repository', on_delete=models.CASCADE, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True, blank=True)
     attachment_name = models.CharField(max_length=2000, null=True, blank=True)
@@ -89,10 +90,9 @@ class Vote(models.Model):
 
 
 class Repository(models.Model):
-    attachments = models.ForeignKey(Attachment, on_delete=models.CASCADE, null=True, blank=True)
-    repository_file_content = models.CharField(max_length=2000)
+    repository_file_content = models.CharField(max_length=2000, blank=True, null=True)
     repository_file_date_created = models.DateTimeField(blank=True, null=True)
-    repository_file_status = models.CharField(max_length=100)
+    repository_file_status = models.CharField(max_length=100, blank=True, null=True)
 
 
 @receiver(post_save, sender=Project)
