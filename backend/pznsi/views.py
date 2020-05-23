@@ -374,7 +374,7 @@ def front_projects(request):
         page = int(request.POST.get('page'))
         keyword = request.POST.get('keyword', None)
         id_project = request.POST.get('id_project', None)
-        id_category = int(request.POST.get('id_category', 0))
+        id_category = int(request.POST.get('category_id', 0))
         environments = get_objects_for_user(request.user, 'view_environment_instance', Environment)
         categories = ProjectCategory.objects.all()
         user_projects = Project.objects.filter(environment__in=environments)
