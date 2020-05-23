@@ -33,6 +33,13 @@ def remove_environment_view(environment, user):
         return False
 
 
+def is_vote_open(project):
+    if project.vote_starting < datetime.now() < project.vote_closing:
+        return True
+    else:
+        return False
+
+
 class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.RetrieveModelMixin):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Environment.objects.all()
@@ -181,6 +188,7 @@ class Projects(mixins.CreateModelMixin,
         project_voters = Group.objects.get(name=f'{project.id}_project_voters')
         project_editors = Group.objects.get(name=f'{project.id}_project_editors')
         project_viewers = Group.objects.get(name=f'{project.id}_project_viewers')
+        environment_viewers = Group.objects.get(name=f'{project.environment.id}_environment_viewers')
         if request.user == project.owner:
             user_id = int(request.data['user_id'])
             permissions = set(request.data['permissions'])
@@ -190,10 +198,13 @@ class Projects(mixins.CreateModelMixin,
                 for permission in permissions:
                     if permission == 'vote':
                         user.groups.add(project_voters)
+                        user.groups.add(environment_viewers)
                     elif permission == 'edit_project_instance':
                         user.groups.add(project_editors)
+                        user.groups.add(environment_viewers)
                     elif permission == 'view_project_instance':
                         user.groups.add(project_viewers)
+                        user.groups.add(environment_viewers)
                 return Response({'result': 1,
                                  'detail': 'Successfully added permissions'})
             else:
@@ -625,9 +636,11 @@ def project(request):
         project_id = int(request.POST.get('project_id'))
         project = Project.objects.get(id=project_id)
         user_permissions = get_perms(request.user, project)
+        vote_opened = is_vote_open(project)
         context = {
             'project': project,
-            'permissions': user_permissions
+            'permissions': user_permissions,
+            'vote_opened': vote_opened
         }
         return render(request, 'pznsi/logged/workspace/project.html', context)
     else:
