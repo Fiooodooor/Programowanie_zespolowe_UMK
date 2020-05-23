@@ -120,7 +120,8 @@ class Projects(mixins.CreateModelMixin,
         serializer.save(owner=self.request.user)
 
     def get_queryset(self):
-        qs = get_objects_for_user(self.request.user, 'view_project_instance', super().get_queryset())
+        environments = get_objects_for_user(self.request.user, 'view_environment_instance', Environment)
+        qs = Project.objects.filter(environment__in=environments)
         return qs
 
     @action(detail=True, methods=['post'])
