@@ -4,9 +4,22 @@
     {% for repo_file in repository_files %}
         <div class="col-lg-3 col-4">
             <span data-value-url="{{ repo_file.file.url }}" data-id-repofile="{{ repo_file.id }}" data-id-reponame="{{ repo_file.visible_name }}"
-                  target="_blank" class="fileComment justify-content-center text-center repoItem"
-                  style="color:white;text-decoration: none;"><span
-                    class="fa fa-3x fa-file-o fileComment" aria-hidden="true"></span><h4>{{ repo_file.visible_name }}</h4></span>
+                  target="_blank" class="fileComment justify-content-center text-center repoItem"><span
+                    class="fa fa-3x
+                   {% if repo_file.extension in ".xlsx,.xls,.calc"  %}fa-file-excel
+                   {% elif  repo_file.extension in ".pdf"  %} fa-file-pdf
+                   {% elif  repo_file.extension in ".jpg,.jpeg,.bmp,.png,.gif,.tiff"  %} fa-file-image
+                   {% elif  repo_file.extension in ".mp3,wav,.flac"  %} fa-file-audio
+                   {% elif  repo_file.extension in ".7z,.zip,.rar,.gz,.tar"  %} fa-file-archive
+                   {% elif  repo_file.extension in ".avi,.mpg,.webm,.mp4,.ogg,.mpeg,.fly"  %} fa-file-video
+                   {% elif  repo_file.extension in ".odt,.doc,.docx"  %} fa-file-word
+                   {% elif  repo_file.extension in ".txt,.md,.rtf"  %} fa-file-alt
+                   {% elif  repo_file.extension in ".py,.java,.c,.cpp,.js,.html,.htm,.xhtml,.xml,.json,.css,.php"  %}fa-file-code
+
+                   {% else %} fa-file
+                   {% endif %}
+
+                    fileComment" aria-hidden="true"></span><h4>{{ repo_file.visible_name }}</h4></span>
         </div>
     {% endfor %}
 {% endblock %}
@@ -106,8 +119,7 @@
                 <div class="modal-body" id="voteModalContent">
                     <div class="input-group mb-3 justify-content-center">
                         {% for i in '0123456789'|make_list %}
-                            <button data-value="{{ forloop.counter }}"
-                                    class="btn btn-outline-success voteButtons">{{ forloop.counter }}</button>
+                            <button data-value="{{ forloop.counter }}" class="btn btn-outline-success voteButtons">{{ forloop.counter }}</button>
                         {% endfor %}
                     </div>
                 </div>
@@ -151,7 +163,9 @@
                        placeholder="Wyszukaj Projektu ...">
                     <select id="categoryProjectSearch" class="form-control">
                         <option value="0">Wszystkie Kategorie</option>
-                        <option value="1">kategoria 1 </option>
+                       {% for cat in categories %}
+                           <option value="{{ cat.id }}">{{ cat.category_name }}</option>
+                       {% endfor %}
                     </select>
                 </div>
 

@@ -22,20 +22,25 @@
             <input type="hidden" id="owner_id" value="{{ project.owner.id }}">
         {% endif %}
         <label>Data rozpoczęcia głosowania</label>
-        <input type="text" class="form-control" id="startVoteDate" value="2020-02-02 12:12">
+        <input type="text" class="form-control" id="startVoteDate" value="{{ startVoteDate|date:'Y-m-d H:i' }}">
         <label>Data zakończenia głosowania</label>
-        <input type="text" class="form-control" id="endVoteDate" value="2020-02-02 12:12">
+        <input type="text" class="form-control" id="endVoteDate" value="{{ endVoteDate|date:'Y-m-d H:i' }}">
         <label>Kategoria</label>
         <select class="form-control" id="category_id">
-            <option value="1">Muzyka</option>
-            <option value="2">Programowanie</option>
-            <option value="3">Aplikacje Webowe</option>
+            {% for cat in categories %}
+                {% if project.project_category.id == cat.id %}
+                    <option selected value="{{ cat.id }}">{{ cat.category_name }}</option>
+                {% else %}
+                    <option value="{{ cat.id }}">{{ cat.category_name }}</option>
+                {% endif %}
+            {% endfor %}
+
         </select>
         <input type="file" name="file" id="fileBackground" style="display: none">
         <label>Obraz tła Projektu</label>
         <div class="col-lg-12 upload-area" id="uploadfile">
             <div id="backgroundEx" class="text-center "
-                 style="background-size: 100% 100%;background-repeat: no-repeat;border-radius: 10px;padding: 4rem;;background-color: #f0f0f0;
+                 style="background-size: 100% 100%;background-repeat: no-repeat;border-radius: 10px;padding: 4rem;background-color: #f0f0f0;
                          {% if project.cover_image %}
                              background-image: url('{{ project.cover_image.url }}')"
                          {% endif %}
@@ -52,14 +57,14 @@
 </div>
 <script>
     $(document).ready(function () {
-    flatpickr("startVoteDate");
+        flatpickr("startVoteDate");
         $('#startVoteDate').flatpickr({
             enableTime: true,
-            dateFormat: "Y-m-d H:i",
+            dateFormat: "Y-m-d H:i:s",
         });
         $('#endVoteDate').flatpickr({
             enableTime: true,
-            dateFormat: "Y-m-d H:i"
+            dateFormat: "Y-m-d H:i:s"
 
         });
     })

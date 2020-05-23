@@ -312,3 +312,6 @@ label {
     .btn.active span.fa-check {
         opacity: 1;
     }
+    .repoItem{
+        color:white;text-decoration: none;
+    }

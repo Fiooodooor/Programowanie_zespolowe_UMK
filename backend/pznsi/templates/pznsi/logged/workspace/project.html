@@ -10,7 +10,7 @@
             <h3>Menu Oceny</h3>
             <h4>Średnia Projektu:<span id="avgVal"></span></h4>
             {% if 'vote' in permissions %}
-                <h4>Twoja Ocena: BRAK </h4>
+                <h4>Twoja Ocena:<span id="myVote"></span> </h4>
             {% endif %}
             {% if 'vote' in permissions  and vote_open == true %}
 

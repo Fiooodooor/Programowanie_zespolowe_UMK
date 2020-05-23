@@ -137,13 +137,15 @@ def project_post_save(sender, **kwargs):
         viewers, _ = Group.objects.get_or_create(name=viewers_name)
         editors, _ = Group.objects.get_or_create(name=editors_name)
         voters, _ = Group.objects.get_or_create(name=voters_name)
+        environment_viewers = Group.objects.get(name=f'{project.environment.id}_environment_viewers')
         assign_perm('view_project_instance', viewers, project)
         assign_perm('edit_project_instance', editors, project)
         assign_perm('vote', voters, project)
         if project.owner is not None:
             project.owner.groups.add(viewers)
             project.owner.groups.add(editors)
-            project.owner.groups.add(voters)  # TODO should owner be able to vote?
+            project.owner.groups.add(voters)
+            project.owner.groups.add(environment_viewers)
 
 
 @receiver(post_save, sender=Environment)

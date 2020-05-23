@@ -173,6 +173,7 @@ function setDefaultWorkspace() {
         $.post('/api/projects/' + selectedProject.trim() + '/vote/', {
             'rate': vote * 10
         }, function (result) {
+            dataLoadProject();
             $('#loadingSpinner').hide();
             $('#voteModal').modal('hide');
         }).fail(function () {
@@ -454,12 +455,12 @@ function ZmianaTrybuPracy() {
         $('#mainPage').fadeIn();
         lastProjectContent = "";
         for (var i = 1; i < 4; i++) {
-            if ($.cookie('saveProject' + i) && $.cookie('saveProject' + i) != 0) {
+            if ($.cookie('save'+currentUser+'Project' + i) && $.cookie('save'+currentUser+'Project' + i) != 0) {
                 $.post('/front/projects/', {
                     'keyword': '',
                     'page': 0,
                     'numEnvi': 0,
-                    'id_project': $.cookie('saveProject' + i)
+                    'id_project': $.cookie('save'+currentUser+'Project' + i)
                 }, function (result, state, status) {
                     if (status['status'] == 200) {
                         lastProjectContent += result.trim();
@@ -578,7 +579,7 @@ function ZmianaTrybuPracy() {
                 addProjectButton();
                 projectEvents();
                 dataLoadProject();
-                loadComments();
+
             } else bootbox.alert('Wystąpił Błąd ');
             $('#loadingSpinner').hide();
         }).fail(function () {
@@ -1082,9 +1083,27 @@ function showContent(data, len) {
     if (data['type'] === "attachment") {
         var showElement = $('<span>');
         arr = data['data'].split('.');
+        FTtxt=['txt','md','rtf'];
+        FTpdf=['pdf'];
+        FTaudio=['mp3','wav','flac'];
+        FTarchive=['7z','zip','rar','gz','tar'];
+        FTvideo=['avi','mpg','webm','mp4','ogg','mpeg','fly'];
+        FTword=['odt','doc','docx'];
+        FTexcel=['xls','xlsx','calc'];
+        FTcode=['py','java','c','cpp','js','html','htm','xhtml','xml','json','css','php'];
+
         if (arr[arr.length - 1] == 'jpg' || arr[arr.length - 1] == 'jpeg' || arr[arr.length - 1] == 'gif' || arr[arr.length - 1] == 'bmp' || arr[arr.length - 1] == 'png ') {
             showElement.append($('<img>').attr('src', data['data']).css('height', '3em').css('display', 'block').css('margin', '0px auto').addClass('text-center justify-content-center')).addClass('w-100 ');
-        } else {
+        }
+        else if(FTtxt.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-alt fileComment');
+        else if(FTpdf.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-pdf fileComment');
+        else if(FTaudio.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-audio fileComment');
+        else if(FTarchive.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-archive fileComment');
+        else if(FTvideo.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-video fileComment');
+        else if(FTword.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-word fileComment');
+        else if(FTcode.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-code fileComment');
+        else if(FTexcel.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-excel fileComment');
+        else {
             showElement.addClass('fa fa-3x fa-file fileComment');
         }
 
@@ -1093,7 +1112,7 @@ function showContent(data, len) {
                 $('<h4>').append(
                     $('<img>').addClass('comIco').attr("src", data['UserIco']), ' ', data['User'], ' ', $('<span>').addClass('dateFormat').html(dformat)
                 ),
-                $('<a>').attr('href', data['data']).attr('target', '_blank').addClass('fileComment justify-content-center text-center').css('text-decoration', 'none').css('color', 'black').append(showElement, $('<h4>').html('TitleAttach'))
+                $('<a>').attr('href', data['data']).attr('target', '_blank').addClass('fileComment justify-content-center text-center').css('text-decoration', 'none').css('color', 'black').append(showElement, $('<h4>').html(data['attachment_name']))
             )
         );
     }
@@ -1214,7 +1233,15 @@ function addAttachmentToProject() {
 //zaladowanie danych do projektu
 function dataLoadProject() {
     $.get('/api/projects/' + selectedProject + '/', function (result) {
+        myVote="BRAK";
         votes = result['votes'];
+        for (var i=0;i<votes.length;i++)if(currentUser==votes[i]['user']['id'])myVote=votes[i]['vote_content']/10;
+        $('.voteButtons').removeClass('active');
+        if(myVote!="BRAK")
+            $('.voteButtons[data-value|='+myVote+']').addClass('active');
+
+        console.log(votes);
+        $('#myVote').html(myVote);
         if(result['vote_average']==null)
             $('#avgVal').html('BRAK');
         else
@@ -1226,7 +1253,8 @@ function dataLoadProject() {
                 User: result['comments'][i]['user']['username'],
                 UserIco: result['comments'][i]['user']['avatar'],
                 data: result['comments'][i]['comment_content'],
-                date: result['comments'][i]['date']
+                date: result['comments'][i]['date'],
+                attachment_name: ''
             });
         }
         for (var i = 0; i < result['attachments'].length; i++) {
@@ -1235,7 +1263,8 @@ function dataLoadProject() {
                 User: result['attachments'][i]['user']['username'],
                 UserIco: result['attachments'][i]['user']['avatar'],
                 data: result['attachments'][i]['content'],
-                date: result['attachments'][i]['date']
+                date: result['attachments'][i]['date'],
+                attachment_name:result['attachments'][i]['attachment_name']
             });
         }
         dataCommentAttachment = datal;
@@ -1465,13 +1494,13 @@ function loadFileRepo() {
 
 //edycja projektu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 function SendFormEditProject() {
-
     var dateStart= new Date($('#startVoteDate').val());
     var dateend= new Date($('#endVoteDate').val());
     if(dateStart.getTime()>dateend.getTime()){
         bootbox.alert('Data początkowa nie może być większa od końcowej !');
     }
     else {
+
         $('#loadingSpinner').show();
 
         $.post('/api/editprojectSave', {
@@ -1637,7 +1666,7 @@ function editEnviEvents() {
 
     $("#fileBackground").change(function () {
         $('#loadingSpinner').show();
-        setImageProjectBackground
+        setImageProjectBackground();
         $('#loadingSpinner').hide();
     });
 }

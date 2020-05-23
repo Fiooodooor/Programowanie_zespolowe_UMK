@@ -634,6 +634,7 @@ def permProject(request):
 def project(request):
     if request.method == 'POST':
         project_id = int(request.POST.get('project_id'))
+        print(project_id)
         project = Project.objects.get(id=project_id)
         user_permissions = get_perms(request.user, project)
         vote_opened = is_vote_open(project)
