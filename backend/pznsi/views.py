@@ -495,6 +495,7 @@ def save_project(request):
             if request.user.has_perm('edit_project_instance', project):
                 project.project_name = requested_project_name
                 project.project_content = requested_project_desc
+                project.project_category = ProjectCategory.objects.get(id=requested_project_category)
                 if request.user == project.owner:
                     project.owner = User.objects.get(id=requested_owner)
                     if vote_start < vote_end:
