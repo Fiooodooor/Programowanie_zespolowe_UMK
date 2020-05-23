@@ -10,7 +10,7 @@ from django.db.models import Value, IntegerField, Case, When
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
-from django.utils.dateparse import parse_date
+from django.utils.dateparse import parse_datetime
 from django.utils.datetime_safe import datetime
 from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_perms
 from guardian.utils import get_anonymous_user
@@ -487,8 +487,8 @@ def save_project(request):
         requested_owner = int(request.POST.get('owner'))
         environment_id = int(request.POST.get('environment_id'))
         if type(vote_start) == str or type(vote_end) == str:
-            vote_start = parse_date(vote_start)
-            vote_end = parse_date(vote_end)
+            vote_start = parse_datetime(vote_start)
+            vote_end = parse_datetime(vote_end)
         if requested_project != 0:
             project = Project.objects.get(id=requested_project)
             if request.user.has_perm('edit_project_instance', project):
