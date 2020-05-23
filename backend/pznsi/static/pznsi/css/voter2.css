@@ -3,14 +3,10 @@
         transform: scale(1.08);
 
     }
-    .listEnvPrElemet div:hover {
 
-        background-color: #dddddd;
-    }
 }
 ul,li {
     list-style-type: none;
-    wsidth: 100%;
 }
 .leftMenuIntem li div{
     width: 100%;

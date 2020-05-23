@@ -1,1 +1,67 @@
-Edycja Uprawnień  środowiska
+<style>
+
+</style>
+<div class="row justify-content-center">
+    <div class="  mixblend col-lg-12 " style="padding-top:15px;padding-bottom: 15px">
+        <div class=" ovalDiv bgw">
+            <h2>Dodaj uprawnienia w środowisku  </h2>
+            <select class="selectpicker w-100 mt-2" id="selectNewPermEnvi" data-live-search="true">
+                {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.username }}</option>
+                {% endfor %}
+            </select>
+            <br/>
+         <div class="btn-group btn-group-toggle mt-2 mb-2" data-toggle="buttons">
+        <label class="btn btn-outline-warning active">
+                        <span class="fa fa-check"></span>
+                        <br/>
+                        <input id="permViewEnvi" type="checkbox" checked autocomplete="off"> Podgląd
+                    </label>
+                    <label class="btn btn-outline-warning ">
+                        <span class="fa fa-check"></span>
+                        <br/>
+                        <input id="permAddEnvi" type="checkbox"  autocomplete="off"> Dodawanie
+                    </label>
+         </div>
+        <br/>
+            <div class="btn-group mt-2">
+                <button class="btn btn-outline-warning  addPermEnvi">Dodaj Uprawnienie</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="input-group mb-3">
+            <input type="text" id="SearchPermUser" class="form-control" placeholder="Szukaj ...">
+        </div>
+    </div>
+</div>
+<div class="row ">
+    {% for user,perm in  permitted_users.items %}
+        <div class="col-xl-4 listEnvPrElemet " style="padding-top:15px;padding-bottom: 15px;min-height: 100%">
+            <div class="text-center  mixblend ovalDiv bgw mh-100">
+                <h3 class="searchtr"> {{ user }} </h3>
+                <div class="btn-group btn-group-toggle mt-2 mb-2" data-toggle="buttons">
+                    <label class="btn btn-outline-warning {% if 'view_environment_instance' in perm  %}active{% endif %}">
+                        <span class="fa fa-check"></span>
+                        <br/>
+                        <input data-user-id="{{ user.id }}" data-type-perm="view_environment_instance"  class="changePermCheckEnvi" type="checkbox" {% if 'view_environment_instance' in perm  %}checked{% endif %}  autocomplete="off"> Podgląd
+                    </label>
+                    <label class="btn btn-outline-warning {% if 'edit_environment_instance' in perm  %}active{% endif %}">
+                        <span class="fa fa-check"></span>
+                        <br/>
+                        <input data-user-id="{{ user.id }}" data-type-perm="edit_environment_instance"  class="changePermCheckEnvi" type="checkbox" {% if 'edit_environment_instance' in perm  %}checked{% endif %} autocomplete="off"> Dodawanie
+                    </label>
+                </div>
+                <br/>
+                <div class="btn-group">
+                    <button data-user-perm-id="{{ user.id }}" class="btn btn-danger deletePermEnvi">Usuń uprawnienie
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+</div>
+

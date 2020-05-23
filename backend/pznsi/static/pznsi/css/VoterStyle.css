@@ -4,22 +4,29 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    word-wrap: break-word;
 
 
 }
-.standardBody{
-    margin-top:60px;
+
+.standardBody {
+    margin-top: 60px;
 }
+
 .affix {
 
-    background-color: #111111;
+    background-color: #111111
+
 }
+
 html {
     scroll-behavior: smooth;
 }
-.nav{
+
+.nav {
     border-radius: 10px;
 }
+
 @media (min-width: 992px) {
     .navbar-logo {
         padding-left: 3rem;
@@ -31,18 +38,21 @@ html {
 
 
 }
-    .nav{
-        background-color: #111111;
-    }
 
-.loginContent{
-    margin-bottom:0px;padding:30px;background-color:white;border-radius: 25px
+.navbarColor {
+    background-color: #111111;
 }
-.con2{
+
+.loginContent {
+    margin-bottom: 0;
+    padding: 30px;
+    background-color: white;
+    border-radius: 25px
+}
+
+.con2 {
     /* The image used */
     background-image: url('../images/back2.jpg');
-
-
 
 
     /* Create the parallax scrolling effect */
@@ -51,81 +61,92 @@ html {
     background-repeat: no-repeat;
     background-size: cover;
 }
+
 .userSettings::after {
     display: none;
 }
-.userSettings{
-    padding: 0px auto;
-}
 
-#userIco {
-    border:2px solid transparent;
-    border-radius: 50px;
-}
-#userIco:hover {
-    border:2px solid gray;
-    border-radius: 50px;
-}
-.padding-1{
+
+
+
+.padding-1 {
     padding: 1%;
 }
-.padding-5{
+
+.padding-5 {
     padding: 5%;
 }
-.padding-top-1{
+
+.padding-top-1 {
     padding-top: 1%;
 }
-.padding-top-5{
+
+.padding-top-5 {
     padding-top: 5%;
 }
-#upload-demo{
-	width: 250px;
-	height: 250px;
-  padding-bottom:25px;
+
+#upload-demo {
+    width: 250px;
+    height: 250px;
+    padding-bottom: 25px;
 }
-.croppie-container{
-    margin: 0px auto;
+
+.croppie-container {
+    margin: 0 auto;
 }
+
 .img-container {
-  /* Never limit the container height here */
-  max-width: 100%;
+    /* Never limit the container height here */
+    max-width: 100%;
 }
 
 .img-container img {
-  /* This is important */
-  width: 100%;
+    /* This is important */
+    width: 100%;
 }
-.AvatarRow{
-    padding-left:15px
+
+.AvatarRow {
+    padding-left: 15px
 }
-.padding-bottom-2{
+
+.padding-bottom-2 {
     padding-bottom: 2%;
 }
-.margin-bottom-2{
+
+.margin-bottom-2 {
     margin-bottom: 2%;
 }
+
 .VoteContainer {
-    padding: 2%;background-color: white;border-radius: 25px;margin-top: 5%;
-     word-wrap: break-word;
+    padding: 2%;
+    background-color: white;
+    border-radius: 25px;
+    margin-top: 5%;
+    word-wrap: break-word;
 }
-label{
+
+label {
     font-weight: bold;
 }
-.selectedSr{
+
+.selectedSr {
 
 }
-.h0{
+
+.h0 {
 
 }
-#projTitle #projCategory{
+
+#projTitle #projCategory {
     font-size: 1.2rem;
     font-weight: 800;
 }
-   #ProjectWindo {
-       border-radius: 10px;
-       background-color: #ececec;
-       padding: 1rem;
-   }
+
+#ProjectWindo {
+    border-radius: 10px;
+    padding: 1rem;
+}
+
 @media (min-width: 992px) {
     #ProjectContent {
 
@@ -133,25 +154,33 @@ label{
         padding-right: 10rem;
     }
 }
-.p-left-1{
+
+.p-left-1 {
     padding-left: 1rem;
 }
-.p-left-2{
+
+.p-left-2 {
     padding-left: 2rem;
 }
-.p-left-3{
+
+.p-left-3 {
     padding-left: 3rem;
 }
-.dateCom{
-    color:#adadad;
+
+.dateCom {
+    color: #adadad;
     font-style: italic;
     font-size: 0.8rem;
 }
 
 .img-comment {
-    height: 2rem;vertical-align: middle;  border:2px solid gray;border-radius: 50px;
+    height: 2rem;
+    vertical-align: middle;
+    border: 2px solid gray;
+    border-radius: 50px;
 }
-.envi ,.ProjectItemx{
+
+.envi, .ProjectItemx {
     padding-top: 15px;
     padding-bottom: 15px;
 }
@@ -163,15 +192,126 @@ label{
         background-color: #dddddd;
     }
 }
-.envi div ,.ProjectItemx div{
+
+.envi div, .ProjectItemx div {
 
     background-color: #f0f0f0;
 }
-.h-0{
-    height: 0px;
-}
-.listEnvPrElemet {
-    word-wrap: break-word;
+
+.h-0 {
+    height: 0;
 }
 
 
+.ovalDiv {
+    border-radius: 10px;
+    padding: 4rem;;
+    background-color: #f0f0f0;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+.outItem {
+    left: -1000px;
+    position: fixed;
+}
+
+.bgw {
+    background-color: rgba(200, 200,200, 0.7);
+    border-radius: 15px;
+}
+
+.EnviListElement {
+    min-height: 100%;
+}
+
+#alertBLock {
+    height: 100%;
+    z-index: 999999;
+    width: 100%;
+    background: rgba(20, 20, 20, 0.8);
+    overflow: hidden;
+    position: fixed;
+}
+
+.mh-100 {
+    min-height: 100%;
+}
+
+.comIco {
+    height: 2.5rem;
+    width: 2.5rem;
+    border: 2px solid transparent;
+    border-radius: 50px;
+}
+
+#userIco {
+    border: 2px solid transparent;
+    border-radius: 50px;
+}
+
+#userIco:hover {
+    border: 2px solid gray;
+    border-radius: 50px;
+}
+
+.comIco:hover {
+    border: 2px solid gray;
+    border-radius: 50px;
+}
+
+.fileComment {
+    min-width: 100%;
+}
+
+.border-blue {
+    border: 3px solid #3c69ff;
+}
+
+.dateFormat {
+    font-size: 16px;
+    color: #737373;
+}
+
+/*Scrollbar zmiana wyglądu */
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #676767;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+#editProjectInsideBtn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+  .reversColor{
+            color: #f1f1f1;
+            mix-blend-mode: difference;
+        }
+
+   .btn span.fa-check{
+        opacity: 0;
+    }
+
+    .btn.active span.fa-check {
+        opacity: 1;
+    }
+    .repoItem{
+        color:white;text-decoration: none;
+    }
