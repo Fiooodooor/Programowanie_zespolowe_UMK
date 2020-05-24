@@ -9,11 +9,14 @@
     </style>
     <div class="col-sm-6 p-3 bgw">
         <label>Nazwa Środowiska</label>
-        <input maxlength="100" type="text" class="form-control" value="{{ environment.environment_name }}" id="editEnvi_nameEnvi">
+        <input maxlength="100" type="text" class="form-control" value="{{ environment.environment_name }}"
+               id="editEnvi_nameEnvi">
         <label>Właściciel Środowiska</label>
         <select class="form-control" id="owner_id">
             {% for user in users %}
-                {% if user.id == environment.owner.id %}
+                {% if user.id == environment.owner.id and mode == 0 %}
+                    <option selected value="{{ user.id }}">{{ user.username }}</option>
+                {% elif mode == 1 and request.user.id == user.id %}
                     <option selected value="{{ user.id }}">{{ user.username }}</option>
                 {% else %}
                     <option value="{{ user.id }}">{{ user.username }}</option>
@@ -28,26 +31,18 @@
                          {% if environment.cover_image %}
                              background-image: url('{{ environment.cover_image.url }}')"
                          {% endif %}
-                 >
-                 <h3 id="editEnvi_dragName">Kliknij lub przeciągnij aby dodać tło </h3></div>
+            >
+                <h3 id="editEnvi_dragName">Kliknij lub przeciągnij aby dodać tło </h3></div>
         </div>
-            <div class=" padding-top-1">
-        <input data-edit-id="{{ environment.id }}" type="button"
-               value="{% if mode == 0 %}Edytuj{% else %}Dodaj Nowy {% endif %}"
-               onclick="SendForm({% if mode == 0 %}{{ environment.id }}{% else %}0{% endif %},'{% if mode == 0 %}{{ environment.name }}{% endif %}')" class="btn btn-outline-info">
-    </div>
+        <div class=" padding-top-1">
+            <input data-edit-id="{{ environment.id }}" type="button"
+                   value="{% if mode == 0 %}Edytuj{% else %}Dodaj Nowy {% endif %}"
+                   onclick="SendForm({% if mode == 0 %}{{ environment.id }}{% else %}0{% endif %},'
+                           {% if mode == 0 %}{{ environment.name }}{% endif %}')" class="btn btn-outline-info">
+        </div>
     </div>
 </div>
 <script>
-
-
-
-
-
-
-
-
-
 
 
 </script>

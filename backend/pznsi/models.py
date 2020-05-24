@@ -146,6 +146,10 @@ def project_post_save(sender, **kwargs):
             project.owner.groups.add(editors)
             project.owner.groups.add(voters)
             project.owner.groups.add(environment_viewers)
+        if project.environment.owner is not None:
+            project.environment.owner.groups.add(viewers)
+            project.environment.owner.groups.add(editors)
+            project.environment.owner.groups.add(voters)
 
 
 @receiver(post_save, sender=Environment)

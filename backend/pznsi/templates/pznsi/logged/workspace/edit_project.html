@@ -8,13 +8,15 @@
         <textarea maxlength="1000" type="text" class="form-control"
                   id="editProject_nameDesciption">{{ project.project_content }}</textarea>
         <label>Właściciel Projektu</label>
-        {% if request.user == project.owner or request.user.is_superuser  or mode == 1 %}
+        {% if request.user == project.owner or request.user == project.environment.owner  or mode == 1 %}
             <select class="form-control" id="owner_id">
-                {% for user in users %}
-                    {% if user.id == project.owner.id %}
-                        <option selected value="{{ user.id }}">{{ user.username }}</option>
+                {% for userp in users %}
+                    {% if  userp.id == project.owner.id  and mode == 0 %}
+                        <option selected value="{{ userp.id }}">{{ userp.username }}</option>
+                    {% elif mode == 1 and request.user.id == userp.id %}
+                         <option selected value="{{ userp.id }}">{{ userp.username }}</option>
                     {% else %}
-                        <option value="{{ user.id }}">{{ user.username }}</option>
+                        <option value="{{ userp.id }}">{{ userp.username }}</option>
                     {% endif %}
                 {% endfor %}
             </select>

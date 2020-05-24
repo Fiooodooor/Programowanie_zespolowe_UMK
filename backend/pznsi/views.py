@@ -65,6 +65,10 @@ class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Create
             viewer_group = Group.objects.get(name=viewer_group_name)
             try:
                 user = User.objects.get(id=user_id)
+                if user == environment.owner:
+                    return Response({'result': 0,
+                                     'detail': 'Cannot edit owner\'s permissions'},
+                                    status.HTTP_400_BAD_REQUEST)
                 if permissions.issubset(allowed_permissions):
                     for permission in permissions:
                         if permission == 'edit_environment_instance':
@@ -96,6 +100,10 @@ class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Create
             viewer_group = Group.objects.get(name=viewer_group_name)
             try:
                 user = User.objects.get(id=user_id)
+                if user == environment.owner:
+                    return Response({'result': 0,
+                                     'detail': 'Cannot edit owner\'s permissions'},
+                                    status.HTTP_400_BAD_REQUEST)
                 if permissions.issubset(allowed_permissions):
                     for permission in permissions:
                         if permission == 'edit_environment_instance':
@@ -193,6 +201,10 @@ class Projects(mixins.CreateModelMixin,
             user_id = int(request.data['user_id'])
             permissions = set(request.data['permissions'])
             user = User.objects.get(id=user_id)
+            if user == project.owner or user == project.environment.owner:
+                return Response({'result': 0,
+                                 'detail': 'Cannot edit owner\'s permissions'},
+                                status.HTTP_400_BAD_REQUEST)
             allowed_permissions = {'vote', 'edit_project_instance', 'view_project_instance'}
             if permissions.issubset(allowed_permissions):
                 for permission in permissions:
@@ -225,6 +237,10 @@ class Projects(mixins.CreateModelMixin,
             user_id = int(request.data['user_id'])
             permissions = set(request.data['permissions'])
             user = User.objects.get(id=user_id)
+            if user == project.owner or user == project.environment.owner:
+                return Response({'result': 0,
+                                 'detail': 'Cannot edit owner\'s permissions'},
+                                status.HTTP_400_BAD_REQUEST)
             allowed_permissions = {'vote', 'edit_project_instance', 'view_project_instance'}
             if permissions.issubset(allowed_permissions):
                 for permission in permissions:
@@ -494,7 +510,7 @@ def save_project(request):
         requested_project_category = request.POST.get('project_category')
         requested_project_desc = request.POST.get('project_description')
         vote_start = request.POST.get('startVoteDate', datetime.now())
-        vote_end = request.POST.get('endVoteDate', datetime.now()+timedelta(days=14))
+        vote_end = request.POST.get('endVoteDate', datetime.now() + timedelta(days=14))
         image_base64 = request.POST.get('cover_image')
         requested_owner = int(request.POST.get('owner'))
         environment_id = int(request.POST.get('environment_id'))
@@ -507,7 +523,7 @@ def save_project(request):
                 project.project_name = requested_project_name
                 project.project_content = requested_project_desc
                 project.project_category = ProjectCategory.objects.get(id=requested_project_category)
-                if request.user == project.owner:
+                if request.user == project.owner or request.user == project.environment.owner:
                     project.owner = User.objects.get(id=requested_owner)
                     if vote_start < vote_end:
                         project.vote_starting = vote_start
@@ -603,8 +619,11 @@ def PermEnviroment(request):
     if request.method == 'POST':
         environment_id = int(request.POST.get('environment_id'))
         environment = Environment.objects.get(id=environment_id)
-        users = User.objects.all().exclude(id=get_anonymous_user().id)
         permitted_users = get_users_with_perms(environment, attach_perms=True)
+        excluded_ids = [user.id for user in permitted_users.keys()]
+        excluded_ids.append(get_anonymous_user().id)
+        permitted_users.pop(environment.owner, None)
+        users = User.objects.all().exclude(id__in=excluded_ids)
         context = {
             'users': users,
             'permitted_users': permitted_users
@@ -619,8 +638,12 @@ def permProject(request):
     if request.method == 'POST':
         project_id = int(request.POST.get('project_id'))
         project = Project.objects.get(id=project_id)
-        users = User.objects.all().exclude(id=get_anonymous_user().id)
         permitted_users = get_users_with_perms(project, attach_perms=True)
+        excluded_ids = [user.id for user in permitted_users.keys()]
+        excluded_ids.append(get_anonymous_user().id)
+        permitted_users.pop(project.owner, None)
+        permitted_users.pop(project.environment.owner, None)
+        users = User.objects.all().exclude(id__in=excluded_ids)
         context = {
             'users': users,
             'permitted_users': permitted_users
