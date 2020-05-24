@@ -24,7 +24,7 @@
                 <label class="btn btn-outline-warning active">
                     <span class="fa fa-check"></span>
                     <br/>
-                    <input type="checkbox" id="newPermPod" checked autocomplete="off"> Komentowanie/dodawanie
+                    <input type="checkbox" id="newPermPod" checked autocomplete="off"> Udział
                 </label>
                 <label class="btn btn-outline-warning ">
                     <span class="fa fa-check"></span>
@@ -68,7 +68,7 @@
                         <span class="fa fa-check"></span>
                         <br/>
                         <input data-user-id="{{ user.id }}"  data-type-perm="view_project_instance" class="changePermCheck" type="checkbox" {% if 'view_project_instance' in perm %}checked{% endif %}
-                               autocomplete="off"> Komentowanie/dodawanie
+                               autocomplete="off"> Udział
                     </label>
                     <label class="btn btn-outline-warning {% if 'edit_project_instance' in perm %}active{% endif %}">
                         <span class="fa fa-check"></span>

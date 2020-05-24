@@ -1517,6 +1517,7 @@ function SendFormEditProject() {
             if (status['status'] == 200) {
                 if (result != null) {
                     if (result['project_name'] != "") {
+                        selectedProject=result['project_id'];
                         selectedProjectName = $('#editProject_nameProject').val();
                         trybPracy = 5;
                         ZmianaTrybuPracy();
