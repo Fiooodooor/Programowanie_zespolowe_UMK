@@ -4,23 +4,23 @@
     <div class="col-lg-4 listEnvPrElemet " style="padding-top:15px;padding-bottom: 15px">
 
     {% if environment.isOwner %}
-        <div class="dropdown" style="position: absolute;top:20px;right:20px">
+        <div class="dropdown dropdownEnviPro" style="position: absolute;top:20px;right:20px">
   <button class="btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fa fa-ellipsis-v "></i>
+        <i class="fa reversColor  fa-ellipsis-v "></i>
   </button>
   <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-    <span class="dropdown-item editEnviButton" data-envi-id="{{ environment.id }} " data-envi-name="{{ environment.environment_name }}" >Edycja</span>
-    <span class="dropdown-item permEnviButton" data-envi-id="{{ environment.id }} " data-envi-name="{{ environment.environment_name }}" >Uprawnienia</span>
+    <span class="dropdown-item editEnviButton"  data-background="{% if environment.cover_image %}{{ environment.cover_image.url }}{% endif %}" data-envi-id="{{ environment.id }} " data-envi-name="{{ environment.environment_name }}" >Edycja</span>
+    <span class="dropdown-item permEnviButton"  data-background="{% if environment.cover_image %}{{ environment.cover_image.url }}{% endif %}" data-envi-id="{{ environment.id }} " data-envi-name="{{ environment.environment_name }}" >Uprawnienia</span>
 
   </div>
 </div>
     {% endif %}
-        <div class="text-center EnviListElement mixblend"  data-envi-id="{{ environment.id }}" data-envi-name="{{ environment.environment_name }}" style="border-radius: 10px;padding: 4rem;;background-color: #f0f0f0;background-size: 100% 100%;background-repeat: no-repeat;
+        <div class="text-center EnviListElement mixblend" data-background="{% if environment.cover_image %}{{ environment.cover_image.url }}{% endif %}"  data-envi-id="{{ environment.id }}" data-envi-name="{{ environment.environment_name }}" style="border-radius: 10px;padding: 4rem;;background-color: #f0f0f0;background-size: 100% 100%;background-repeat: no-repeat;
                 {% if environment.cover_image %}
                          background-image: url('{{ environment.cover_image.url }}');
                 {% endif %}
             ">
-            <h3 class="">{{ environment.environment_name }}</h3>
+            <h3 class="reversColor">{{ environment.environment_name }}</h3>
         </div>
     </div>
 
@@ -29,5 +29,6 @@
 {% endfor %}
 
 
-<script>  EventEnviClick();</script>
+<script>  EventEnviClick();
+</script>
 {% endif %}

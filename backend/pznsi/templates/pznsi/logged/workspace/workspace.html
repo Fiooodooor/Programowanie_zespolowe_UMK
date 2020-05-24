@@ -1,543 +1,225 @@
 {% extends "pznsi/logged/loggedWorkSpaceInterface.html" %}
 
+{% block repoFiles %}
+    {% for repo_file in repository_files %}
+        <div class="col-lg-3 col-4">
+            <span data-value-url="{{ repo_file.file.url }}" data-id-repofile="{{ repo_file.id }}" data-id-reponame="{{ repo_file.visible_name }}"
+                  target="_blank" class="fileComment justify-content-center text-center repoItem"><span
+                    class="fa fa-3x
+                   {% if repo_file.extension in ".xlsx,.xls,.calc"  %}fa-file-excel
+                   {% elif  repo_file.extension in ".pdf"  %} fa-file-pdf
+                   {% elif  repo_file.extension in ".jpg,.jpeg,.bmp,.png,.gif,.tiff"  %} fa-file-image
+                   {% elif  repo_file.extension in ".mp3,wav,.flac"  %} fa-file-audio
+                   {% elif  repo_file.extension in ".7z,.zip,.rar,.gz,.tar"  %} fa-file-archive
+                   {% elif  repo_file.extension in ".avi,.mpg,.webm,.mp4,.ogg,.mpeg,.fly"  %} fa-file-video
+                   {% elif  repo_file.extension in ".odt,.doc,.docx"  %} fa-file-word
+                   {% elif  repo_file.extension in ".txt,.md,.rtf"  %} fa-file-alt
+                   {% elif  repo_file.extension in ".py,.java,.c,.cpp,.js,.html,.htm,.xhtml,.xml,.json,.css,.php"  %}fa-file-code
+
+                   {% else %} fa-file
+                   {% endif %}
+
+                    fileComment" aria-hidden="true"></span><h4>{{ repo_file.visible_name }}</h4></span>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block modals %}
+
+    <div class="modal fade" id="repoactionModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog  modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Wybierz działanie</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="repoactionModalContent">
+                    <div class="row">
+                        <div class="col-12 justify-content-center">
+                            <div class="btn-group-vertical justify-content-center w-100">
+                                <button class="btn btn-outline-secondary " id="addItemRepoToProject">Dodaj Plik do
+                                    Projektu
+                                </button>
+                                <a target="_blank" class="btn btn-outline-secondary" id="downloadFileRepo"
+                                   href="dupa.php">Pobierz plik z repozytorium </a>
+                                 <button class="btn btn-outline-secondary" id="renameFileRepo">Zmień tytuł pliku
+                                </button>
+                                <button class="btn btn-outline-secondary" id="removeFileRepo">Usuń plik z repozytorium
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="modal fade" id="AddFileToRepoModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog  modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Dodaj Plik do repozytorium</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="addFileRepoDiv" class="bgw p-3 col-12 justify-content-center text-center mh-100"
+                         style="border: 2px solid #8c8c8c">
+                        <input type="file" name="file" id="fileBackgroundRepo" style="display: none">
+                        <span style="width: 50%;height: 20%" class="fa fa-5x fa-file" aria-hidden="true"> </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="statsModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                   <ul class="nav nav-tabs">
+                      <li class="nav-item">
+                        <a class="nav-link active statNavItem" data-type="chart" href="#">Wykres</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link statNavItem" href="#" data-type="list">Lista Głosujących</a>
+                      </li>
+                    </ul>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="statsModalContent">
+
+                    <canvas id="ChartProject" width="400" height="400"></canvas>
+                    <div id="ListVoters">
+                        <table class="table table-striped">
+                            <thead><tr><th>Głosujący</th><th>Głos</th></tr></thead>
+                            <tbody id="ListVotersTbody"></tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="voteModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog  modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-center" id="exampleModalLabel">Głosowanie</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="voteModalContent">
+                    <div class="input-group mb-3 justify-content-center">
+                        {% for i in '0123456789'|make_list %}
+                            <button data-value="{{ forloop.counter }}" class="btn btn-outline-success voteButtons">{{ forloop.counter }}</button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
 
 {% block contentWorkSpace %}
 
+    {% csrf_token %}
+    <script type="text/javascript">
+        // using jQuery
+        var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+    </script>
 
-
-    <div id="mainPage" style="background-color: white">
+    <div id="mainPage" style="">
         <div id="LastSearchContent">
-            <div class="border-bottom my-3"><h2>Ostatnie projekty </h2></div>
-            <div class="row align-items-center h-100 text-center" id="lastSearch">
+            <div class=" my-3 bgw p-3 "><h2>Ostatnie projekty </h2></div>
+            <div class="row  h-100 text-center" id="lastSearch">
+            </div>
         </div>
-        </div>
-        <div class="border-bottom my-3"><h2>Środowiska </h2>
+        <div class=" my-3 bgw p-3"><h2>Środowiska </h2>
             <input type="search" class="form-control search" id="searchEnvi" placeholder="Wyszukaj Środowiska ...">
         </div>
-        <div class="row align-items-center h-100 text-center" id="allEnvi" >
+        <div class="row h-100 text-center" id="allEnvi">
         </div>
     </div>
 
     <div id="listProjects">
-        <div class="border-bottom my-3">
-            <div class="btn-group w-100">
-            <h2 id="headerListProjects">Projekty </h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-12 my-3 p-3 bgw">
+                <div class="btn-group w-100">
+                    <h2 id="headerListProjects">Projekty </h2>
                 </div>
-            <input type="search" class="form-control search" id="searchProjectEnvi" placeholder="Wyszukaj Projektu ...">
+                <div class="input-group">
+                <input type="search" class="form-control search w-50" id="searchProjectEnvi"
+                       placeholder="Wyszukaj Projektu ...">
+                    <select id="categoryProjectSearch" class="form-control">
+                        <option value="0">Wszystkie Kategorie</option>
+                       {% for cat in categories %}
+                           <option value="{{ cat.id }}">{{ cat.category_name }}</option>
+                       {% endfor %}
+                    </select>
+                </div>
 
+            </div>
         </div>
-        <div class="row align-items-center h-100 text-center" id="allProject">
+        <div class="row  h-100 text-center" id="allProject">
         </div>
     </div>
     <div id="editEnvi">
-        <div class="border-bottom my-3"><h2 id="headerEditEnvi"></h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-6 my-3 p-3 bgw"><h2 id="headerEditEnvi"></h2>
+            </div>
         </div>
         <div id="editEnviContent"></div>
     </div>
     <div id="permEnvi">
-        <div class="border-bottom my-3"><h2 id="headerPermEnvi"></h2>
+        <div class="row justify-content-center">
+            <div class=" col-lg-12  my-3 bgw p-3"><h2 id="headerPermEnvi"></h2>
+            </div>
         </div>
         <div id="editPermContent"></div>
     </div>
     <div id="editProject">
-        <div class="border-bottom my-3"><h2 id="headerEditProject"></h2>
+        <div class="row justify-content-center">
+            <div class=" col-lg-6  bgw p-3 my-3"><h2 id="headerEditProject"></h2>
+            </div>
         </div>
         <div id="editProjectContent"></div>
     </div>
     <div id="permProject">
-        <div class="border-bottom my-3"><h2 id="headerPermProject"></h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-12  bgw p-3 my-3"><h2 id="headerPermProject"></h2>
+            </div>
         </div>
         <div id="editPermProjectContent"></div>
     </div>
     <div id="projectPage">
-        <div class="border-bottom my-3"><h2 id="headerProjectContent"></h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-12  bgw p-3 my-3">
+                <h2 id="headerProjectContent"></h2>
+                <span class=" " id="editProjectInsideBtn">
+                <span class="far fa-2x fa-edit "></span>
+                </span>
+            </div>
         </div>
         <div id="projectPageContent"></div>
     </div>
 
     <script>
-        //tryby pracy 1- strona główna (Ostatnie projekty) oraz lista środowisk
-        //tryb pracy 2 przegląd  projektów z wybranego środowiska
-        //tryb pracy 3 Edycja środowiska
-        //tryb pracy 4 Edycja uprawnień środowiskaEventProjectClick
-        //tryb pracy 5 widok projektu
-        var trybPracy = 1;
-        var WybraneSrodowisko = -1;
-        var selectedEnvi = "";
-        var pageLoad = 1;
-        var search = 0;
-        var stopReadPage = 0;
-        var keyword="";
-        var selectedProject=0;
-        var selectedProjectName="";
-        var locale = {
-            OK: 'Potwierdź',
-            CONFIRM: 'Potwierdź',
-            CANCEL: 'Anuluj'
-        };
-        bootbox.addLocale('custom', locale);
-
-        //wczytywanie trybu pracy e
-
-
-        function LoadLastProjectList() {
-            $('.lastprojectitems').remove();
-            lastid=[];
-            lastid.push($.cookie('saveProject1'));
-            lastid.push($.cookie('saveProject2'));
-            lastid.push($.cookie('saveProject3'));
-
-
-            lastid.forEach(function (element, index, array) {
-                if(element!=0) {
-
-                    $.get('/api/projects/'+element,function (result) {
-                        $('#lastProjectsList').after($('<li>').append($('<a>').addClass('l2 lastprojectitems').append(result['project_name'])).on('click', function () {
-                        selectedProject = element;
-                        selectedProjectName = result['project_name'];
-                        trybPracy = 5;
-                        ZmianaTrybuPracy();
-                    }));
-                     });
-
-                }
-            });
-
-
-        }
-        function setDefaultCookie() {
-            if(!$.cookie('saveProject1')) $.cookie('saveProject1',0);
-            if(!$.cookie('saveProject2')) $.cookie('saveProject2',0);
-            if(!$.cookie('saveProject3')) $.cookie('saveProject3',0);
-
-        }
-        function AddLastProject(id) {
-            if(id!=0 && $.cookie('saveProject3')!=id  && $.cookie('saveProject1')!=id&& $.cookie('saveProject2')!=id) {
-                $.cookie('saveProject3', $.cookie('saveProject2'));
-                $.cookie('saveProject2', $.cookie('saveProject1'));
-                $.cookie('saveProject1', id);
-                LoadLastProjectList();
-
-            }
-        }
         //po załadowaniu strony
         $(document).ready(function () {
-            setDefaultCookie();
-             AddLastProject(0);
-            ZmianaTrybuPracy();
-            //dodanie przycisku dodającego nowe środowisko
-            //event pokazujący sidebar
-            $('#sidebarViewer').on('click', function () {
-                $('#sidebar').toggleClass('active-sidebar sidebar2 ', 1000);
-                $('#viewport').toggleClass('activeViewPort', 1000);
-            });
-            //przycisk wracający do listy środowisk
-            $('#enviList').on('click', function () {
-                trybPracy = 1;
-                ZmianaTrybuPracy();
-            });
-            //po kliknięciu ostatnich projektów również wracamy do listy środowisk
-            $('#lastProjectsList').on('click', function () {
-                trybPracy = 1;
-                ZmianaTrybuPracy();
-            });
-            //lista wszystkich projektów
-            $('#allProjectsList').on('click', function () {
-                trybPracy = 2;
-                selectedEnvi = 'Wszystkie Projekty ';
-                WybraneSrodowisko=0;
-                ZmianaTrybuPracy();
-            });
-            EventEnviClick();
-            EventProjectClick
-            LoadLastProjectList();
+            currentUser = '{{ user.id }}'
+           setDefaultWorkspace();
         });
-
-
-        //scroll
-        $(window).scroll(function () {
-            if ($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
-                pageLoad++;
-                if (trybPracy === 1) {
-                    if (stopReadPage === 0)
-
-                        $.post('/front/environments/', {
-                            'keyword': '',
-                            'page': pageLoad,
-                            'csrfmiddlewaretoken': '{{ csrf_token }}'
-                        }, function (result) {
-                            result = result.trim();
-                            if (result == "") stopReadPage = 1;
-                            else {
-                                $('#allEnvi').append(result);
-                            }
-                        });
-
-                }
-                if (trybPracy == 2) {
-                    if (stopReadPage === 0) {
-                        $.post('/front/projects/', {
-                            'keyword': '',
-                            'numEnvi': WybraneSrodowisko,
-                            'page': pageLoad,
-                            'csrfmiddlewaretoken': '{{ csrf_token }}'
-                        }, function (result) {
-                            result = result.trim();
-                            if (result == "") stopReadPage = 1;
-                            else {
-                                $('#allProject').append(result);
-                            }
-                        });
-                    }
-
-                }
-            }
-
-        });
-        //wyszukiwanie środowiska
-        $('#searchEnvi').on('keyup', function () {
-            keyword=$(this).val();
-            if ($(this).val() == "") {
-                search = 0;
-                pageLoad = 1;
-                stopReadPage=0;
-                $('#allEnvi').html('');
-                 $.post('/front/environments/', {
-                            'keyword': '',
-                            'page': pageLoad,
-                            'csrfmiddlewaretoken': '{{ csrf_token }}'
-                        }, function (result) {
-                            result = result.trim();
-                            if (result == "") stopReadPage = 1;
-                            else {
-                                $('#allEnvi').append(result);
-                            }
-                        });
-            } else {
-                search = 1;
-                pageLoad = 1;
-                stopReadPage=0;
-                $('#allEnvi').html('');
-                $.post('/front/environments/', {
-                            'keyword': keyword,
-                            'page': pageLoad,
-                            'csrfmiddlewaretoken': '{{ csrf_token }}'
-                        }, function (result) {
-                            result = result.trim();
-                            if (result == "") stopReadPage = 1;
-                            else {
-                                $('#allEnvi').append(result);
-                            }
-                        });
-            }
-        });
-        //wyszukiwanie projektów w środowisku
-        $('#searchProjectEnvi').on('keyup', function () {
-            keyword=$(this).val();
-            if ($(this).val() == "") {
-                search = 0;
-                pageLoad = 1;
-                stopReadPage=0
-                $('#allProject').html('');
-                 $.post('/front/projects/', {
-                            'keyword': '',
-                            'numEnvi': WybraneSrodowisko,
-                            'page': pageLoad,
-                            'csrfmiddlewaretoken': '{{ csrf_token }}'
-                        }, function (result) {
-                            result = result.trim();
-                            if (result == "") stopReadPage = 1;
-                            else {
-                                $('#allProject').append(result);
-                            }
-                        });
-            } else {
-                search = 1;
-                pageLoad = 1;
-                stopReadPage=0
-                $('#allProject').html('');
-                $.post('/front/projects/', {
-                            'keyword': keyword,
-                            'numEnvi': WybraneSrodowisko,
-                            'page': pageLoad,
-                            'csrfmiddlewaretoken': '{{ csrf_token }}'
-                        }, function (result) {
-                            result = result.trim();
-                            if (result == "") stopReadPage = 1;
-                            else {
-                                $('#allProject').append(result);
-                            }
-                        });
-            }
-        });
-        function EventProjectClick() {
-
-            selectedProject = 0;
-            selectedProjectName = ""
-            $(".ProjectListElement").on('click', function (event) {
-                    selectedProject = $(this).attr('data-project-id');
-                    selectedProjectName = $(this).attr('data-project-name');
-                    WybraneSrodowisko = $(this).attr('data-project-envi-id');
-                    selectedEnvi = $(this).attr('data-project-envi-name');
-                    event.stopPropagation();
-                    event.stopImmediatePropagation();
-                    trybPracy = 5;
-                    ZmianaTrybuPracy();
-                    LoadLastProjectList();
-                });
-            $(".permProjectButton").on('click',function (event) {
-                    selectedProject = $(this).attr('data-project-id');
-                    selectedProjectName = $(this).attr('data-project-name');
-                    WybraneSrodowisko = $(this).attr('data-project-envi-id');
-                    selectedEnvi = $(this).attr('data-project-envi-name');
-                    event.stopPropagation();
-                    event.stopImmediatePropagation();
-                    trybPracy = 7;
-                    ZmianaTrybuPracy();
-            });
-            $(".editProjectButton").on('click',function (event) {
-                    selectedProject = $(this).attr('data-project-id');
-                    selectedProjectName = $(this).attr('data-project-name');
-                    WybraneSrodowisko = $(this).attr('data-project-envi-id');
-                    selectedEnvi = $(this).attr('data-project-envi-name');
-
-                    event.stopPropagation();
-                    event.stopImmediatePropagation();
-                    trybPracy = 6;
-                    ZmianaTrybuPracy();
-            })
-
-
-        }
-        function EventEnviClick() {
-                //po wcisnieciu przycisku edytuj przechodzi do edycji envi
-                $(".editEnviButton").on('click', function (event) {
-                    event.stopPropagation();
-                    event.stopImmediatePropagation();
-                    WybraneSrodowisko = $(this).attr('data-envi-id');
-                    selectedEnvi = $(this).attr('data-envi-name');
-                    trybPracy = 3;
-                    ZmianaTrybuPracy();
-                });
-                //wejście w uprawnienia aplikacji
-                $(".permEnviButton").on('click', function (event) {
-                    event.stopPropagation();
-                    event.stopImmediatePropagation();
-                    WybraneSrodowisko = $(this).attr('data-envi-id');
-                    selectedEnvi = $(this).attr('data-envi-name');
-                    trybPracy = 4;
-                    ZmianaTrybuPracy();
-                });
-                //po kliknięciu w środowisko wchodzi do listy projektów
-                $(".EnviListElement").on('click', function (event) {
-                    WybraneSrodowisko = $(this).attr('data-envi-id');
-                    selectedEnvi = $(this).attr('data-envi-name');
-                    event.stopPropagation();
-                    event.stopImmediatePropagation();
-                    trybPracy = 2;
-                    ZmianaTrybuPracy();
-
-                });
-        }
-
-        function addProjectButton() {
-            if(WybraneSrodowisko!=0) {
-                $.post('/api/canAddProject', {'csrfmiddlewaretoken': '{{ csrf_token }}', 'id': WybraneSrodowisko},function (result) {
-                    console.log(result);
-                    if(result != null && result['can_add']==true){
-                        $('#allProjectsList').after($('<li>').append($('<a>').addClass('l2 projectListButtons').attr('id', 'addNew').attr('role', 'button').append($('<i>').addClass('fas fa-plus'), ' Dodaj Projekt')).on('click', function () {
-                            selectedProject = 0;
-                            selectedProjectName = "Dodaj Projekt";
-                            trybPracy = 6;
-                            ZmianaTrybuPracy();
-                        }));
-                    }
-                });
-
-
-            }
-        }
-        function addCurrentProjectButton() {
-             $('#allProjectsList').after($('<li>').append($('<a>').addClass('l2 projectListButtons').attr('id', 'curren').attr('role', 'button').append($('<i>'), selectedProjectName)).on('click',function () {
-                    trybPracy=5;
-                    ZmianaTrybuPracy();
-                }));
-        }
-
-        function addCurrentEnviButton() {
-            $('#enviList').after($('<li>').append($('<a>').addClass('l2').attr('id', 'selectedEnviList').attr('role', 'button').append(' ' + selectedEnvi)).on('click', function () {
-                    trybPracy = 2;
-                    ZmianaTrybuPracy();
-                }));
-        }
-
-        function addNewEnviButton() {
-            $.post('/api/canAddEnvi',{'csrfmiddlewaretoken':'{{ csrf_token }}'},function (result) {
-                if(result != null && result['can_add']==true){
-                    $('#enviList').after($('<li>').append($('<a>').addClass('l2').attr('id', 'addNew').attr('role', 'button').append($('<i>').addClass('fas fa-plus'), ' Dodaj Środowisko')).on('click',function () {
-                    selectedEnvi="";
-                    WybraneSrodowisko=0;
-                    trybPracy=3;
-                    ZmianaTrybuPracy();
-                }));
-                }
-            });
-
-        }
-
-        function ZmianaTrybuPracy() {
-            $('#mainPage').hide();
-            $('#listProjects').hide();
-            $('#editEnvi').hide();
-            $('#permEnvi').hide();
-            $('#projectPage').hide();
-            $('#permProject').hide();
-            $('#editProject').hide();
-            $('#editEnviContent').html('');
-            $('#editPermContent').html('');
-            $('#editProjectContent').html('');
-            $('#editPermProjectContent').html('');
-            $('#projectPageContent').html('');
-            $('#allEnvi').html('');
-            $('#lastSearch').html('');
-            $('.projectListButtons').remove();
-            if ($('#selectedEnviList').length) $('#selectedEnviList').remove();
-            $('#addNew').remove();
-            pageLoad = 1;
-            search = 0;
-            stopReadPage = 0;
-            keyword="";
-            if (trybPracy == 1) {
-                 addNewEnviButton();
-                $('#mainPage').fadeIn();
-                lastProjectContent="";
-                for(var i=1;i<4;i++) {
-                    if ($.cookie('saveProject' + i) && $.cookie('saveProject'+i)!=0) {
-                        $.post('/front/projects/', {
-                            'keyword': '',
-                            'page': 0,
-                            'numEnvi': 0,
-                            'csrfmiddlewaretoken': '{{ csrf_token }}',
-                            'id_project':$.cookie('saveProject' + i)
-                        },function (result) {
-                            lastProjectContent+=result.trim();
-                         $('#lastSearch').html(lastProjectContent);
-                        });
-                    }
-                }
-
-                $('#allEnvi').load('/front/environments/', {
-                    'keyword': '',
-                    'page': pageLoad,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                });
-
-
-            }
-            if (trybPracy == 2) {
-                console.log(trybPracy);
-                $('#headerListProjects').html(selectedEnvi);
-                $('#listProjects').fadeIn();
-                $.post('/front/projects/', {
-                    'keyword': '',
-                    'numEnvi': WybraneSrodowisko,
-                    'page': pageLoad,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                },function (result) {
-                    $('#allProject').html(result);
-                });
-
-
-                addNewEnviButton();
-                addCurrentEnviButton();
-                addProjectButton();
-            }
-            if (trybPracy === 3) {
-                $('#editEnvi').fadeIn();
-                if(WybraneSrodowisko!=0)
-                    $('#headerEditEnvi').html('Edycja ' + selectedEnvi);
-                else
-                    $('#headerEditEnvi').html('Dodaj Środowisko');
-                $.post('/front/editEnvi', {
-                    'numEnvi': WybraneSrodowisko,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                }, function (result) {
-                    result = result.trim();
-                    $('#editEnviContent').html(result);
-                });
-                 addNewEnviButton();
-                 if(WybraneSrodowisko!=0)
-                    addCurrentEnviButton();
-            }
-             if (trybPracy === 4) {
-                $.post('/front/environmentsperms/', {
-                    'id_envi': WybraneSrodowisko,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                }, function (result) {
-                    $('#permEnvi').fadeIn();
-                    $('#headerPermEnvi').html('Uprawnienia ' + selectedEnvi);
-                    result = result.trim();
-                    $('#editPermContent').html(result);
-                     addNewEnviButton();
-                     addCurrentEnviButton();
-
-                })
-            }
-            if(trybPracy === 5){
-                $.post('/front/project/', {
-                    'id_project': selectedProject,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                }, function (result) {
-                    $('#projectPage').fadeIn();
-                    $('#headerProjectContent').html('Projekt ' + selectedProjectName);
-                    result = result.trim();
-                    $('#projectPageContent').html(result);
-                    AddLastProject(selectedProject);
-                    addCurrentEnviButton();
-                    addNewEnviButton();
-                    addCurrentProjectButton()
-                    addProjectButton();
-                })
-            }
-            if(trybPracy === 6){
-
-                $.post('/front/editProject', {
-                    'id': selectedProject,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                }, function (result) {
-                    if(selectedProject == 0)
-                        $('#headerEditProject').html('Dodaj Projekt');
-                    else
-                        $('#headerEditProject').html('Edycja ' + selectedProjectName);
-                    $('#editProject').fadeIn();
-
-                    result = result.trim();
-                    $('#editProjectContent').html(result);
-                     addNewEnviButton();
-                    addCurrentEnviButton();
-                    if(selectedProject!=0)
-                        addCurrentProjectButton()
-                    addProjectButton();
-                })
-            }
-            if(trybPracy === 7){
-                $.post('/front/projectperms/', {
-                    'id_project': selectedProject,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                }, function (result) {
-                    $('#permProject').fadeIn();
-                    $('#headerPermProject').html('Uprawnienia ' + selectedProjectName);
-                    result = result.trim();
-                    $('#editPermProjectContent').html(result);
-                    addNewEnviButton();
-                    addCurrentEnviButton();
-                    addCurrentProjectButton();
-                    addProjectButton();
-                })
-            }
-
-        }
-
     </script>
 {% endblock %}
 
@@ -557,11 +239,4 @@
             <i class="fas fa-align-justify"></i> Ostatnie Projekty
         </a>
     </li>
-    <li>
-        <a class="l1" role="button">
-            <i class="fas fa-align-justify"></i> Repozytorium
-        </a>
-    </li>
-
-
 {% endblock %}

@@ -25,7 +25,8 @@ env = environ.Env(
     STATIC_URL=(str, '/static/'),
     STATIC_ROOT=(str, ''),
     MEDIA_URL=(str, '/media/'),
-    MEDIA_ROOT=(str, os.path.join(BASE_DIR, 'media'))
+    MEDIA_ROOT=(str, os.path.join(BASE_DIR, 'media')),
+    USE_TZ=(bool, False)
 )
 
 # reading .env file
@@ -146,7 +147,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = env('USE_TZ')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
@@ -156,7 +157,7 @@ STATIC_URL = env('STATIC_URL')
 MEDIA_ROOT = env('MEDIA_ROOT')
 MEDIA_URL = env('MEDIA_URL')
 
-LOGIN_REDIRECT_URL = '/main/'
+LOGIN_REDIRECT_URL = '/workspace/'
 LOGOUT_REDIRECT_URL = '/'
 
 AUTH_USER_MODEL = 'pznsi.User'

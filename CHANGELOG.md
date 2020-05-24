@@ -1,5 +1,13 @@
 ### CHANGELOG.md
 
+## 2020-05-24
+* aktualna wersja aplikacji
+ master: 0.2
+ test: 1.0
+ devel: 1.0
+* Wersja testowa zawiera wszystkie zadeklarowane funkcjonalności backendu i frontendu
+ 
+ 
 ## 2020-05-19
 * aktualna wersja aplikacji
  master: 0.2
