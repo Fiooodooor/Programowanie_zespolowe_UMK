@@ -591,7 +591,7 @@ def edit_project(request):
 @login_required
 def can_add_envi(request):
     if request.method == 'POST':
-        if request.user.has_perm('pznsi.can_add_environment'):
+        if request.user.has_perm('pznsi.add_environment'):
             can_add = True
         else:
             can_add = False
