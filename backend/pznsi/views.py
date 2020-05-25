@@ -481,7 +481,7 @@ def save_environment(request):
             environment = Environment.objects.get(id=requested_environment)
             if request.user.has_perm('edit_environment_instance', environment):
                 environment.environment_name = requested_environment_name
-                if environment.owner == request.user:
+                if environment.owner == request.user or request.user.is_superuser:
                     environment.owner = User.objects.get(id=requested_owner)
             else:
                 raise Http404
@@ -523,7 +523,7 @@ def save_project(request):
                 project.project_name = requested_project_name
                 project.project_content = requested_project_desc
                 project.project_category = ProjectCategory.objects.get(id=requested_project_category)
-                if request.user == project.owner or request.user == project.environment.owner:
+                if request.user == project.owner or request.user == project.environment.owner or request.user.is_superuser:
                     project.owner = User.objects.get(id=requested_owner)
                     if vote_start < vote_end:
                         project.vote_starting = vote_start
