@@ -445,7 +445,7 @@ def front_projects(request):
 
 @login_required
 def edit_environment(request):
-    if request.method == 'POST' and request.user.has_perm('pznsi.'):
+    if request.method == 'POST' and request.user.has_perm('pznsi.add_environment'):
         requested_environment = int(request.POST.get('numEnvi'))
         environment = None
         if requested_environment != 0:
@@ -455,7 +455,7 @@ def edit_environment(request):
             else:
                 raise Http404
         else:
-            if request.user.has_perm('pznsi.can_add_environment'):
+            if request.user.has_perm('pznsi.add_environment'):
                 mode = 1
             else:
                 raise Http404
@@ -486,7 +486,7 @@ def save_environment(request):
             else:
                 raise Http404
         else:
-            if request.user.has_perm('pznsi.can_add_environment'):
+            if request.user.has_perm('pznsi.add_environment'):
                 environment = Environment.objects.create(environment_name=requested_environment_name,
                                                          owner=User.objects.get(id=requested_owner))
             else:
