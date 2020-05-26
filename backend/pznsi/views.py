@@ -445,7 +445,7 @@ def front_projects(request):
 
 @login_required
 def edit_environment(request):
-    if request.method == 'POST' and request.user.has_perm('pznsi.'):
+    if request.method == 'POST' and request.user.has_perm('pznsi.add_environment'):
         requested_environment = int(request.POST.get('numEnvi'))
         environment = None
         if requested_environment != 0:
@@ -455,7 +455,7 @@ def edit_environment(request):
             else:
                 raise Http404
         else:
-            if request.user.has_perm('pznsi.can_add_environment'):
+            if request.user.has_perm('pznsi.add_environment'):
                 mode = 1
             else:
                 raise Http404
@@ -481,12 +481,12 @@ def save_environment(request):
             environment = Environment.objects.get(id=requested_environment)
             if request.user.has_perm('edit_environment_instance', environment):
                 environment.environment_name = requested_environment_name
-                if environment.owner == request.user:
+                if environment.owner == request.user or request.user.is_superuser:
                     environment.owner = User.objects.get(id=requested_owner)
             else:
                 raise Http404
         else:
-            if request.user.has_perm('pznsi.can_add_environment'):
+            if request.user.has_perm('pznsi.add_environment'):
                 environment = Environment.objects.create(environment_name=requested_environment_name,
                                                          owner=User.objects.get(id=requested_owner))
             else:
@@ -519,11 +519,12 @@ def save_project(request):
             vote_end = parse_datetime(vote_end)
         if requested_project != 0:
             project = Project.objects.get(id=requested_project)
-            if request.user.has_perm('edit_project_instance', project):
+            if request.user.has_perm('edit_project_instance', project) or request.user.has_perm(
+                    'edit_environment_instance', project.environment):
                 project.project_name = requested_project_name
                 project.project_content = requested_project_desc
                 project.project_category = ProjectCategory.objects.get(id=requested_project_category)
-                if request.user == project.owner or request.user == project.environment.owner:
+                if request.user == project.owner or request.user == project.environment.owner or request.user.is_superuser:
                     project.owner = User.objects.get(id=requested_owner)
                     if vote_start < vote_end:
                         project.vote_starting = vote_start
@@ -591,7 +592,7 @@ def edit_project(request):
 @login_required
 def can_add_envi(request):
     if request.method == 'POST':
-        if request.user.has_perm('pznsi.can_add_environment'):
+        if request.user.has_perm('pznsi.add_environment'):
             can_add = True
         else:
             can_add = False

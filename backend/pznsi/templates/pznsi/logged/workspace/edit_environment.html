@@ -37,8 +37,7 @@
         <div class=" padding-top-1">
             <input data-edit-id="{{ environment.id }}" type="button"
                    value="{% if mode == 0 %}Edytuj{% else %}Dodaj Nowy {% endif %}"
-                   onclick="SendForm({% if mode == 0 %}{{ environment.id }}{% else %}0{% endif %},'
-                           {% if mode == 0 %}{{ environment.name }}{% endif %}')" class="btn btn-outline-info">
+                   onclick="SendForm({% if mode == 0 %}{{ environment.id }}{% else %}0{% endif %},'{% if mode == 0 %}{{ environment.name }}{% endif %}')" class="btn btn-outline-info">
         </div>
     </div>
 </div>

@@ -12,7 +12,7 @@
             {% if 'vote' in permissions %}
                 <h4>Twoja Ocena:<span id="myVote"></span> </h4>
             {% endif %}
-            {% if 'vote' in permissions  and vote_open == true %}
+            {% if 'vote' in permissions  and vote_opened %}
 
                 <button class="btn btn-secondary w-100" id="voteButton">Głosowanie</button>
             {% endif %}

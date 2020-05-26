@@ -401,7 +401,7 @@ function LoadLastProjectList() {
         if (element != 0) {
 
             $.get('/api/projects/' + element, function (result) {
-                $('#lastProjectsList').after($('<li>').append($('<a>').addClass('l2 lastprojectitems').append(result['project_name'])).on('click', function () {
+                $('#lastProjectsList').after($('<li>').append($('<a>').addClass('l2 lastprojectitems').append($('<i>').addClass('fas fa-tasks'),result['project_name'])).on('click', function () {
                     selectedProject = element;
                     selectedProjectName = result['project_name'];
                     selectedEnvi = result['environment_name'];
@@ -666,14 +666,14 @@ function addProjectButton() {
 }
 
 function addCurrentProjectButton() {
-    $('#allProjectsList').after($('<li>').append($('<a>').addClass('l2 projectListButtons').attr('id', 'curren').attr('role', 'button').append($('<i>'), selectedProjectName)).on('click', function () {
+    $('#allProjectsList').after($('<li>').append($('<a>').addClass('l2 projectListButtons').attr('id', 'curren').attr('role', 'button').append($('<i>').addClass('fas fa-tasks'), selectedProjectName)).on('click', function () {
         trybPracy = 5;
         ZmianaTrybuPracy();
     }));
 }
 
 function addCurrentEnviButton() {
-    $('#enviList').after($('<li>').append($('<a>').addClass('l2').attr('id', 'selectedEnviList').attr('role', 'button').append(' ' + selectedEnvi)).on('click', function () {
+    $('#enviList').after($('<li>').append($('<a>').addClass('l2').attr('id', 'selectedEnviList').attr('role', 'button').append($('<i>').addClass('far fa-object-ungroup'), selectedEnvi)).on('click', function () {
         trybPracy = 2;
         ZmianaTrybuPracy();
     }));
@@ -1030,7 +1030,7 @@ function EventProjectClick() {
 }
 
 function checkSizeFile(file) {
-    return file.size <= 30000000;
+    return file.size < 20000000;
 }
 
 //zmiana pliku na base64
@@ -1064,12 +1064,23 @@ function showContent(data, len) {
             d.getSeconds()].join(':');
 
     var element = "";
+    var menuElement=$('<div>').addClass('dropdown dropdownStyle').append(
+        $('<button>').attr('id','dropdownInfo').addClass('btn').attr('type','button').attr('data-toggle','dropdown').attr('aria-haspopup','true').attr('aria-expanded','false').append(
+            $('<i>').addClass('fa reversColor fa-ellipsis-v').attr('aria-hidden','true')
+        ),
+        $('<div>').addClass('dropdown-menu dropdown-menu-right').attr('aria-labelledby','dropdownInfo').append(
+            $('<span>').addClass('dropdown-item').html('Usuń')
+        )
+
+    );
+    menuElement=''; //zakomentować żeby działało usuwanie
     if (data['UserIco'] === null) {
         data['UserIco'] = '/static/pznsi/images/user.ico';
     }
     if (data['type'] === "comment") {
         element = $('<div>').addClass('col-lg-' + len + ' p-3').append(
             $('<div>').addClass('bgw p-3 mh-100').append(
+                menuElement,
                 $('<h4>').append(
                     $('<img>').addClass('comIco').attr("src", data['UserIco'])
                     , ' ',
@@ -1109,6 +1120,7 @@ function showContent(data, len) {
 
         element = $('<div>').addClass('col-lg-' + len + ' p-3').append(
             $('<div>').addClass('bgw p-3 mh-100').append(
+                menuElement,
                 $('<h4>').append(
                     $('<img>').addClass('comIco').attr("src", data['UserIco']), ' ', data['User'], ' ', $('<span>').addClass('dateFormat').html(dformat)
                 ),
@@ -1330,6 +1342,7 @@ function projectEvents() {
     });
 
     $('#addFileContent > span').click(function () {
+        $('#loadingSpinner').show();
         $("#fileAttachmentProject").click();
     });
     $("#fileAttachmentProject").change(function () {
@@ -1380,13 +1393,14 @@ function projectEvents() {
         for (var i = 0; i < 10; i++) dataChart[i] = 0;
         for (var i = 0; i < votes.length; i++) {
             dataChart[votes[i]['vote_content'] / 10 - 1]++;
+            if(votes[i]['user']['avatar'] == null ||  votes[i]['user']['avatar']==='')votes[i]['user']['avatar']='/static/pznsi/images/user.ico';
             $('#ListVotersTbody').append($('<tr>').append($('<td>').append($('<img>').addClass('comIco').attr('src', votes[i]['user']['avatar']), votes[i]['user']['username']), $('<td>').html(votes[i]['vote_content'] / 10)))
 
         }
 
         var ctx = document.getElementById('ChartProject').getContext('2d');
         var myChart = new Chart(ctx, {
-            type: 'horizontalBar',
+            type: 'pie',// 'horizontalBar',
             data: {
                 labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
                 datasets: [{
@@ -1394,39 +1408,30 @@ function projectEvents() {
                     data: dataChart,
                     backgroundColor: [
 
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(153, 102, 255, 0.2)'
+                        '#ff0000',
+                        '#ffa500',
+                        '#ffff00',
+                        '#008000',
+                        '#0000ff',
+                        '#4b0082',
+                        '#ee82ee',
+                        '#707ece',
+                        '#97548e',
+                        '#254855'
 
                     ],
                     borderColor: [
 
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
+                        '#ff0000',
+                        '#ffa500',
+                        '#ffff00',
+                        '#008000',
+                        '#0000ff',
+                        '#4b0082',
+                        '#ee82ee',
+                        '#707ece',
+                        '#97548e',
+                        '#254855'
                     ],
                     borderWidth: 1
                 }]
