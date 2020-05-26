@@ -519,7 +519,8 @@ def save_project(request):
             vote_end = parse_datetime(vote_end)
         if requested_project != 0:
             project = Project.objects.get(id=requested_project)
-            if request.user.has_perm('edit_project_instance', project):
+            if request.user.has_perm('edit_project_instance', project) or request.user.has_perm(
+                    'edit_environment_instance', project.environment):
                 project.project_name = requested_project_name
                 project.project_content = requested_project_desc
                 project.project_category = ProjectCategory.objects.get(id=requested_project_category)
