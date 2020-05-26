@@ -1,5 +1,12 @@
 ### CHANGELOG.md
 
+## 2020-05-26
+* aktualna wersja aplikacji
+ master: 0.2
+ test: 1.1
+ devel: 1.1
+* Bugfixy i stylistyczne zmiany na frontendzie
+
 ## 2020-05-24
 * aktualna wersja aplikacji
  master: 0.2

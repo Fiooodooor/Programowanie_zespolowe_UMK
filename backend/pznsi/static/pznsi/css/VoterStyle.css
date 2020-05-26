@@ -67,8 +67,6 @@ html {
 }
 
 
-
-
 .padding-1 {
     padding: 1%;
 }
@@ -217,7 +215,7 @@ label {
 }
 
 .bgw {
-    background-color: rgba(200, 200,200, 0.7);
+    background-color: rgba(200, 200, 200, 0.7);
     border-radius: 15px;
 }
 
@@ -300,18 +298,36 @@ label {
     right: 1rem;
 }
 
-  .reversColor{
-            color: #f1f1f1;
-            mix-blend-mode: difference;
-        }
+.reversColor {
+    cxolor: #f1f1f1;
+    mxix-blend-mode: difference;
+    color: white;
+    text-shadow: -1px 0 #363636, 0 1px #363636, 1px 0 #363636, 0 -1px #363636;
+}
 
-   .btn span.fa-check{
-        opacity: 0;
-    }
+.btn span.fa-check {
+    opacity: 0;
+}
 
-    .btn.active span.fa-check {
-        opacity: 1;
-    }
-    .repoItem{
-        color:white;text-decoration: none;
-    }
+.btn.active span.fa-check {
+    opacity: 1;
+}
+
+.repoItem {
+    color: white;
+    text-decoration: none;
+}
+
+.dropdownStyle {
+    position: absolute;
+    top: 20px;
+    right: 20px
+}
+
+.dropdownContentStyle {
+    position: absolute;
+    transform: translate3d(-125px, 41px, 0px);
+    top: 0px;
+    left: 0px;
+    will-change: transform;
+}
