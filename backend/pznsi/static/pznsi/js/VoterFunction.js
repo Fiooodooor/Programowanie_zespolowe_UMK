@@ -65,6 +65,33 @@ function EventEnviClick() {
         trybPracy = 4;
         ZmianaTrybuPracy();
     });
+    $(".removeEnviButton").on('click', function (event) {
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        e = this;
+        selectedEnviNum = $(this).attr('data-envi-id');
+        bootbox.confirm("Czy napewno chcesz usunąć Środowisko i Projekty ?", function (result) {
+            if (result) {
+                $('#loadingSpinner').show();
+                $.ajax({
+                    url: '/api/environments/' + selectedEnviNum + '/',
+                    type: 'delete',
+                    success: function (result) {
+                        $('#loadingSpinner').hide();
+                        $(e).parent().parent().parent().fadeOut(100);
+                        LoadLastProjectList();
+                        ZmianaTrybuPracy();
+                    }
+                }).fail(function () {
+                    $('#loadingSpinner').hide();
+                    bootbox.alert({
+                        message: "Wystąpił błąd",
+                        centerVertical: true,
+                    });
+                });
+            }
+        });
+    });
     //po kliknięciu w środowisko wchodzi do listy projektów
     $(".EnviListElement").on('click', function (event) {
         backgroundurl = "";
@@ -99,7 +126,10 @@ function setDefaultWorkspace() {
             $('#loadingSpinner').hide();
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił błąd !');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         })
     });
     $('#addFileRepoDiv > span').on('click', function () {
@@ -128,15 +158,18 @@ function setDefaultWorkspace() {
                     $.ajax({
                         url: '/api/repository/' + repoItem + '/',
                         type: 'put',
-                        data:{'visible_name': result}
+                        data: {'visible_name': result}
                         ,
-                        success: function(result) {
-                           $('#loadingSpinner').hide();
-                        location.reload();
+                        success: function (result) {
+                            $('#loadingSpinner').hide();
+                            location.reload();
                         }
                     }).fail(function () {
                         $('#loadingSpinner').hide();
-                        bootbox.alert('Wystąpił błąd');
+                        bootbox.alert({
+                            message: "Wystąpił błąd",
+                            centerVertical: true,
+                        });
                     });
 
                 }
@@ -150,16 +183,19 @@ function setDefaultWorkspace() {
             ,
             callback: function (result) {
                 if (result) {
-                   $.ajax({
+                    $.ajax({
                         url: '/api/repository/' + repoItem + '/',
                         type: 'delete',
-                        success: function(result) {
-                           $('#loadingSpinner').hide();
-                        location.reload();
+                        success: function (result) {
+                            $('#loadingSpinner').hide();
+                            location.reload();
                         }
                     }).fail(function () {
                         $('#loadingSpinner').hide();
-                        bootbox.alert('Wystąpił błąd');
+                        bootbox.alert({
+                            message: "Wystąpił błąd",
+                            centerVertical: true,
+                        });
                     });
                 }
             }
@@ -170,7 +206,7 @@ function setDefaultWorkspace() {
     $('.voteButtons').on('click', function () {
         vote = $(this).attr('data-value');
         $('#loadingSpinner').show();
-        $.post('/api/projects/' + selectedProject.trim() + '/vote/', {
+        $.post('/api/projects/' + selectedProject + '/vote/', {
             'rate': vote * 10
         }, function (result) {
             dataLoadProject();
@@ -178,7 +214,10 @@ function setDefaultWorkspace() {
             $('#voteModal').modal('hide');
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił Błąd');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         })
     });
     setDefaultCookie();
@@ -227,10 +266,16 @@ function setDefaultWorkspace() {
                             else {
                                 $('#allEnvi').append(result);
                             }
-                        } else bootbox.alert('Wystąpił Błąd ');
+                        } else bootbox.alert({
+                            message: "Wystąpił błąd",
+                            centerVertical: true,
+                        });
                     }).fail(function () {
                         $('#loadingSpinner').hide();
-                        bootbox.alert('Wystąpił Błąd');
+                        bootbox.alert({
+                            message: "Wystąpił błąd",
+                            centerVertical: true,
+                        });
                     });
 
             }
@@ -241,7 +286,7 @@ function setDefaultWorkspace() {
                         'numEnvi': WybraneSrodowisko,
                         'page': pageLoad
                         ,
-                 'category_id':$('#categoryProjectSearch').val()
+                        'category_id': $('#categoryProjectSearch').val()
                     }, function (result, state, status) {
                         if (status['status'] == 200) {
                             result = result.trim();
@@ -249,10 +294,16 @@ function setDefaultWorkspace() {
                             else {
                                 $('#allProject').append(result);
                             }
-                        } else bootbox.alert('Wystąpił Błąd ');
+                        } else bootbox.alert({
+                            message: "Wystąpił błąd",
+                            centerVertical: true,
+                        });
                     }).fail(function () {
                         $('#loadingSpinner').hide();
-                        bootbox.alert('Wystąpił Błąd');
+                        bootbox.alert({
+                            message: "Wystąpił błąd",
+                            centerVertical: true,
+                        });
                     });
                     ;
                 }
@@ -279,10 +330,16 @@ function setDefaultWorkspace() {
                     else {
                         $('#allEnvi').append(result);
                     }
-                } else bootbox.alert('Wystąpił Błąd ');
+                } else bootbox.alert({
+                    message: "Wystąpił błąd",
+                    centerVertical: true,
+                });
             }).fail(function () {
                 $('#loadingSpinner').hide();
-                bootbox.alert('Wystąpił Błąd');
+                bootbox.alert({
+                    message: "Wystąpił błąd",
+                    centerVertical: true,
+                });
             });
         } else {
             search = 1;
@@ -299,43 +356,55 @@ function setDefaultWorkspace() {
                     else {
                         $('#allEnvi').append(result);
                     }
-                } else bootbox.alert('Wystąpił Błąd ');
+                } else bootbox.alert({
+                    message: "Wystąpił błąd",
+                    centerVertical: true,
+                });
             }).fail(function () {
                 $('#loadingSpinner').hide();
-                bootbox.alert('Wystąpił Błąd');
+                bootbox.alert({
+                    message: "Wystąpił błąd",
+                    centerVertical: true,
+                });
             });
         }
     });
     //wyszukiwanie projektów w środowisku
 
-    $('#categoryProjectSearch').on('change',function () {
-          $('#loadingSpinner').show();
+    $('#categoryProjectSearch').on('change', function () {
+        $('#loadingSpinner').show();
         search = 1;
-            pageLoad = 1;
-            stopReadPage = 0
-            $('#allProject').html('');
-            $.post('/front/projects/', {
-                'keyword': keyword,
-                'numEnvi': WybraneSrodowisko,
-                'page': pageLoad,
-                 'category_id':$('#categoryProjectSearch').val()
-            }, function (result, state, status) {
-                if (status['status'] == 200) {
-                    result = result.trim();
-                    if (result == "") stopReadPage = 1;
-                    else {
-                        $('#allProject').append(result);
-                    }
-                      $('#loadingSpinner').hide();
-                } else bootbox.alert('Wystąpił Błąd ');
-            }).fail(function () {
+        pageLoad = 1;
+        stopReadPage = 0
+        $('#allProject').html('');
+        $.post('/front/projects/', {
+            'keyword': keyword,
+            'numEnvi': WybraneSrodowisko,
+            'page': pageLoad,
+            'category_id': $('#categoryProjectSearch').val()
+        }, function (result, state, status) {
+            if (status['status'] == 200) {
+                result = result.trim();
+                if (result == "") stopReadPage = 1;
+                else {
+                    $('#allProject').append(result);
+                }
                 $('#loadingSpinner').hide();
-                bootbox.alert('Wystąpił Błąd');
+            } else bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
             });
+        }).fail(function () {
+            $('#loadingSpinner').hide();
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
+        });
     });
 
     $('#searchProjectEnvi').on('keyup', function () {
-          $('#loadingSpinner').show();
+        $('#loadingSpinner').show();
         keyword = $(this).val();
         if ($(this).val() == "") {
             search = 0;
@@ -347,7 +416,7 @@ function setDefaultWorkspace() {
                 'numEnvi': WybraneSrodowisko,
                 'page': pageLoad
                 ,
-                 'category_id':$('#categoryProjectSearch').val()
+                'category_id': $('#categoryProjectSearch').val()
             }, function (result, state, status) {
                 if (status['status'] == 200) {
                     result = result.trim();
@@ -355,11 +424,17 @@ function setDefaultWorkspace() {
                     else {
                         $('#allProject').append(result);
                     }
-                } else bootbox.alert('Wystąpił Błąd ');
-                  $('#loadingSpinner').hide();
+                } else bootbox.alert({
+                    message: "Wystąpił błąd",
+                    centerVertical: true,
+                });
+                $('#loadingSpinner').hide();
             }).fail(function () {
                 $('#loadingSpinner').hide();
-                bootbox.alert('Wystąpił Błąd');
+                bootbox.alert({
+                    message: "Wystąpił błąd",
+                    centerVertical: true,
+                });
             });
             ;
         } else {
@@ -371,7 +446,7 @@ function setDefaultWorkspace() {
                 'keyword': keyword,
                 'numEnvi': WybraneSrodowisko,
                 'page': pageLoad,
-                 'category_id':$('#categoryProjectSearch').val()
+                'category_id': $('#categoryProjectSearch').val()
             }, function (result, state, status) {
                 if (status['status'] == 200) {
                     result = result.trim();
@@ -379,11 +454,17 @@ function setDefaultWorkspace() {
                     else {
                         $('#allProject').append(result);
                     }
-                } else bootbox.alert('Wystąpił Błąd ');
-                  $('#loadingSpinner').hide();
+                } else bootbox.alert({
+                    message: "Wystąpił błąd",
+                    centerVertical: true,
+                });
+                $('#loadingSpinner').hide();
             }).fail(function () {
                 $('#loadingSpinner').hide();
-                bootbox.alert('Wystąpił Błąd');
+                bootbox.alert({
+                    message: "Wystąpił błąd",
+                    centerVertical: true,
+                });
             });
         }
     });
@@ -401,7 +482,7 @@ function LoadLastProjectList() {
         if (element != 0) {
 
             $.get('/api/projects/' + element, function (result) {
-                $('#lastProjectsList').after($('<li>').append($('<a>').addClass('l2 lastprojectitems').append($('<i>').addClass('fas fa-tasks'),result['project_name'])).on('click', function () {
+                $('#lastProjectsList').after($('<li>').append($('<a>').addClass('l2 lastprojectitems').append($('<i>').addClass('fas fa-tasks'), result['project_name'])).on('click', function () {
                     selectedProject = element;
                     selectedProjectName = result['project_name'];
                     selectedEnvi = result['environment_name'];
@@ -415,7 +496,7 @@ function LoadLastProjectList() {
                 }));
             }).fail(function () {
                 $('#loadingSpinner').hide();
-                bootbox.alert('Wystąpił Błąd');
+                $.cookie('save' + currentUser + 'Project' + (index + 1), 0);
             });
 
         }
@@ -455,22 +536,28 @@ function ZmianaTrybuPracy() {
         $('#mainPage').fadeIn();
         lastProjectContent = "";
         for (var i = 1; i < 4; i++) {
-            if ($.cookie('save'+currentUser+'Project' + i) && $.cookie('save'+currentUser+'Project' + i) != 0) {
+            if ($.cookie('save' + currentUser + 'Project' + i) && $.cookie('save' + currentUser + 'Project' + i) != 0) {
                 $.post('/front/projects/', {
                     'keyword': '',
                     'page': 0,
                     'numEnvi': 0,
-                    'id_project': $.cookie('save'+currentUser+'Project' + i)
+                    'id_project': $.cookie('save' + currentUser + 'Project' + i)
                 }, function (result, state, status) {
                     if (status['status'] == 200) {
                         lastProjectContent += result.trim();
                         $('#lastSearch').html(lastProjectContent);
-                    } else bootbox.alert('Wystąpił Błąd ');
+                    } else bootbox.alert({
+                        message: "Wystąpił błąd",
+                        centerVertical: true,
+                    });
 
 
                 }).fail(function () {
                     $('#loadingSpinner').hide();
-                    bootbox.alert('Wystąpił Błąd');
+                    bootbox.alert({
+                        message: "Wystąpił błąd",
+                        centerVertical: true,
+                    });
                 });
             }
         }
@@ -482,19 +569,25 @@ function ZmianaTrybuPracy() {
         }, function (result, state, status) {
             if (status['status'] == 200) {
                 $('#allEnvi').html(result);
-            } else bootbox.alert('Wystąpił Błąd ');
+            } else bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
             $('#loadingSpinner').hide();
 
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił Błąd');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         });
 
 
     }
     if (trybPracy == 2) {
         $("#categoryProjectSearch").val($("#categoryProjectSearch option:first").val());
-        console.log(trybPracy);
+
         $('#headerListProjects').html(selectedEnvi);
         $('#listProjects').fadeIn();
         $.post('/front/projects/', {
@@ -502,18 +595,24 @@ function ZmianaTrybuPracy() {
             'numEnvi': WybraneSrodowisko,
             'page': pageLoad
             ,
-                 'category_id':$('#categoryProjectSearch').val()
+            'category_id': $('#categoryProjectSearch').val()
         }, function (result, state, status) {
             if (status['status'] == 200) {
 
 
                 $('#allProject').html(result);
-            } else bootbox.alert('Wystąpił Błąd ');
+            } else bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
             $('#loadingSpinner').hide();
 
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił Błąd');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         });
 
         addNewEnviButton();
@@ -533,11 +632,17 @@ function ZmianaTrybuPracy() {
                 result = result.trim();
                 $('#editEnviContent').html(result);
                 editEnviEvents();
-            } else bootbox.alert('Wystąpił Błąd ');
+            } else bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
             $('#loadingSpinner').hide();
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił Błąd');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         });
         addNewEnviButton();
         if (WybraneSrodowisko != 0)
@@ -555,12 +660,18 @@ function ZmianaTrybuPracy() {
                 addPermEnvi();
                 addNewEnviButton();
                 addCurrentEnviButton();
-            } else bootbox.alert('Wystąpił Błąd ');
+            } else bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
             $('#loadingSpinner').hide();
 
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił Błąd');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         });
     }
     if (trybPracy === 5) {
@@ -580,11 +691,17 @@ function ZmianaTrybuPracy() {
                 projectEvents();
                 dataLoadProject();
 
-            } else bootbox.alert('Wystąpił Błąd ');
+            } else bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
             $('#loadingSpinner').hide();
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił Błąd');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         });
     }
     if (trybPracy === 6) {
@@ -607,11 +724,17 @@ function ZmianaTrybuPracy() {
                     addCurrentProjectButton()
                 addProjectButton();
                 editProjectEvent();
-            } else bootbox.alert('Wystąpił Błąd ');
+            } else bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
             $('#loadingSpinner').hide();
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił Błąd');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         });
     }
     if (trybPracy === 7) {
@@ -630,10 +753,16 @@ function ZmianaTrybuPracy() {
                 addProjectButton();
                 permProjectEvents();
                 $('#loadingSpinner').hide();
-            } else bootbox.alert('Wystąpił Błąd ');
+            } else bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił Błąd');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         });
     }
     setBackgroundImage();
@@ -655,10 +784,16 @@ function addProjectButton() {
                         ZmianaTrybuPracy();
                     }));
                 }
-            } else bootbox.alert('Wystąpił Błąd ');
+            } else bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił Błąd');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         });
 
 
@@ -691,10 +826,16 @@ function addNewEnviButton() {
                         ZmianaTrybuPracy();
                     }));
                 }
-            } else bootbox.alert('Wystąpił Błąd ');
+            } else bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         }).fail(function () {
         $('#loadingSpinner').hide();
-        bootbox.alert('Wystąpił Błąd');
+        bootbox.alert({
+            message: "Wystąpił błąd",
+            centerVertical: true,
+        });
     });
     ;
 
@@ -770,7 +911,10 @@ function addPermEnvi() {
             dataType: 'json'
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił błąd');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         });
     });
 
@@ -801,7 +945,10 @@ function addPermEnvi() {
                     dataType: 'json'
                 }).fail(function () {
                     $('#loadingSpinner').hide();
-                    bootbox.alert('Wystąpił błąd');
+                    bootbox.alert({
+                        message: "Wystąpił błąd",
+                        centerVertical: true,
+                    });
                 });
             }
 
@@ -846,7 +993,10 @@ function addPermEnvi() {
                         dataType: 'json'
                     }).fail(function () {
                         $('#loadingSpinner').hide();
-                        bootbox.alert('Wystąpił błąd');
+                        bootbox.alert({
+                            message: "Wystąpił błąd",
+                            centerVertical: true,
+                        });
                     });
                 }
             }
@@ -881,7 +1031,10 @@ function permProjectEvents() {
             dataType: 'json'
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił błąd');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         });
 
 
@@ -917,9 +1070,16 @@ function permProjectEvents() {
                 dataType: 'json'
             }).fail(function () {
                 $('#loadingSpinner').hide();
-                bootbox.alert('Wystąpił błąd');
+                bootbox.alert({
+                    message: "Wystąpił błąd",
+                    centerVertical: true,
+                });
             });
-        } else bootbox.alert('Nie Wybrano użytkownika');
+        } else
+            bootbox.alert({
+                message: "Nie Wybrano użytkownika",
+                centerVertical: true,
+            });
 
 
     });
@@ -971,7 +1131,10 @@ function deletePermProject() {
                         dataType: 'json'
                     }).fail(function () {
                         $('#loadingSpinner').hide();
-                        bootbox.alert('Wystąpił błąd');
+                        bootbox.alert({
+                            message: "Wystąpił błąd",
+                            centerVertical: true,
+                        });
                     });
 
 
@@ -1012,6 +1175,33 @@ function EventProjectClick() {
         event.stopImmediatePropagation();
         trybPracy = 7;
         ZmianaTrybuPracy();
+    });
+    $(".removeProjectButton").on('click', function (event) {
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        e = this;
+        projectNum = $(this).attr('data-project-id');
+        bootbox.confirm("Czy napewno chcesz usunąć projekt ?", function (result) {
+            if (result) {
+                $('#loadingSpinner').show();
+                $.ajax({
+                    url: '/api/projects/' + projectNum + '/',
+                    type: 'delete',
+                    success: function (result) {
+                        $('#loadingSpinner').hide();
+                        $(e).parent().parent().parent().fadeOut(100);
+                        LoadLastProjectList();
+                    }
+                }).fail(function () {
+                    $('#loadingSpinner').hide();
+                    bootbox.alert({
+                        message: "Wystąpił błąd",
+                        centerVertical: true,
+                    });
+                });
+            }
+        });
+
     });
     $(".editProjectButton").on('click', function (event) {
         selectedProject = $(this).attr('data-project-id');
@@ -1064,16 +1254,18 @@ function showContent(data, len) {
             d.getSeconds()].join(':');
 
     var element = "";
-    var menuElement=$('<div>').addClass('dropdown dropdownStyle').append(
-        $('<button>').attr('id','dropdownInfo').addClass('btn').attr('type','button').attr('data-toggle','dropdown').attr('aria-haspopup','true').attr('aria-expanded','false').append(
-            $('<i>').addClass('fa reversColor fa-ellipsis-v').attr('aria-hidden','true')
+    var editElement = $('<span>').addClass('dropdown-item EditCommentItem').attr('data-item-id', data['id']).attr('data-comment-value', data['data']).attr('data-type-item', data['type']).html('Edytuj')
+    if (data['type'] !== "comment") editElement = '';
+    var menuElement = $('<div>').addClass('dropdown dropdownStyle').append(
+        $('<button>').attr('id', 'dropdownInfo').addClass('btn').attr('type', 'button').attr('data-toggle', 'dropdown').attr('aria-haspopup', 'true').attr('aria-expanded', 'false').append(
+            $('<i>').addClass('fa reversColor fa-ellipsis-v').attr('aria-hidden', 'true')
         ),
-        $('<div>').addClass('dropdown-menu dropdown-menu-right').attr('aria-labelledby','dropdownInfo').append(
-            $('<span>').addClass('dropdown-item').html('Usuń')
+        $('<div>').addClass('dropdown-menu dropdown-menu-right').attr('aria-labelledby', 'dropdownInfo').append(
+            $('<span>').addClass('dropdown-item removeItemCommentAttachment').attr('data-item-id', data['id']).attr('data-type-item', data['type']).html('Usuń'),
+            editElement
         )
-
     );
-    menuElement=''; //zakomentować żeby działało usuwanie
+    if (data['can_edit'] == false) menuElement = "";
     if (data['UserIco'] === null) {
         data['UserIco'] = '/static/pznsi/images/user.ico';
     }
@@ -1094,26 +1286,25 @@ function showContent(data, len) {
     if (data['type'] === "attachment") {
         var showElement = $('<span>');
         arr = data['data'].split('.');
-        FTtxt=['txt','md','rtf'];
-        FTpdf=['pdf'];
-        FTaudio=['mp3','wav','flac'];
-        FTarchive=['7z','zip','rar','gz','tar'];
-        FTvideo=['avi','mpg','webm','mp4','ogg','mpeg','fly'];
-        FTword=['odt','doc','docx'];
-        FTexcel=['xls','xlsx','calc'];
-        FTcode=['py','java','c','cpp','js','html','htm','xhtml','xml','json','css','php'];
+        FTtxt = ['txt', 'md', 'rtf'];
+        FTpdf = ['pdf'];
+        FTaudio = ['mp3', 'wav', 'flac'];
+        FTarchive = ['7z', 'zip', 'rar', 'gz', 'tar'];
+        FTvideo = ['avi', 'mpg', 'webm', 'mp4', 'ogg', 'mpeg', 'fly'];
+        FTword = ['odt', 'doc', 'docx'];
+        FTexcel = ['xls', 'xlsx', 'calc'];
+        FTcode = ['py', 'java', 'c', 'cpp', 'js', 'html', 'htm', 'xhtml', 'xml', 'json', 'css', 'php'];
 
         if (arr[arr.length - 1] == 'jpg' || arr[arr.length - 1] == 'jpeg' || arr[arr.length - 1] == 'gif' || arr[arr.length - 1] == 'bmp' || arr[arr.length - 1] == 'png ') {
             showElement.append($('<img>').attr('src', data['data']).css('height', '3em').css('display', 'block').css('margin', '0px auto').addClass('text-center justify-content-center')).addClass('w-100 ');
-        }
-        else if(FTtxt.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-alt fileComment');
-        else if(FTpdf.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-pdf fileComment');
-        else if(FTaudio.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-audio fileComment');
-        else if(FTarchive.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-archive fileComment');
-        else if(FTvideo.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-video fileComment');
-        else if(FTword.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-word fileComment');
-        else if(FTcode.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-code fileComment');
-        else if(FTexcel.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-excel fileComment');
+        } else if (FTtxt.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-alt fileComment');
+        else if (FTpdf.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-pdf fileComment');
+        else if (FTaudio.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-audio fileComment');
+        else if (FTarchive.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-archive fileComment');
+        else if (FTvideo.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-video fileComment');
+        else if (FTword.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-word fileComment');
+        else if (FTcode.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-code fileComment');
+        else if (FTexcel.includes(arr[arr.length - 1])) showElement.addClass('fa fa-3x fa-file-excel fileComment');
         else {
             showElement.addClass('fa fa-3x fa-file fileComment');
         }
@@ -1132,6 +1323,7 @@ function showContent(data, len) {
 }
 
 function loadComments() {
+
     $('#commentAttachmentProject').html('');
     //tu będzie post na wyciągnięcie danych
     for (var i = 0; i < dataCommentAttachment.length; i++) {
@@ -1211,32 +1403,117 @@ function loadComments() {
 
 
     }
+    eventsCommentsAttachment();
+}
+
+function eventsCommentsAttachment() {
+    $('.removeItemCommentAttachment').on('click', function () {
+        var e = this;
+        bootbox.confirm("Czy napewno chcesz usunąć ?", function (result) {
+            if (result) {
+                var action = '';
+                var type = $(e).attr('data-type-item');
+                var itemid = $(e).attr('data-item-id');
+                if (type == "attachment") {
+                    $('#loadingSpinner').show();
+                    $.post('/api/projects/' + selectedProject + '/delete_attachment/', {
+                        'attachment_id': itemid
+                    }, function () {
+                        $(e).parent().parent().parent().fadeOut();
+                        dataLoadProject();
+                        $('#loadingSpinner').hide();
+
+                    }).fail(function () {
+                        $('#loadingSpinner').hide();
+                        bootbox.alert({
+                            message: "Wystąpił błąd",
+                            centerVertical: true,
+                        });
+                    });
+                }
+                if (type == "comment") {
+                    $('#loadingSpinner').show();
+                    $.post('/api/projects/' + selectedProject + '/delete_comment/', {
+                        'comment_id': itemid
+                    }, function () {
+                        $(e).parent().parent().parent().fadeOut();
+                        dataLoadProject();
+                        $('#loadingSpinner').hide();
+
+                    }).fail(function () {
+                        $('#loadingSpinner').hide();
+                        bootbox.alert({
+                            message: "Wystąpił błąd",
+                            centerVertical: true,
+                        });
+                    });
+                }
+            }
+        });
+    });
+    $('.EditCommentItem').on('click', function () {
+        var e = this;
+        bootbox.prompt({
+            title: "Edytuj Komentarz",
+            inputType: 'textarea',
+            value: $(e).attr('data-comment-value'),
+            centerVertical: true,
+            callback: function (result) {
+                if (result) {
+                    var itemid = $(e).attr('data-item-id');
+                    $('#loadingSpinner').show();
+                    $.post('/api/projects/' + selectedProject + '/edit_comment/', {
+                        'comment_id': itemid,
+                        'comment': result
+                    }, function () {
+                        dataLoadProject();
+                        $('#loadingSpinner').hide();
+
+                    }).fail(function () {
+                        $('#loadingSpinner').hide();
+                        bootbox.alert({
+                            message: "Wystąpił błąd",
+                            centerVertical: true,
+                        });
+                    });
+                }
+            }
+        });
+    })
 }
 
 //dodanie do projektu zalcznika
 function addAttachmentToProject() {
-    bootbox.prompt("Podaj tutuł pliku ", function (out1) {
-        if (out1 != null) {
-            $('#loadingSpinner').show();
-            var fd = new FormData();
-            var files = FileToUploadAttachment;
-            fd.append('file', files);
-            fd.append('title', out1);
-            $.ajax({
-                url: '/api/projects/' + selectedProject + '/add_attachment/',
-                type: 'post',
-                data: fd,
-                contentType: false,
-                processData: false,
-                success: function (response) {
+    bootbox.prompt({
+        title: "Podaj tutuł pliku ", centerVertical: true, callback: function (out1) {
+            if (out1 != null) {
+                $('#loadingSpinner').show();
+                var fd = new FormData();
+                var files = FileToUploadAttachment;
+                fd.append('file', files);
+                fd.append('title', out1);
+                $.ajax({
+                    url: '/api/projects/' + selectedProject + '/add_attachment/',
+                    type: 'post',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        $('#loadingSpinner').hide();
+                        dataLoadProject();
+                        bootbox.alert({
+                            message: "Dodano plik",
+                            centerVertical: true,
+                        });
+                    },
+                }).fail(function () {
                     $('#loadingSpinner').hide();
-                    dataLoadProject();
-                    bootbox.alert('Dodano plik');
-                },
-            }).fail(function () {
-                $('#loadingSpinner').hide();
-                bootbox.alert('Wystąpił Błąd');
-            });
+                    bootbox.alert({
+                        message: "Wystąpił błąd",
+                        centerVertical: true,
+                    });
+                });
+            }
         }
     });
 
@@ -1245,19 +1522,19 @@ function addAttachmentToProject() {
 //zaladowanie danych do projektu
 function dataLoadProject() {
     $.get('/api/projects/' + selectedProject + '/', function (result) {
-        myVote="BRAK";
+        myVote = "BRAK";
         votes = result['votes'];
-        for (var i=0;i<votes.length;i++)if(currentUser==votes[i]['user']['id'])myVote=votes[i]['vote_content']/10;
+        for (var i = 0; i < votes.length; i++) if (currentUser == votes[i]['user']['id']) myVote = votes[i]['vote_content'] / 10;
         $('.voteButtons').removeClass('active');
-        if(myVote!="BRAK")
-            $('.voteButtons[data-value|='+myVote+']').addClass('active');
+        if (myVote != "BRAK")
+            $('.voteButtons[data-value|=' + myVote + ']').addClass('active');
 
-        console.log(votes);
+
         $('#myVote').html(myVote);
-        if(result['vote_average']==null)
+        if (result['vote_average'] == null)
             $('#avgVal').html('BRAK');
         else
-            $('#avgVal').html(result['vote_average']/10);
+            $('#avgVal').html(result['vote_average'] / 10);
         var datal = [];
         for (var i = 0; i < result['comments'].length; i++) {
             datal.push({
@@ -1266,6 +1543,8 @@ function dataLoadProject() {
                 UserIco: result['comments'][i]['user']['avatar'],
                 data: result['comments'][i]['comment_content'],
                 date: result['comments'][i]['date'],
+                id: result['comments'][i]['id'],
+                can_edit: result['comments'][i]['can_edit'],
                 attachment_name: ''
             });
         }
@@ -1276,7 +1555,9 @@ function dataLoadProject() {
                 UserIco: result['attachments'][i]['user']['avatar'],
                 data: result['attachments'][i]['content'],
                 date: result['attachments'][i]['date'],
-                attachment_name:result['attachments'][i]['attachment_name']
+                id: result['attachments'][i]['id'],
+                can_edit: result['attachments'][i]['can_edit'],
+                attachment_name: result['attachments'][i]['attachment_name']
             });
         }
         dataCommentAttachment = datal;
@@ -1376,7 +1657,10 @@ function projectEvents() {
             $('#loadingSpinner').hide();
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił Błąd');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         });
 
         $('#newCommentContent').val('');
@@ -1386,14 +1670,14 @@ function projectEvents() {
     $('#statsButton').on('click', function () {
         $('#ListVoters').hide();
         $('#ChartProject').show();
-         $('.statNavItem').removeClass('active');
+        $('.statNavItem').removeClass('active');
         $('.statNavItem:first').addClass('active');
         dataChart = [];
         $('#ListVotersTbody').html('');
         for (var i = 0; i < 10; i++) dataChart[i] = 0;
         for (var i = 0; i < votes.length; i++) {
             dataChart[votes[i]['vote_content'] / 10 - 1]++;
-            if(votes[i]['user']['avatar'] == null ||  votes[i]['user']['avatar']==='')votes[i]['user']['avatar']='/static/pznsi/images/user.ico';
+            if (votes[i]['user']['avatar'] == null || votes[i]['user']['avatar'] === '') votes[i]['user']['avatar'] = '/static/pznsi/images/user.ico';
             $('#ListVotersTbody').append($('<tr>').append($('<td>').append($('<img>').addClass('comIco').attr('src', votes[i]['user']['avatar']), votes[i]['user']['username']), $('<td>').html(votes[i]['vote_content'] / 10)))
 
         }
@@ -1456,55 +1740,71 @@ function projectEvents() {
 function showRepo() {
     $('#repoContent').toggle();
 }
+
 //zapisanie pliku do repozytorium
 function loadFileRepo() {
 
     fileRepo = $('#fileBackgroundRepo')[0].files[0];
     if (fileRepo != null) {
         if (checkSizeFile(fileRepo)) {
-                  $('#loadingSpinner').show();
-                    bootbox.prompt("Podaj Nazwę pliku ", function (resultPrompt) {
-                        if (resultPrompt) {
-                             var fd = new FormData();
-                            fd.append('file', fileRepo);
-                            fd.append('visible_name', resultPrompt);
-                            $.ajax({
-                                url: '/api/repository/',
-                                type: 'post',
-                                data: fd,
-                                contentType: false,
-                                processData: false,
-                                success: function (response) {
-                                     $('#AddFileToRepoModal').modal('hide');
-                                    $('#loadingSpinner').hide();
-                                    bootbox.alert('Dodano plik');
-                                    location.reload();
-                                },
-                            }).fail(function () {
+            $('#loadingSpinner').show();
+            bootbox.prompt({
+                title: "Podaj Nazwę pliku ", centerVertical: true, callback: function (resultPrompt) {
+                    if (resultPrompt) {
+                        var fd = new FormData();
+                        fd.append('file', fileRepo);
+                        fd.append('visible_name', resultPrompt);
+                        $.ajax({
+                            url: '/api/repository/',
+                            type: 'post',
+                            data: fd,
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                $('#AddFileToRepoModal').modal('hide');
                                 $('#loadingSpinner').hide();
-                                bootbox.alert('Wystąpił Błąd');
+
+                                bootbox.alert({
+                                    message: "Dodano plik",
+                                    centerVertical: true,
+                                });
+                                location.reload();
+                            },
+                        }).fail(function () {
+                            $('#loadingSpinner').hide();
+                            bootbox.alert({
+                                message: "Wystąpił błąd",
+                                centerVertical: true,
                             });
-                        }
-                    });
-
+                        });
+                    }
                 }
+            });
 
-        } else {
-            bootbox.alert("Plik jest za duży.Max 30 MB");
-            $('#loadingSpinner').hide();
         }
+
+    } else {
+        bootbox.alert({
+            message: "Plik jest za duży.Max 30 MB",
+            centerVertical: true,
+        });
+        $('#loadingSpinner').hide();
+    }
 
 }
 
 
 //edycja projektu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 function SendFormEditProject() {
-    var dateStart= new Date($('#startVoteDate').val());
-    var dateend= new Date($('#endVoteDate').val());
-    if(dateStart.getTime()>dateend.getTime()){
-        bootbox.alert('Data początkowa nie może być większa od końcowej !');
-    }
-    else {
+    var dateStart = new Date($('#startVoteDate').val());
+    var dateend = new Date($('#endVoteDate').val());
+    if (dateStart.getTime() > dateend.getTime()) {
+
+        bootbox.alert({
+            message: "Data początkowa nie może być większa od końcowej !",
+            centerVertical: true,
+        });
+    } else {
 
         $('#loadingSpinner').show();
 
@@ -1522,18 +1822,31 @@ function SendFormEditProject() {
             if (status['status'] == 200) {
                 if (result != null) {
                     if (result['project_name'] != "") {
-                        selectedProject=result['project_id'];
+                        selectedProject = result['project_id'];
                         selectedProjectName = $('#editProject_nameProject').val();
+                        backgroundurl = result['cover_image'];
+                        LoadLastProjectList();
                         trybPracy = 5;
                         ZmianaTrybuPracy();
-                    } else bootbox.alert("error");
-                } else bootbox.alert("error");
-            } else bootbox.alert('Wystąpił Błąd ');
+                    } else bootbox.alert({
+                        message: "Wystąpił błąd",
+                        centerVertical: true,
+                    });
+                } else bootbox.alert({
+                    message: "Wystąpił błąd",
+                    centerVertical: true,
+                });
+            } else bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         }).fail(function () {
             $('#loadingSpinner').hide();
-            bootbox.alert('Wystąpił Błąd');
+            bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
         });
-        ;
         $('#loadingSpinner').hide();
     }
 }
@@ -1552,11 +1865,18 @@ function setImageProjectBackground() {
                     }
                 );
             } else {
-                bootbox.alert("Dozwolone są tylko obrazy ! ");
+                bootbox.alert({
+                    message: "Dozwolone są tylko obrazy ! ",
+                    centerVertical: true,
+                });
                 $('#loadingSpinner').hide();
             }
         } else {
-            bootbox.alert("Plik jest za duży.Max 30 MB");
+
+            bootbox.alert({
+                message: "Plik jest za duży.Max 30 MB",
+                centerVertical: true,
+            });
             $('#loadingSpinner').hide();
         }
 
@@ -1570,6 +1890,16 @@ function checkFileTypes(file) {
 }
 
 function editProjectEvent() {
+    flatpickr("startVoteDate");
+    $('#startVoteDate').flatpickr({
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+    });
+    $('#endVoteDate').flatpickr({
+        enableTime: true,
+        dateFormat: "Y-m-d H:i"
+
+    });
     $("html").on("dragover", function (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -1621,15 +1951,28 @@ function SendForm(id, nameEnvi) {
         if (status['status'] == 200) {
             if (result != null) {
                 if (result['result'] == "1") {
-                    trybPracy = 1;
+                    backgroundurl = result['cover_image'];
+                    trybPracy = 2;
                     ZmianaTrybuPracy();
-                } else bootbox.alert("error");
-            } else bootbox.alert("error");
-        } else bootbox.alert('Wystąpił Błąd ');
+                } else bootbox.alert({
+                    message: "Wystąpił błąd",
+                    centerVertical: true,
+                });
+            } else bootbox.alert({
+                message: "Wystąpił błąd",
+                centerVertical: true,
+            });
+        } else bootbox.alert({
+            message: "Wystąpił błąd",
+            centerVertical: true,
+        });
 
     }).fail(function () {
         $('#loadingSpinner').hide();
-        bootbox.alert('Wystąpił Błąd');
+        bootbox.alert({
+            message: "Wystąpił błąd",
+            centerVertical: true,
+        });
     });
 }
 

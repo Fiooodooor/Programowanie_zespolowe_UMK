@@ -1,7 +1,7 @@
 import base64
 from datetime import timedelta
 
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
@@ -36,6 +36,14 @@ def remove_environment_view(environment, user):
 
 def is_vote_open(project):
     if project.vote_starting < datetime.now() < project.vote_closing:
+        return True
+    else:
+        return False
+
+
+def is_valid(password):
+    if (any(x.isupper() for x in password) and any(x.islower() for x in password)
+            and any(x.isdigit() for x in password) and len(password) >= 8):
         return True
     else:
         return False
@@ -221,7 +229,7 @@ class Projects(mixins.DestroyModelMixin,
                                  'detail': 'Vote added successfully'})
             else:
                 return Response({'result': '1',
-                                 'detail': 'Vote updated successfully'})  # TODO change date
+                                 'detail': 'Vote updated successfully'})
         else:
             raise PermissionDenied({"message": "No permission to vote",
                                     "object_id": project.id})
@@ -366,22 +374,34 @@ def edit_profile(request):
             new_organization = request.POST.get('organizacja')
             avatar_base64 = request.POST.get('avatar')
             db_user = User.objects.get(id=user.id)
-
-            # TODO change to actual password requirements once we have them
-            if new_password != '':
-                db_user.set_password(new_password)
+            password_change = False
             if avatar_base64 != '':
                 format, imgstr = avatar_base64.split(';base64,')
                 ext = format.split('/')[-1]
                 new_avatar = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
                 db_user.avatar = new_avatar
 
+            if User.objects.filter(email=new_email).exists() and user.email != new_email:
+                return render(request, 'pznsi/logged/accounts/EditUserProfile.html',
+                              {'error': 'Podany email jest już używany przez innego użytkownika'})
+            print(new_password)
+            if is_valid(new_password):
+                password_change = True
+                db_user.set_password(new_password)
+            elif new_password == '':
+                pass
+            else:
+                return render(request, 'pznsi/logged/accounts/EditUserProfile.html',
+                              {'error': 'Podane hasło nie spełnia wymagań'})
             db_user.email = new_email
             db_user.first_name = new_firstname
             db_user.last_name = new_lastname
             db_user.organization = new_organization
             db_user.save()
-            return HttpResponseRedirect(reverse('edit_profile'))
+            if password_change:
+                user = authenticate(request, username=db_user.username, password=new_password)
+                login(request, user)
+            return render(request, 'pznsi/logged/accounts/EditUserProfile.html', {'success': True})
     else:
         raise Http404
 
@@ -394,10 +414,18 @@ def register(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         repassword = request.POST.get('repassword')
-        if User.objects.filter(username=username).exists() or User.objects.filter(email=email).exists():
-            return HttpResponseRedirect(reverse('edit_profile'))
+        if User.objects.filter(username=username).exists():
+            return render(request, 'pznsi/anonymous/Registration.html',
+                          {'error': 'Użytkownik o tej nazwie juz istnieje'})
+        elif User.objects.filter(email=email).exists():
+            return render(request, 'pznsi/anonymous/Registration.html',
+                          {'error': 'Istnieje już użytkownik zarejestrowany na ten adres email'})
         elif password != repassword:
-            return HttpResponseRedirect(reverse('edit_profile'))
+            return render(request, 'pznsi/anonymous/Registration.html',
+                          {'error': 'Podane hasła nie są identyczne'})
+        elif not is_valid(password):
+            return render(request, 'pznsi/anonymous/Registration.html',
+                          {'error': 'Podane hasło nie spełnia wymagań'})
         else:
             user = User.objects.create_user(username=username,
                                             email=email,
