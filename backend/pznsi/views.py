@@ -20,6 +20,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from pznsi.models import User, Environment, Project, Comment, Attachment, Vote, ProjectCategory, RepositoryFile
+from pznsi.permissions import DeletePermission
 from pznsi.serializers import EnvironmentSerializer, ProjectDetailSerializer, RepositorySerializer
 
 
@@ -40,13 +41,10 @@ def is_vote_open(project):
         return False
 
 
-class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.RetrieveModelMixin):
-    permission_classes = [permissions.IsAuthenticated]
+class Environments(mixins.DestroyModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet, mixins.RetrieveModelMixin):
+    permission_classes = [permissions.IsAuthenticated, DeletePermission]
     queryset = Environment.objects.all()
     serializer_class = EnvironmentSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
 
     def get_queryset(self):
         qs = get_objects_for_user(self.request.user, 'view_environment_instance', super().get_queryset())
@@ -123,11 +121,11 @@ class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Create
                                     "object_id": environment.id})
 
 
-class Projects(mixins.CreateModelMixin,
+class Projects(mixins.DestroyModelMixin,
                mixins.ListModelMixin,
                mixins.RetrieveModelMixin,
                viewsets.GenericViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, DeletePermission]
     queryset = Project.objects.all()
     serializer_class = ProjectDetailSerializer
 
@@ -157,6 +155,32 @@ class Projects(mixins.CreateModelMixin,
                                     "object_id": project.id})
 
     @action(detail=True, methods=['post'])
+    def delete_comment(self, request, pk=None):
+        comment_id = int(request.data['comment_id'])
+        comment = Comment.objects.get(id=comment_id)
+        if request.user == comment.user or request.user.is_superuser:
+            comment.delete()
+            return Response({'result': '1',
+                             'detail': 'Deleted successfully'})
+        else:
+            raise PermissionDenied({"message": "No permission to delete comment",
+                                    "object_id": comment_id})
+
+    @action(detail=True, methods=['post'])
+    def edit_comment(self, request, pk=None):
+        comment_id = int(request.data['comment_id'])
+        comment_text = request.data['comment']
+        comment = Comment.objects.get(id=comment_id)
+        if request.user == comment.user or request.user.is_superuser:
+            comment.comment_content = comment_text
+            comment.save()
+            return Response({'result': '1',
+                             'detail': 'Updated successfully'})
+        else:
+            raise PermissionDenied({"message": "No permission to edit comment",
+                                    "object_id": comment_id})
+
+    @action(detail=True, methods=['post'])
     def add_attachment(self, request, pk=None):
         project = self.get_object()
         if request.user.has_perm('view_project_instance', project):
@@ -171,6 +195,18 @@ class Projects(mixins.CreateModelMixin,
         else:
             raise PermissionDenied({"message": "No permission to add file",
                                     "object_id": project.id})
+
+    @action(detail=True, methods=['post'])
+    def delete_attachment(self, request, pk=None):
+        attachment_id = int(request.data['attachment_id'])
+        attachment = Attachment.objects.get(id=attachment_id)
+        if request.user == attachment.user or request.user.is_superuser:
+            attachment.delete()
+            return Response({'result': '1',
+                             'detail': 'Deleted successfully'})
+        else:
+            raise PermissionDenied({"message": "No permission to delete comment",
+                                    "object_id": attachment_id})
 
     @action(detail=True, methods=['post'])
     def vote(self, request, pk=None):
@@ -497,7 +533,12 @@ def save_environment(request):
             image = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
             environment.cover_image = image
         environment.save()
-        return JsonResponse({"result": 1})
+        if environment.cover_image:
+            cover_url = environment.cover_image.url
+        else:
+            cover_url = None
+        return JsonResponse({"result": 1,
+                             'cover_image': cover_url})
     else:
         raise Http404
 
@@ -547,11 +588,16 @@ def save_project(request):
             image = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
             project.cover_image = image
         project.save()
+        if project.cover_image:
+            cover_url = project.cover_image.url
+        else:
+            cover_url = None
         return JsonResponse(
             {"project_id": project.id,
              "project_name": project.project_name,
              "project_category": project.project_category.id,
-             "project_content": project.project_content})
+             "project_content": project.project_content,
+             "cover_image": cover_url})
     else:
         raise Http404
 
