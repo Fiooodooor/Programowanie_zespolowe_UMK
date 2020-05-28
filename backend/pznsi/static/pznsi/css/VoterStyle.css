@@ -299,8 +299,6 @@ label {
 }
 
 .reversColor {
-    cxolor: #f1f1f1;
-    mxix-blend-mode: difference;
     color: white;
     text-shadow: -1px 0 #363636, 0 1px #363636, 1px 0 #363636, 0 -1px #363636;
 }
@@ -330,4 +328,252 @@ label {
     top: 0px;
     left: 0px;
     will-change: transform;
+}
+
+@media (min-width: 992px) {
+    .listEnvPrElemet:hover {
+        transform: scale(1.08);
+
+    }
+
+}
+
+ul, li {
+    list-style-type: none;
+}
+
+.leftMenuIntem li div {
+    width: 100%;
+}
+
+.leftMenuIntemStart {
+    padding-inline-start: 0px;
+}
+
+.leftMenuIntem li {
+    width: 100%;
+}
+
+.leftMenuIntem li div:hover {
+    background-color: #1c7430;
+}
+
+
+/*Spinner ładowania contentu */
+.lds-spinner div {
+    transform-origin: 60px 60px;
+    animation: lds-spinner 1.2s linear infinite;
+}
+
+.lds-spinner {
+    margin: 0 auto;
+    z-index: 500000;
+    color: #1c7430;
+    display: inline-block;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 100px;
+}
+
+.lds-spinner div:after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 5px;
+    left: 60px;
+    width: 9px;
+    height: 25px;
+    border-radius: 20%;
+    background: #3c69ff;
+}
+
+.lds-spinner div:nth-child(1) {
+    transform: rotate(0deg);
+    animation-delay: -1.1s;
+}
+
+.lds-spinner div:nth-child(2) {
+    transform: rotate(30deg);
+    animation-delay: -1s;
+}
+
+.lds-spinner div:nth-child(3) {
+    transform: rotate(60deg);
+    animation-delay: -0.9s;
+}
+
+.lds-spinner div:nth-child(4) {
+    transform: rotate(90deg);
+    animation-delay: -0.8s;
+}
+
+.lds-spinner div:nth-child(5) {
+    transform: rotate(120deg);
+    animation-delay: -0.7s;
+}
+
+.lds-spinner div:nth-child(6) {
+    transform: rotate(150deg);
+    animation-delay: -0.6s;
+}
+
+.lds-spinner div:nth-child(7) {
+    transform: rotate(180deg);
+    animation-delay: -0.5s;
+}
+
+.lds-spinner div:nth-child(8) {
+    transform: rotate(210deg);
+    animation-delay: -0.4s;
+}
+
+.lds-spinner div:nth-child(9) {
+    transform: rotate(240deg);
+    animation-delay: -0.3s;
+}
+
+.lds-spinner div:nth-child(10) {
+    transform: rotate(270deg);
+    animation-delay: -0.2s;
+}
+
+.lds-spinner div:nth-child(11) {
+    transform: rotate(300deg);
+    animation-delay: -0.1s;
+}
+
+.lds-spinner div:nth-child(12) {
+    transform: rotate(330deg);
+    animation-delay: 0s;
+}
+
+@keyframes lds-spinner {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.mh-80 {
+    min-height: 80%;
+}
+
+.mt-10 {
+    margin-top: 10%;
+}
+
+.loginWindow {
+    margin-bottom: 0px;
+    padding: 30px;
+    background-color: white;
+    border-radius: 25px
+}
+
+.maxh-70 {
+    max-height: 70vh;
+}
+
+.pfixed {
+    position: fixed;
+}
+
+.defAvatar {
+    height: 1.8em;
+    width: 1.8em;
+}
+
+.AvatarStyle {
+    height: 1.8em;
+}
+
+.pt100px {
+    padding-top: 100px;
+}
+
+.pt15px {
+    padding-top: 15px;
+}
+
+.radius25 {
+    border-radius: 25px;
+}
+
+.repobar {
+    display: none;
+    position: fixed;
+    bottom: 0%;
+    z-index: 99999;
+    background: #111111;
+    min-width: 100%;
+    left: 0%;
+    max-height: 5.3em;
+    overflow: auto
+}
+
+.repoContent {
+    overflow: auto;
+    color: white;
+    background: #111111;
+    border-radius: 3px 3px 0px 0px
+}
+
+.autoscroll {
+    overflow: auto;
+}
+
+.mt-80 {
+    margin-top: 80px;
+}
+
+.defAvatarEdit {
+    height: 100px;
+    width: 100px;
+    border: 1px solid #b4b4b4;
+    border-radius: 150px
+}
+
+.AvatarEdit {
+    height: 100px;
+    width: 100px;
+    border: 1px solid #b4b4b4;
+    border-radius: 150px
+}
+
+
+.windowEnvi {
+    padding-top: 15px;
+    padding-bottom: 15px
+}
+
+.dropButtonEnvi {
+    position: absolute;
+    top: 20px;
+    right: 20px
+}
+
+.enviName {
+    background-color: rgba(220, 220, 220, 0.3);
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    padding: 4rem;
+}
+
+.btn span.fa-check {
+    opacity: 0;
+}
+
+.btn.active span.fa-check {
+    opacity: 1;
+}
+
+.h-80 {
+    height: 80%;
+}
+#headerProjectContent{
+    padding-right:3rem;
 }

@@ -1,12 +1,12 @@
 <div class="row justify-content-center">
     <div class="col-lg-8   p-3">
-        <div class="bgw p-3 " style="min-height: 100%">
+        <div class="bgw p-3 mh-100 " >
             <h3>Opis</h3>
             {{ project.project_content }}
         </div>
     </div>
     <div class="col-lg-4   p-3">
-        <div class="bgw p-3" style="min-height: 100%">
+        <div class="bgw p-3 mh-100" >
             <h3>Menu Oceny</h3>
             <h4>Średnia Projektu:<span id="avgVal"></span></h4>
             {% if 'vote' in permissions %}
@@ -22,10 +22,10 @@
     </div>
     {% if 'view_project_instance' in permissions %}
         <div class="col-lg-8   p-3">
-            <div class="bgw p-3" style="min-height: 100%">
+            <div class="bgw p-3 mh-100" >
                 <h3>Komentarze</h3>
-                <div class="input-group" style="height: 80%">
-                    <textarea id="newCommentContent" class="form-control" style="height: 80%"></textarea>
+                <div class="input-group mh-80" >
+                    <textarea id="newCommentContent" class="form-control h-80" ></textarea>
                     <div class="input-group-append">
                         <button id="newCommentButton" class="btn btn-secondary" type="button">Skomentuj</button>
                     </div>
@@ -34,7 +34,7 @@
         </div>
 
         <div class="col-lg-4   p-3">
-            <div id="addFileContent" class="bgw p-3" style="min-height: 100%">
+            <div id="addFileContent" class="bgw p-3 mh-100" >
                 <h3>Dodaj Pliki</h3>
                 <input type="file" name="file" id="fileAttachmentProject" style="display: none">
                 <span style="width: 50%;height: 20%" class="fa fa-5x fa-file"> </span>
@@ -42,14 +42,7 @@
         </div>
     {% endif %}
 </div>
-
-<div class="row justify-content-center" id="commentAttachmentProject">
-
-
-</div>
-
-
-<!-- upload plików -->
+<div class="row justify-content-center" id="commentAttachmentProject"></div>
 <script>
     {% if 'edit_project_instance' in permissions %}
         $('#editProjectInsideBtn').show();

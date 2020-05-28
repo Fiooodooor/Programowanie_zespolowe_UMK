@@ -25,8 +25,7 @@
         </div>
 {% endblock %}
 {% block content %}
-    <div class=" container align-self-center text-center VoteContainer"
-         style="">
+    <div class=" container align-self-center text-center VoteContainer mt-80 ">
 
         <div class="row text-left padding-bottom-2" >
             <div class="col-md-12 "><h1>Edycja Profilu</h1></div>
@@ -42,19 +41,25 @@
 
             <div class="col-md-12 text-left font-weight-bold">
                 <label>Hasło</label>
-                <input name="password" type="password" placeholder="Nie Zmieniono" class="form-control" data-container="body"
+                <input name="password" id="passid" type="password" placeholder="Nie Zmieniono" class="form-control" data-container="body"
                        data-toggle="popover" data-trigger="focus" data-placement="top" data-content="Minimum 8 znaków , 1 Liczba, 1 Mała i Wielka Litera">
+                 <div id="message" class="alert alert-danger" style="display: none">
+                            <p class="matchPassword" id="min8">Minimum 8 znaków</p>
+                            <p class="matchPassword" id="minWL">Jedna wielka litera</p>
+                            <p class="matchPassword" id="minML">Jedna mała </p>
+                            <p class="matchPassword" id="minJML">Jedna Liczba</p>
+                        </div>
             </div>
         </div>
          <div class="col-md-6">
                 <div class="row AvatarRow">
-                    <div class="col-md-4 text-left font-weight-bold" style="height: auto;width: auto">
+                    <div class="col-md-4 text-left font-weight-bold" >
                         <div class="row"><div class="col-md-12"> <label class="label">Wybierz Zdjęcie </label></div></div>
                         <div class="row"><div class="col-md-12">
                             {% if user.avatar != "" %}
-                                <img id="ImgAvatar" style="height: 100px;width: 100px;border:1px solid #b4b4b4;border-radius: 150px"  src="{{ user.avatar.url }}">
+                                <img id="ImgAvatar" class="AvatarEdit"  src="{{ user.avatar.url }}">
                             {% else %}
-                                <img id="ImgAvatar" style="height: 100px;width: 100px;border:1px solid #b4b4b4;border-radius: 150px"  src={% static "/pznsi/images/user.ico" %}>
+                                <img id="ImgAvatar" class="defAvatarEdit"  src={% static "/pznsi/images/user.ico" %}>
                             {% endif %}
                         </div>
                         </div>
@@ -89,15 +94,16 @@
     </div>
         <div class="row text-left padding-top-1" ><div class="col-md-6">
             <div class="col-md-6">
-            <input type="submit" value="Edytuj Profil" class="btn btn-warning">
+            <input type="submit" value="Edytuj Profil" id="signinBtn" class="btn btn-warning">
         </div></div>
         </div>
         </form>
 
-            {% if succes %}
-                <div class="row padding-top-5"><div class="col-12"><div class="alert alert-danger">Pomyślnie dokonano zmian  </div></div></div>
-{#            {% else %}#}
-{#                <div class="row padding-top-5"><div class="col-12"><div class="alert alert-danger">Błąd Edycji ! </div></div></div>#}
+            {% if success %}
+                <div class="row padding-top-5"><div class="col-12"><div class="alert alert-success">Pomyślnie dokonano zmian  </div></div></div>
+            {% endif %}
+            {% if error %}
+                <div class="row padding-top-5"><div class="col-12"><div class="alert alert-danger">{{ error }} </div></div></div>
             {% endif %}
     </div>
 {% endblock %}
