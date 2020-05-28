@@ -506,6 +506,7 @@ function LoadLastProjectList() {
 }
 
 function ZmianaTrybuPracy() {
+    //$('#enviList').children().html('');
     $('#loadingSpinner').show();
     $('#mainPage').hide();
     $('#listProjects').hide();
@@ -524,6 +525,8 @@ function ZmianaTrybuPracy() {
     $('.projectListButtons').remove();
     if ($('#selectedEnviList').length) $('#selectedEnviList').remove();
     $('#addNew').remove();
+    $('.addNewEnviListItem').remove();
+
     $('#editProjectInsideBtn').hide();
     pageLoad = 1;
     search = 0;
@@ -819,7 +822,7 @@ function addNewEnviButton() {
         function (result, state, status) {
             if (status['status'] == 200) {
                 if (result != null && result['can_add'] == true) {
-                    $('#enviList').after($('<li>').append($('<a>').addClass('l2').attr('id', 'addNew').attr('role', 'button').append($('<i>').addClass('fas fa-plus'), ' Dodaj Środowisko')).on('click', function () {
+                    $('#enviList').after($('<li>').append($('<a>').addClass('l2').attr('id', 'addNew').attr('role', 'button').append($('<i>').addClass('fas fa-plus addNewEnviListItem'), ' Dodaj Środowisko')).on('click', function () {
                         selectedEnvi = "";
                         WybraneSrodowisko = 0;
                         trybPracy = 3;
@@ -1588,7 +1591,9 @@ function dataLoadProject() {
 // definicja eventów po otwarciu projektu
 function projectEvents() {
     //po kliknięciu przycisku obok nazwy projektu na projekcie przechodzimy do edycji
-    $('#editProjectInsideBtn').on('click', function () {
+    $('#editProjectInsideBtn').on('click', function (event) {
+        event.stopPropagation();
+        event.stopImmediatePropagation();
         trybPracy = 6;
         ZmianaTrybuPracy();
     });
@@ -1824,10 +1829,14 @@ function SendFormEditProject() {
                     if (result['project_name'] != "") {
                         selectedProject = result['project_id'];
                         selectedProjectName = $('#editProject_nameProject').val();
-                        backgroundurl = result['cover_image'];
-                        LoadLastProjectList();
+                        if (result['cover_image'] === '' || result['cover_image']===null)
+                            backgroundurl = "/static/pznsi/images/back1.jpg";
+                        else
+                            backgroundurl = result['cover_image'];
+
                         trybPracy = 5;
                         ZmianaTrybuPracy();
+                        LoadLastProjectList();
                     } else bootbox.alert({
                         message: "Wystąpił błąd",
                         centerVertical: true,
@@ -1951,7 +1960,10 @@ function SendForm(id, nameEnvi) {
         if (status['status'] == 200) {
             if (result != null) {
                 if (result['result'] == "1") {
-                    backgroundurl = result['cover_image'];
+                    if (result['cover_image'] === '' || result['cover_image']===null)
+                        backgroundurl = "/static/pznsi/images/back1.jpg";
+                    else
+                        backgroundurl = result['cover_image'];
                     trybPracy = 2;
                     ZmianaTrybuPracy();
                 } else bootbox.alert({

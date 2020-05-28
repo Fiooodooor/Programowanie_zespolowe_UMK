@@ -10,11 +10,13 @@
 
     <script src={% static "/pznsi/js/popper.min.js" %} ></script>
 <script src={% static "/pznsi/js/bootstrap.min.js" %} ></script>
+    <script src="{% static "/pznsi/js/jquery.cookie.js" %}"></script>
     <link href={% static "/pznsi/css/VoterStyle.css" %} rel="stylesheet" type="text/css">
 <link rel="shortcut icon" href="{% static "/pznsi/images/Favicon.ico" %}" />
 
 </head>
 <body>
+{% include "pznsi/cookies.html" %}
 <nav class=" nav navbarColor navbar navbar-expand-lg navbar-dark rounded">
 
     <a class="navbar-brand navbar-logo " href="/">VoteDesk</a>

@@ -41,8 +41,14 @@
 
             <div class="col-md-12 text-left font-weight-bold">
                 <label>Hasło</label>
-                <input name="password" type="password" placeholder="Nie Zmieniono" class="form-control" data-container="body"
+                <input name="password" id="passid" type="password" placeholder="Nie Zmieniono" class="form-control" data-container="body"
                        data-toggle="popover" data-trigger="focus" data-placement="top" data-content="Minimum 8 znaków , 1 Liczba, 1 Mała i Wielka Litera">
+                 <div id="message" class="alert alert-danger" style="display: none">
+                            <p class="matchPassword" id="min8">Minimum 8 znaków</p>
+                            <p class="matchPassword" id="minWL">Jedna wielka litera</p>
+                            <p class="matchPassword" id="minML">Jedna mała </p>
+                            <p class="matchPassword" id="minJML">Jedna Liczba</p>
+                        </div>
             </div>
         </div>
          <div class="col-md-6">
@@ -88,13 +94,13 @@
     </div>
         <div class="row text-left padding-top-1" ><div class="col-md-6">
             <div class="col-md-6">
-            <input type="submit" value="Edytuj Profil" class="btn btn-warning">
+            <input type="submit" value="Edytuj Profil" id="signinBtn" class="btn btn-warning">
         </div></div>
         </div>
         </form>
 
             {% if success %}
-                <div class="row padding-top-5"><div class="col-12"><div class="alert alert-danger">Pomyślnie dokonano zmian  </div></div></div>
+                <div class="row padding-top-5"><div class="col-12"><div class="alert alert-success">Pomyślnie dokonano zmian  </div></div></div>
             {% endif %}
             {% if error %}
                 <div class="row padding-top-5"><div class="col-12"><div class="alert alert-danger">{{ error }} </div></div></div>
