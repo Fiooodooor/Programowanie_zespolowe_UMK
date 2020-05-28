@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+    <link rel="stylesheet" type="text/css" href="../../../static/pznsi/css/VoterStyle.css"/>
     <meta charset="UTF-8">
     <title>{% block title %}VoteDesk{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -12,9 +13,10 @@
     <script src={% static "/pznsi/js/popper.min.js" %} }}></script>
 <script src={% static "/pznsi/js/bootstrap.min.js" %} }}></script>
     <link href={% static "/pznsi/css/VoterStyle.css" %} rel="stylesheet" type="text/css">
+<link rel="shortcut icon" href="{% static "/pznsi/images/Favicon.ico" %}" />
 
 </head>
-<body style="height: 100vh">
+<body >
 <nav class=" nav navbarColor navbar navbar-expand-lg navbar-dark rounded">
 
     <a class="navbar-brand navbar-logo " href="/">VoteDesk</a>
@@ -25,18 +27,16 @@
     </div>
 
 </nav>
+        <div class=" container align-self-center mh-80 "  >
 
-
-        <div class=" container align-self-center " style="min-height: 80%" >
-
-            <div class="row justify-content-center align-items-center" style="min-height: 80%;margin-top: 10%">
-            <div style="margin-bottom:0px;padding:30px;background-color:white;border-radius: 25px" class="justify-content-center col-lg-8" >
+            <div class="row justify-content-center align-items-center mh-80 mt-10" >
+            <div style="" class="justify-content-center col-lg-8 loginWindow" >
                 <h2>Zaloguj</h2>
                 <form method="post" action="{% url 'login' %}">
                     {% csrf_token %}
                     <div class="form-group">
 
-                        <input type="text" class="form-control" id="exampleFormControlInput1" name="username" value="{{lastUserName}}" placeholder="Login">
+                        <input type="text" class="form-control" id="exampleFormControlInput1" name="username" value="{{lastUserName}}" placeholder="Login1">
                     </div>
                     <div class="form-group">
 
@@ -55,9 +55,6 @@
                             <input type="button" onclick="location.href='zapisz.html'" class="btn btn-info"  value="Zapisz się !">
                         </div>
                     </div>
-
-
-
                 </form>
             </div>
             </div>

@@ -1,8 +1,5 @@
-<style>
-
-</style>
 <div class="row justify-content-center">
-    <div class="  mixblend col-lg-12 " style="padding-top:15px;padding-bottom: 15px">
+    <div class="  mixblend col-lg-12  windowEnvi" >
         <div class=" ovalDiv bgw">
             <h2>Dodaj uprawnienia w środowisku  </h2>
             <select class="selectpicker w-100 mt-2" id="selectNewPermEnvi" data-live-search="true">
@@ -25,7 +22,7 @@
          </div>
         <br/>
             <div class="btn-group mt-2">
-                <button class="btn btn-outline-warning  addPermEnvi">Dodaj Uprawnienie</button>
+                <button class="btn btn-warning  addPermEnvi">Dodaj Uprawnienie</button>
             </div>
         </div>
     </div>
@@ -39,7 +36,7 @@
 </div>
 <div class="row ">
     {% for user,perm in  permitted_users.items %}
-        <div class="col-xl-4 listEnvPrElemet " style="padding-top:15px;padding-bottom: 15px;min-height: 100%">
+        <div class="col-xl-4 listEnvPrElemet EnviListElement windowEnvi mh-100 " >
             <div class="text-center  mixblend ovalDiv bgw mh-100">
                 <h3 class="searchtr"> {{ user }} </h3>
                 <div class="btn-group btn-group-toggle mt-2 mb-2" data-toggle="buttons">

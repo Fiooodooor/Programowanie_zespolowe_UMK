@@ -1,7 +1,7 @@
 import base64
 from datetime import timedelta
 
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
@@ -20,6 +20,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from pznsi.models import User, Environment, Project, Comment, Attachment, Vote, ProjectCategory, RepositoryFile
+from pznsi.permissions import DeletePermission
 from pznsi.serializers import EnvironmentSerializer, ProjectDetailSerializer, RepositorySerializer
 
 
@@ -40,13 +41,18 @@ def is_vote_open(project):
         return False
 
 
-class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.RetrieveModelMixin):
-    permission_classes = [permissions.IsAuthenticated]
+def is_valid(password):
+    if (any(x.isupper() for x in password) and any(x.islower() for x in password)
+            and any(x.isdigit() for x in password) and len(password) >= 8):
+        return True
+    else:
+        return False
+
+
+class Environments(mixins.DestroyModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet, mixins.RetrieveModelMixin):
+    permission_classes = [permissions.IsAuthenticated, DeletePermission]
     queryset = Environment.objects.all()
     serializer_class = EnvironmentSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
 
     def get_queryset(self):
         qs = get_objects_for_user(self.request.user, 'view_environment_instance', super().get_queryset())
@@ -123,11 +129,11 @@ class Environments(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.Create
                                     "object_id": environment.id})
 
 
-class Projects(mixins.CreateModelMixin,
+class Projects(mixins.DestroyModelMixin,
                mixins.ListModelMixin,
                mixins.RetrieveModelMixin,
                viewsets.GenericViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, DeletePermission]
     queryset = Project.objects.all()
     serializer_class = ProjectDetailSerializer
 
@@ -157,6 +163,32 @@ class Projects(mixins.CreateModelMixin,
                                     "object_id": project.id})
 
     @action(detail=True, methods=['post'])
+    def delete_comment(self, request, pk=None):
+        comment_id = int(request.data['comment_id'])
+        comment = Comment.objects.get(id=comment_id)
+        if request.user == comment.user or request.user.is_superuser:
+            comment.delete()
+            return Response({'result': '1',
+                             'detail': 'Deleted successfully'})
+        else:
+            raise PermissionDenied({"message": "No permission to delete comment",
+                                    "object_id": comment_id})
+
+    @action(detail=True, methods=['post'])
+    def edit_comment(self, request, pk=None):
+        comment_id = int(request.data['comment_id'])
+        comment_text = request.data['comment']
+        comment = Comment.objects.get(id=comment_id)
+        if request.user == comment.user or request.user.is_superuser:
+            comment.comment_content = comment_text
+            comment.save()
+            return Response({'result': '1',
+                             'detail': 'Updated successfully'})
+        else:
+            raise PermissionDenied({"message": "No permission to edit comment",
+                                    "object_id": comment_id})
+
+    @action(detail=True, methods=['post'])
     def add_attachment(self, request, pk=None):
         project = self.get_object()
         if request.user.has_perm('view_project_instance', project):
@@ -173,6 +205,18 @@ class Projects(mixins.CreateModelMixin,
                                     "object_id": project.id})
 
     @action(detail=True, methods=['post'])
+    def delete_attachment(self, request, pk=None):
+        attachment_id = int(request.data['attachment_id'])
+        attachment = Attachment.objects.get(id=attachment_id)
+        if request.user == attachment.user or request.user.is_superuser:
+            attachment.delete()
+            return Response({'result': '1',
+                             'detail': 'Deleted successfully'})
+        else:
+            raise PermissionDenied({"message": "No permission to delete comment",
+                                    "object_id": attachment_id})
+
+    @action(detail=True, methods=['post'])
     def vote(self, request, pk=None):
         project = self.get_object()
         if request.user.has_perm('vote', project) and project.vote_starting < datetime.now() < project.vote_closing:
@@ -185,7 +229,7 @@ class Projects(mixins.CreateModelMixin,
                                  'detail': 'Vote added successfully'})
             else:
                 return Response({'result': '1',
-                                 'detail': 'Vote updated successfully'})  # TODO change date
+                                 'detail': 'Vote updated successfully'})
         else:
             raise PermissionDenied({"message": "No permission to vote",
                                     "object_id": project.id})
@@ -330,22 +374,34 @@ def edit_profile(request):
             new_organization = request.POST.get('organizacja')
             avatar_base64 = request.POST.get('avatar')
             db_user = User.objects.get(id=user.id)
-
-            # TODO change to actual password requirements once we have them
-            if new_password != '':
-                db_user.set_password(new_password)
+            password_change = False
             if avatar_base64 != '':
                 format, imgstr = avatar_base64.split(';base64,')
                 ext = format.split('/')[-1]
                 new_avatar = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
                 db_user.avatar = new_avatar
 
+            if User.objects.filter(email=new_email).exists() and user.email != new_email:
+                return render(request, 'pznsi/logged/accounts/EditUserProfile.html',
+                              {'error': 'Podany email jest już używany przez innego użytkownika'})
+            print(new_password)
+            if is_valid(new_password):
+                password_change = True
+                db_user.set_password(new_password)
+            elif new_password == '':
+                pass
+            else:
+                return render(request, 'pznsi/logged/accounts/EditUserProfile.html',
+                              {'error': 'Podane hasło nie spełnia wymagań'})
             db_user.email = new_email
             db_user.first_name = new_firstname
             db_user.last_name = new_lastname
             db_user.organization = new_organization
             db_user.save()
-            return HttpResponseRedirect(reverse('edit_profile'))
+            if password_change:
+                user = authenticate(request, username=db_user.username, password=new_password)
+                login(request, user)
+            return render(request, 'pznsi/logged/accounts/EditUserProfile.html', {'success': True})
     else:
         raise Http404
 
@@ -358,10 +414,18 @@ def register(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         repassword = request.POST.get('repassword')
-        if User.objects.filter(username=username).exists() or User.objects.filter(email=email).exists():
-            return HttpResponseRedirect(reverse('edit_profile'))
+        if User.objects.filter(username=username).exists():
+            return render(request, 'pznsi/anonymous/Registration.html',
+                          {'error': 'Użytkownik o tej nazwie juz istnieje'})
+        elif User.objects.filter(email=email).exists():
+            return render(request, 'pznsi/anonymous/Registration.html',
+                          {'error': 'Istnieje już użytkownik zarejestrowany na ten adres email'})
         elif password != repassword:
-            return HttpResponseRedirect(reverse('edit_profile'))
+            return render(request, 'pznsi/anonymous/Registration.html',
+                          {'error': 'Podane hasła nie są identyczne'})
+        elif not is_valid(password):
+            return render(request, 'pznsi/anonymous/Registration.html',
+                          {'error': 'Podane hasło nie spełnia wymagań'})
         else:
             user = User.objects.create_user(username=username,
                                             email=email,
@@ -497,7 +561,12 @@ def save_environment(request):
             image = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
             environment.cover_image = image
         environment.save()
-        return JsonResponse({"result": 1})
+        if environment.cover_image:
+            cover_url = environment.cover_image.url
+        else:
+            cover_url = None
+        return JsonResponse({"result": 1,
+                             'cover_image': cover_url})
     else:
         raise Http404
 
@@ -547,11 +616,16 @@ def save_project(request):
             image = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
             project.cover_image = image
         project.save()
+        if project.cover_image:
+            cover_url = project.cover_image.url
+        else:
+            cover_url = None
         return JsonResponse(
             {"project_id": project.id,
              "project_name": project.project_name,
              "project_category": project.project_category.id,
-             "project_content": project.project_content})
+             "project_content": project.project_content,
+             "cover_image": cover_url})
     else:
         raise Http404
 

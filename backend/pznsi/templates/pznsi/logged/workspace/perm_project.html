@@ -1,15 +1,5 @@
-<style>
-    .btn span.fa-check {
-        opacity: 0;
-    }
-
-    .btn.active span.fa-check {
-        opacity: 1;
-    }
-
-</style>
 <div class="row justify-content-center">
-    <div class="  mixblend col-lg-12" style="padding-top:15px;padding-bottom: 15px">
+    <div class="  mixblend col-lg-12 windowEnvi" >
         <div class=" ovalDiv bgw">
             <h2>Dodaj uprawnienie projektu</h2>
             <select class="selectpicker w-100 mt-2" id="selectNewPermProject" data-live-search="true">
@@ -39,7 +29,7 @@
             </div>
             <br/>
             <div class="btn-group mt-2">
-                <button class="btn btn-outline-warning  addPermProject">Dodaj Uprawnienie</button>
+                <button class="btn btn-warning  addPermProject">Dodaj Uprawnienie</button>
             </div>
         </div>
     </div>
@@ -58,7 +48,7 @@
 <div class="row justify-content-center">
 
     {% for user,perm in  permitted_users.items %}
-        <div class="col-xl-4 listEnvPrElemet " style="padding-top:15px;padding-bottom: 15px">
+        <div class="col-xl-4 listEnvPrElemet windowEnvi " >
 
 
             <div class="text-center  mixblend ovalDiv bgw">

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+
 import environ
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -159,6 +160,7 @@ MEDIA_URL = env('MEDIA_URL')
 
 LOGIN_REDIRECT_URL = '/workspace/'
 LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = '/login/'
 
 AUTH_USER_MODEL = 'pznsi.User'
 ANONYMOUS_USER_ID = -1

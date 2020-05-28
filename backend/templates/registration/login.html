@@ -10,11 +10,14 @@
 
     <script src={% static "/pznsi/js/popper.min.js" %} ></script>
 <script src={% static "/pznsi/js/bootstrap.min.js" %} ></script>
+    <script src="{% static "/pznsi/js/jquery.cookie.js" %}"></script>
     <link href={% static "/pznsi/css/VoterStyle.css" %} rel="stylesheet" type="text/css">
+<link rel="shortcut icon" href="{% static "/pznsi/images/Favicon.ico" %}" />
 
 </head>
-<body style="height: 100vh">
-<nav class=" nav navbar navbar-expand-lg navbar-dark rounded">
+<body>
+{% include "pznsi/cookies.html" %}
+<nav class=" nav navbarColor navbar navbar-expand-lg navbar-dark rounded">
 
     <a class="navbar-brand navbar-logo " href="/">VoteDesk</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,10 +29,10 @@
 </nav>
 
 
-        <div class=" container align-self-center " style="min-height: 80%" >
+        <div class=" container align-self-center mh-80 "  >
 
-            <div class="row justify-content-center align-items-center" style="min-height: 80%;margin-top: 10%">
-            <div style="margin-bottom:0px;padding:30px;background-color:white;border-radius: 25px" class="justify-content-center col-lg-8" >
+            <div class="row justify-content-center align-items-center mg-80 mt-10" >
+            <div  class="justify-content-center col-lg-8 loginWindow" >
                 <h2>Zaloguj</h2>
                 <form method="post" action="{% url 'login' %}">
                     {% csrf_token %}

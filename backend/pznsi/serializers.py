@@ -21,25 +21,41 @@ class UserSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     date = serializers.DateTimeField(source='comment_date')
+    can_edit = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ['user', 'comment_title', 'comment_content', 'comment_reaction', 'date']
+        fields = ['id', 'user', 'comment_title', 'comment_content', 'comment_reaction', 'date', 'can_edit']
+
+    def get_can_edit(self, obj):
+        user = self.context['request'].user
+        if user == obj.user or user.is_superuser:
+            return True
+        else:
+            return False
 
 
 class AttachmentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     date = serializers.DateTimeField(source='attachment_creation_date')
     content = serializers.SerializerMethodField()
+    can_edit = serializers.SerializerMethodField()
 
     class Meta:
         model = Attachment
-        fields = ['user', 'content', 'date', 'attachment_name']
+        fields = ['id', 'user', 'content', 'date', 'attachment_name', 'can_edit']
 
     def get_content(self, obj):
         if obj.content:
             return obj.content.url
         return None
+
+    def get_can_edit(self, obj):
+        user = self.context['request'].user
+        if user == obj.user or user.is_superuser:
+            return True
+        else:
+            return False
 
 
 class VoteSerializer(serializers.ModelSerializer):

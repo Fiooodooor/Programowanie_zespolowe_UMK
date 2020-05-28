@@ -4,9 +4,7 @@
 
 
     <nav class=" nav navbarColor navbar  navbar-expand-lg navbar-dark rounded fixed-top"  >
-         <div class="navbar-toggler-icon" id="sidebarCollapse"  style="display: none">
 
-         </div>
         <a class="navbar-brand navbar-logo " href="/">VoteDesk</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
              <span class="navbar-toggler-icon"></span>
@@ -26,9 +24,9 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle userSettings"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {% if user.avatar != "" %}
-                                <img id="userIco" style="height:1.8em;width: 1.8rem"  src="{{ user.avatar.url }}">
+                                <img id="userIco" class="defAvatar"  src="{{ user.avatar.url }}">
                          {% else %}
-                                <img id="userIco" style="height:1.8em" src={% static "/pznsi/images/user.ico" %}>
+                                <img id="userIco" class="AvatarStyle" src={% static "/pznsi/images/user.ico" %}>
                          {% endif %}
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
