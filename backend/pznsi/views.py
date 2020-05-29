@@ -384,7 +384,6 @@ def edit_profile(request):
             if User.objects.filter(email=new_email).exists() and user.email != new_email:
                 return render(request, 'pznsi/logged/accounts/EditUserProfile.html',
                               {'error': 'Podany email jest już używany przez innego użytkownika'})
-            print(new_password)
             if is_valid(new_password):
                 password_change = True
                 db_user.set_password(new_password)
