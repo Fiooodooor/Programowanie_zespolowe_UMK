@@ -565,6 +565,8 @@ def save_environment(request):
         else:
             cover_url = None
         return JsonResponse({"result": 1,
+                             'envi_id': environment.id,
+                             'envi_name': environment.environment_name,
                              'cover_image': cover_url})
     else:
         raise Http404

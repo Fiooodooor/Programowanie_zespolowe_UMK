@@ -1964,6 +1964,8 @@ function SendForm(id, nameEnvi) {
                         backgroundurl = "/static/pznsi/images/back1.jpg";
                     else
                         backgroundurl = result['cover_image'];
+                    WybraneSrodowisko=result['envi_id'];
+                    selectedEnvi=result['envi_name']
                     trybPracy = 2;
                     ZmianaTrybuPracy();
                 } else bootbox.alert({
