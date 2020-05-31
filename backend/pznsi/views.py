@@ -61,7 +61,7 @@ class Environments(mixins.DestroyModelMixin, mixins.ListModelMixin, viewsets.Gen
     @action(detail=True, methods=['post'])
     def add_permissions(self, request, pk=None):
         environment = self.get_object()
-        if request.user == environment.owner:
+        if request.user == environment.owner or request.user.is_superuser:
             user_id = int(request.data['user_id'])
             editor_group_name = f'{str(environment.id)}_environment_editors'
             viewer_group_name = f'{str(environment.id)}_environment_viewers'
@@ -96,7 +96,7 @@ class Environments(mixins.DestroyModelMixin, mixins.ListModelMixin, viewsets.Gen
     @action(detail=True, methods=['post'])
     def remove_permissions(self, request, pk=None):
         environment = self.get_object()
-        if request.user == environment.owner:
+        if request.user == environment.owner or request.user.is_superuser:
             user_id = int(request.data['user_id'])
             editor_group_name = f'{str(environment.id)}_environment_editors'
             viewer_group_name = f'{str(environment.id)}_environment_viewers'
@@ -241,7 +241,7 @@ class Projects(mixins.DestroyModelMixin,
         project_editors = Group.objects.get(name=f'{project.id}_project_editors')
         project_viewers = Group.objects.get(name=f'{project.id}_project_viewers')
         environment_viewers = Group.objects.get(name=f'{project.environment.id}_environment_viewers')
-        if request.user == project.owner:
+        if request.user == project.owner or request.user.is_superuser or request.user == project.environment.owner:
             user_id = int(request.data['user_id'])
             permissions = set(request.data['permissions'])
             user = User.objects.get(id=user_id)
@@ -277,7 +277,7 @@ class Projects(mixins.DestroyModelMixin,
         project_voters = Group.objects.get(name=f'{project.id}_project_voters')
         project_editors = Group.objects.get(name=f'{project.id}_project_editors')
         project_viewers = Group.objects.get(name=f'{project.id}_project_viewers')
-        if request.user == project.owner:
+        if request.user == project.owner or request.user.is_superuser or request.user == project.environment.owner:
             user_id = int(request.data['user_id'])
             permissions = set(request.data['permissions'])
             user = User.objects.get(id=user_id)
@@ -384,7 +384,6 @@ def edit_profile(request):
             if User.objects.filter(email=new_email).exists() and user.email != new_email:
                 return render(request, 'pznsi/logged/accounts/EditUserProfile.html',
                               {'error': 'Podany email jest już używany przez innego użytkownika'})
-            print(new_password)
             if is_valid(new_password):
                 password_change = True
                 db_user.set_password(new_password)
@@ -566,6 +565,8 @@ def save_environment(request):
         else:
             cover_url = None
         return JsonResponse({"result": 1,
+                             'envi_id': environment.id,
+                             'envi_name': environment.environment_name,
                              'cover_image': cover_url})
     else:
         raise Http404
@@ -695,8 +696,9 @@ def PermEnviroment(request):
         environment_id = int(request.POST.get('environment_id'))
         environment = Environment.objects.get(id=environment_id)
         permitted_users = get_users_with_perms(environment, attach_perms=True)
-        excluded_ids = [user.id for user in permitted_users.keys()]
-        excluded_ids.append(get_anonymous_user().id)
+        # excluded_ids = [user.id for user in permitted_users.keys()]
+        # excluded_ids.append(get_anonymous_user().id)
+        excluded_ids = [get_anonymous_user().id, environment.owner.id]
         permitted_users.pop(environment.owner, None)
         users = User.objects.all().exclude(id__in=excluded_ids)
         context = {
@@ -714,8 +716,9 @@ def permProject(request):
         project_id = int(request.POST.get('project_id'))
         project = Project.objects.get(id=project_id)
         permitted_users = get_users_with_perms(project, attach_perms=True)
-        excluded_ids = [user.id for user in permitted_users.keys()]
-        excluded_ids.append(get_anonymous_user().id)
+        # excluded_ids = [user.id for user in permitted_users.keys()]
+        excluded_ids = [project.owner.id, get_anonymous_user().id, project.environment.owner.id]
+        # excluded_ids.append(get_anonymous_user().id)
         permitted_users.pop(project.owner, None)
         permitted_users.pop(project.environment.owner, None)
         users = User.objects.all().exclude(id__in=excluded_ids)

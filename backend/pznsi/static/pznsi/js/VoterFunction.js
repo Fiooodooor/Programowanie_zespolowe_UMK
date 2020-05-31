@@ -922,7 +922,9 @@ function addPermEnvi() {
     });
 
 
-    $('.addPermEnvi').on('click', function () {
+    $('.addPermEnvi').on('click', function (event1) {
+            event1.stopPropagation();
+            event1.stopImmediatePropagation();
             arr = [];
             if ($('#permAddEnvi').is(':checked'))
                 arr.push('edit_environment_instance');
@@ -954,8 +956,8 @@ function addPermEnvi() {
                     });
                 });
             }
-
-            ZmianaTrybuPracy();
+            else
+                ZmianaTrybuPracy();
         }
     );
     $('.deletePermEnvi').on('click', function () {
@@ -1964,6 +1966,8 @@ function SendForm(id, nameEnvi) {
                         backgroundurl = "/static/pznsi/images/back1.jpg";
                     else
                         backgroundurl = result['cover_image'];
+                    WybraneSrodowisko=result['envi_id'];
+                    selectedEnvi=result['envi_name']
                     trybPracy = 2;
                     ZmianaTrybuPracy();
                 } else bootbox.alert({
