@@ -922,7 +922,9 @@ function addPermEnvi() {
     });
 
 
-    $('.addPermEnvi').on('click', function () {
+    $('.addPermEnvi').on('click', function (event1) {
+            event1.stopPropagation();
+            event1.stopImmediatePropagation();
             arr = [];
             if ($('#permAddEnvi').is(':checked'))
                 arr.push('edit_environment_instance');
@@ -954,8 +956,8 @@ function addPermEnvi() {
                     });
                 });
             }
-
-            ZmianaTrybuPracy();
+            else
+                ZmianaTrybuPracy();
         }
     );
     $('.deletePermEnvi').on('click', function () {

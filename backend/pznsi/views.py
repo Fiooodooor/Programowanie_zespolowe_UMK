@@ -241,7 +241,7 @@ class Projects(mixins.DestroyModelMixin,
         project_editors = Group.objects.get(name=f'{project.id}_project_editors')
         project_viewers = Group.objects.get(name=f'{project.id}_project_viewers')
         environment_viewers = Group.objects.get(name=f'{project.environment.id}_environment_viewers')
-        if request.user == project.owner or request.user.is_superuser:
+        if request.user == project.owner or request.user.is_superuser or request.user == project.environment.owner:
             user_id = int(request.data['user_id'])
             permissions = set(request.data['permissions'])
             user = User.objects.get(id=user_id)
@@ -277,7 +277,7 @@ class Projects(mixins.DestroyModelMixin,
         project_voters = Group.objects.get(name=f'{project.id}_project_voters')
         project_editors = Group.objects.get(name=f'{project.id}_project_editors')
         project_viewers = Group.objects.get(name=f'{project.id}_project_viewers')
-        if request.user == project.owner or request.user.is_superuser:
+        if request.user == project.owner or request.user.is_superuser or request.user == project.environment.owner:
             user_id = int(request.data['user_id'])
             permissions = set(request.data['permissions'])
             user = User.objects.get(id=user_id)
